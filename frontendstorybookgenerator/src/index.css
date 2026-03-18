@@ -67,3 +67,30 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));   
+
+@theme {
+  /* ── DARK THEME ── 🌙 */
+  --color-dark-text: #E5E7EB;
+  --color-dark-bg: #1D283A;
+  --color-dark-primary: #2E73EA;
+  --color-dark-primary-10: #2E73EA1A;
+  --color-dark-primary-30: #2E73EA33;
+  --color-dark-secondary: #F5DEB2;
+  --color-dark-accent: #F59F0A;
+
+  /* ── LIGHT THEME ── ☀️ */
+  --color-light-text: #14161A;
+  --color-light-outline: #3E4043;
+  --color-light-outline-secondary: #3E404380;
+  --color-light-bg: #C5D0E2;
+  --color-light-primary: #155AD1;
+  --color-light-on-primary: #EBEBEB;
+  --color-light-secondary: #4D350A;
+  --color-light-on-secondary: #EBEBEB;
+  --color-light-accent: #F59F0A;
+  --color-light-on-accent: #EEEEEE;
+}
