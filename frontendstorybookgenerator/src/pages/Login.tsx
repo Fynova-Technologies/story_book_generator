@@ -3,6 +3,8 @@ import LoginImage from "../assets/images/ImageInLoginPage.webp";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
+import PasswordInput from "../components/InputField/PasswordInput";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,10 +18,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-light-bg dark:bg-dark-bg">
+    <div className="flex min-h-screen w-full bg-light-on-primary dark:bg-dark-bg ">
 
       {/* ── LEFT SIDE — Illustration ── */}
-      <div className="hidden lg:flex lg:w-[48%] xl:w-[52%] relative overflow-hidden rounded-r-3xl">
+      <div className="hidden lg:flex lg:w-[48%] xl:w-[52%] relative overflow-hidden rounded-3xl m-3">
         <img
           src={LoginImage}
           alt="Storybook illustration"
@@ -28,20 +30,22 @@ const Login = () => {
       </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-14 xl:px-20">
+      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-14 xl:px-20 rounded-3xl my-3">
 
         {/* Top Bar */}
         <div className="flex items-center justify-between pt-8 pb-6">
+          <Link to='/'>
           <button className="flex items-center gap-2 text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors text-sm font-medium">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Back home
           </button>
+          </Link>
 
           {/* Logo */}
           <span
-            className="text-2xl text-light-text dark:text-dark-text"
+            className="text-2xl text-light-text dark:text-dark-text items-center"
             style={{ fontFamily: "'Pacifico', cursive" }}
           >
             Logo
@@ -79,39 +83,10 @@ const Login = () => {
                 showAsterisk={true}
             />
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-light-text dark:text-dark-text">
-                Password<span className="text-light-accent dark:text-dark-accent">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder=""
-                  required
-                  className="w-full px-4 py-3 rounded-lg bg-light-on-primary dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all text-sm pr-11"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-light-outline-secondary dark:text-dark-text hover:text-light-text dark:hover:text-dark-primary transition-colors"
-                >
-                  {showPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
+            <PasswordInput
+              type="password"
+              placeholder = "Enter your password"
+            />
 
             {/* Remember me + Forgot password */}
             <div className="flex items-center justify-between">
