@@ -14,8 +14,6 @@ const Login = () => {
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
   const [rememberMe, setRememberMe] = useState(false)
-  // const [email,setEmail] = useState(null)
- 
 
    const handleLogin: SubmitHandler<FormData> = (data) => {
     console.log(data); // fully typed!
