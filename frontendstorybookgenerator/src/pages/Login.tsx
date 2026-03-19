@@ -1,5 +1,5 @@
 import { useState } from "react";
-import LoginImage from "../assets/images/ImageInLoginPage.webp";
+import LoginImage from "../assets/images/ImageinLoginPage.png";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
