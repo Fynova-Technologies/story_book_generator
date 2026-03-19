@@ -5,20 +5,25 @@ import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import PasswordInput from "../components/InputField/PasswordInput";
 import { Link } from "react-router-dom";
+import { useForm,SubmitHandler } from "react-hook-form";
+
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+   type FormData = {
+      email: string;
+      password:string;
+    };
+  const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
+  const [rememberMe, setRememberMe] = useState(false)
+  // const [email,setEmail] = useState(null)
+ 
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ email, password, rememberMe });
+   const handleLogin: SubmitHandler<FormData> = (data) => {
+    console.log(data); // fully typed!
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-light-on-primary dark:bg-dark-bg ">
+    <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
       <div className="hidden lg:flex lg:w-[48%] xl:w-[52%] relative overflow-hidden rounded-3xl m-3">
@@ -67,69 +72,60 @@ const Login = () => {
               Enter your email and password to access your account
             </p>
           </div>
-
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
-
-            {/* Email */}
-
-            <InputField
+          <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
+             <InputField
                 label="Email"
                 type="email"
-                value={email}
-                onChange={(e: any) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                required={true}
-                showAsterisk={true}
-            />
+                error={errors.email?.message}
+                {...register("email", {
+                  required: "Email is required",
+                  validate: {
+                    matchPattern: (value) =>
+                      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
+                      "Email address must be a valid address",
+                  },
+                })}
+              />
 
-            <PasswordInput
-              type="password"
-              placeholder = "Enter your password"
-            />
+              {/* Password */}
+              <InputField
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                error={errors.password?.message}
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 8, message: "At least 8 characters" },
+                })}
+              />
+              {/* Remember me + Forgot password */}
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={() => setRememberMe(prev=>!prev)}
+                            className="w-4 h-3 border-4 rounded-2xl"
+                          />
+                        </div>
+                        <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
+                      </label>
 
-            {/* Remember me + Forgot password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
-                    rememberMe
-                      ? "bg-light-primary dark:bg-dark-primary border-light-primary dark:border-dark-primary"
-                      : "bg-transparent border-light-outline dark:border-dark-text"
-                  }`}>
-                    {rememberMe && (
-                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
-              </label>
-
-              <button
-                type="button"
-                className="text-sm text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors"
-              >
-                Forgot password?
-              </button>
-            </div>
-
-            {/* Log in Button */}
-
-            <Button
-                type = "submit"
-                name = "Log in"
-            /> 
-            
-            <GoogleButton/>
-          </form>
+                      <div
+                        className="text-sm text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+                      >
+                        Forgot password?
+                      </div>
+                    </div>
+                    <Button
+                        type = "submit"
+                        name = "Log in"
+                        disabled={isSubmitting}
+                    /> 
+                    <GoogleButton/>
+            </form>
 
           {/* Sign Up Link */}
           <p className="text-center text-sm text-light-outline dark:text-dark-text mt-6">

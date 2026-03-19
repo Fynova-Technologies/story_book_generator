@@ -1,40 +1,32 @@
-import { useState } from "react";
+import { useId, useState  } from "react";
+import React from "react";
 
-const PasswordInput = ({
+const PasswordInput = React.forwardRef(function({
   label = "Password",
-  value,
-  onChange,
   placeholder = "",
-  required = false,
-  showAsterisk = false,
-  disabled = false,
   error,
-}: any) => {
+}: any,ref:any)  {
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const id = useId();
   return (
     <div className="space-y-1.5">
 
       {/* Label */}
-      <label className="text-sm font-medium text-light-text dark:text-dark-text">
+      <label htmlFor={id} className="text-sm font-medium text-light-text dark:text-dark-text">
         {label}
-        {showAsterisk && (
-          <span className="text-light-accent dark:text-dark-accent">*</span>
-        )}
+          <span className="text-light-text dark:text-dark-text">*</span>
       </label>
 
       {/* Input Wrapper */}
       <div className="relative">
         <input
           type={showPassword ? "text" : "password"}
-          value={value}
-          onChange={onChange}
           placeholder={placeholder}
-          required={required}
-          disabled={disabled}
+          ref={ref}
+          id={id}
           className={`w-full px-4 py-3 rounded-lg
-            bg-light-outline-secondary dark:bg-dark-primary-10
+            bg-light-on-primary dark:bg-dark-primary-10
             border text-light-text dark:text-dark-text
             placeholder:text-light-outline-secondary
             focus:outline-none focus:ring-2 focus:ring-dark-primary-10
@@ -76,6 +68,6 @@ const PasswordInput = ({
 
     </div>
   );
-};
+});
 
 export default PasswordInput;
