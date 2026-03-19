@@ -7,8 +7,9 @@ import { Link } from "react-router-dom";
 import { useForm,SubmitHandler } from "react-hook-form";
 
 
-const Login = () => {
+const Signup = () => {
    type FormData = {
+      name:string;
       email: string;
       password:string;
     };
@@ -38,15 +39,6 @@ const Login = () => {
 
         {/* Top Bar */}
         <div className="flex items-center justify-between pt-8 pb-6">
-          <Link to='/'>
-          <button className="flex items-center gap-2 text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors text-sm font-medium">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Back home
-          </button>
-          </Link>
-
           {/* Logo */}
           <span
             className="text-2xl text-light-text dark:text-dark-text items-center"
@@ -57,7 +49,7 @@ const Login = () => {
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-[480px] w-full mx-auto">
+        <div className="flex-1 flex flex-col justify-center max-w-120 w-full mx-auto">
 
           {/* Heading */}
           <div className="mb-8">
@@ -72,6 +64,16 @@ const Login = () => {
             </p>
           </div>
           <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
+             <InputField
+                label="Name"
+                type="text"
+                placeholder="Enter your fullname"
+                error={errors.name?.message}
+                {...register("name", {
+                  required: "Email is required",
+                })}
+              />
+            {/* Email */}
              <InputField
                 label="Email"
                 type="email"
@@ -150,4 +152,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
