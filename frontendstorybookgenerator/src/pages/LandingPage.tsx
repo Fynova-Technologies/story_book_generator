@@ -1,17 +1,16 @@
 import React from 'react'
 import HeroImage from '../assets/images/heroImg.png'
+import HeroSection from '../section/HeroSection'
+import HowItWorks from '../section/HowItWorks'
 
 function LandingPage() {
   return (
-   <div
-      className='w-full bg-cover bg-center bg-no-repeat'
-      style={{
-        backgroundImage: `url(${HeroImage})`,
-        aspectRatio: 'auto',        // keeps original ratio
-        backgroundSize: 'cover',  // shows full image
-        height: '100vh'             // or use natural image height
-      }}
-    >
+    <div>
+      <HeroSection/>
+      <div className='bg-light-bg dark:bg-dark-bg p-10'>
+
+      <HowItWorks/>
+      </div>
     </div>
   )
 }
