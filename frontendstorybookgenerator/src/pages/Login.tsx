@@ -27,7 +27,7 @@ const Login = () => {
         <img
           src={LoginImage}
           alt="Storybook illustration"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
 

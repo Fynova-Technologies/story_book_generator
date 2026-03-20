@@ -1,14 +1,18 @@
 import './App.css'
 import Signup from './pages/Signup'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Outlet } from 'react-router-dom'
+import HeroSection from './section/HeroSection'
 
 function App() {
+  
 
   return (
-    <BrowserRouter>
-    {/* <Navbar/> */}
-      <Signup/>
-    </BrowserRouter>
+   <div>
+      {/* <main>
+        <Outlet/>
+      </main> */}
+      <HeroSection/>
+   </div>
     
   )
 }

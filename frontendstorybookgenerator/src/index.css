@@ -72,6 +72,10 @@ button:focus-visible {
 @variant dark (&:where(.dark, .dark *));   
 
 @theme {
+  /* font */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
   /* ── DARK THEME ── 🌙 */
   --color-dark-text: #E5E7EB;
   --color-dark-bg: #1D283A;
