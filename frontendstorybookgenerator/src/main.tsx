@@ -6,12 +6,13 @@ import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import LandingPage from './pages/LandingPage.tsx'
 import Login from './pages/Login.tsx'
 import Signup from './pages/Signup.tsx'
+import Page404 from './pages/Page404.tsx'
 
 const router = createBrowserRouter([
-  {
-    path:'/',
-    element:<App/>,
-    children:[
+      {
+        path:'/',
+        element:<App/>,
+      },
       {
         path:'/',
         element:<LandingPage/>
@@ -23,9 +24,13 @@ const router = createBrowserRouter([
       {
         path:'/login',
         element:<Login/>
+      },
+      {
+        path:'*',
+        element:<Page404/>
       }
-    ]
-  }
+
+
 ])
 
 createRoot(document.getElementById('root')!).render(

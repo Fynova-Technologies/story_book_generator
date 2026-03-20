@@ -4,6 +4,7 @@ import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import { useForm,SubmitHandler } from "react-hook-form";
+import { Link } from "react-router";
 
 
 const Signup = () => {
@@ -130,12 +131,12 @@ const Signup = () => {
           {/* Sign Up Link */}
           <p className="text-center text-sm text-light-outline dark:text-dark-text mt-6">
            Already have an account?{" "}
-            <a
-              href="/signup"
+            <Link
+              to='/login'
               className="text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
             >
               Log in
-            </a>
+            </Link>
           </p>
         </div>
 

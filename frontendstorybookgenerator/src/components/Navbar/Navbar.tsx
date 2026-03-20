@@ -10,19 +10,15 @@ const navLinks = [
   { name: "Contact", path: "/contact" },
 ];
 
-const Navbar = () => {
+const Navbar = ({
+  page404 = false,
+}:any) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav
-      className="fixed top-7 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl rounded-4xl"
-      style={{
-        background: "rgba(10, 15, 30, 0.45)",
-        backdropFilter: "blur(5px)",
-        WebkitBackdropFilter: "blur(5px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}
->
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl rounded-4xl ${page404?"":"glass-dark"} `}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
 
@@ -39,7 +35,8 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className="font-body px-3 py-1.5 text-sm text-white hover:text-white transition-colors duration-200 rounded-md hover:bg-white/10"
+                className={`font-body font-bold px-3 py-1.5 text-sm ${page404?"text-light-text hover:bg-gray-400 transition-colors duration-200 rounded-md"
+                  :"text-white hover:text-white transition-colors duration-200 rounded-md hover:bg-white/10"}`}
               >
                 {link.name}
               </Link>
@@ -50,14 +47,14 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/signup"
-              className="text-sm text-white hover:text-white transition-colors duration-200 px-3 py-1.5"
+              className={`font-body font-bold text-sm ${page404?"text-black hover:bg-gray-400 rounded transition-colors duration-200":"text-white"} hover:text-white transition-colors duration-200 px-3 py-1.5`}
             >
               Sign up
             </Link>
 
             <Link
               to="/start"
-              className="text-sm font-semibold text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg"
+              className={`font-body font-bold text-sm ${page404?"hover:bg-gray-600 transition-all ease-in":""} text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg`}
               style={{ background: "#FFFFFF" }}
             >
               Start now
@@ -109,13 +106,13 @@ const Navbar = () => {
           <div className="flex gap-3 mt-3 pt-3 border-t border-white/10">
             <Link
               to="/signup"
-              className="flex-1 text-center text-sm text-white/80 border border-white/20 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="flex-1 font-body font-bold text-center text-sm text-red-500 border-white/20 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
             >
               Sign up
             </Link>
             <Link
               to="/start"
-              className="flex-1 text-center text-sm font-semibold text-dark-bg bg-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
+              className="flex-1 font-body text-center text-sm font-semibold text-dark-bg bg-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
             >
               Start now
             </Link>

@@ -74,12 +74,12 @@ const HowItWorks = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-base font-semibold text-light-text dark:text-dark-text font-display">
+                    <h3 className="font-body text-lg font-bold text-light-text dark:text-dark-text font-display">
                     {step.title}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-sm text-light-outline dark:text-dark-text leading-relaxed font-body">
+                    <p className="font-body text-md text-light-outline dark:text-dark-text leading-relaxed">
                     {step.description}
                     </p>
 

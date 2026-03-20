@@ -10,12 +10,9 @@ function App() {
 
   return (
    <div>
-      {/* <main>
-        <Outlet/>
-      </main> */}
-      {/* <HeroSection/> */}
-      {/* <HowItWorks/> */}
+    <main>
       <LandingPage/>
+    </main>
    </div>
     
   )
