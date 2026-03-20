@@ -15,21 +15,20 @@ const Navbar = () => {
 
   return (
     <nav
-      className="fixed top-7 left-0 w-full z-50"
+      className="fixed top-7 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl rounded-4xl"
       style={{
         background: "rgba(10, 15, 30, 0.45)",
-        backdropFilter: "blur(0px)",
-        WebkitBackdropFilter: "blur(14px)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(5px)",
+        WebkitBackdropFilter: "blur(5px)",
+        border: "1px solid rgba(255,255,255,0.08)",
       }}
-    >
+>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
 
           {/* ── LOGO ── */}
           <div
-            className="flex items-center gap-2 text-white font-bold text-lg tracking-tight"
-            style={{ fontFamily: "'Pacifico', cursive" }}
+            className="font-hading flex items-center gap-2 text-white font-bold text-lg tracking-tight"
           >
             Logo
           </div>
@@ -40,7 +39,7 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className="px-3 py-1.5 text-sm text-white/80 hover:text-white transition-colors duration-200 rounded-md hover:bg-white/10"
+                className="font-body px-3 py-1.5 text-sm text-white hover:text-white transition-colors duration-200 rounded-md hover:bg-white/10"
               >
                 {link.name}
               </Link>
@@ -49,15 +48,13 @@ const Navbar = () => {
 
           {/* ── RIGHT BUTTONS (Desktop) ── */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Sign up — ghost */}
             <Link
               to="/signup"
-              className="text-sm text-white/80 hover:text-white transition-colors duration-200 px-3 py-1.5"
+              className="text-sm text-white hover:text-white transition-colors duration-200 px-3 py-1.5"
             >
               Sign up
             </Link>
 
-            {/* Start now — filled */}
             <Link
               to="/start"
               className="text-sm font-semibold text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg"

@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar/Navbar";
 const HeroSection = () => {
   return (
     <section className="relative w-full h-screen overflow-hidden bg-light-bg dark:bg-dark-bg">
+        <Navbar/>
 
       {/* ── BACKGROUND IMAGE (right side) ── */}
       <div className="absolute inset-0">
