@@ -1,5 +1,3 @@
-import React from 'react'
-import HeroImage from '../assets/images/heroImg.png'
 import HeroSection from '../section/HeroSection'
 import HowItWorks from '../section/HowItWorks'
 

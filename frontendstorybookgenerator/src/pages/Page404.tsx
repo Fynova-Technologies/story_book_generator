@@ -1,4 +1,3 @@
-import React from 'react'
 import Navbar from '../components/Navbar/Navbar'
 import { Link } from 'react-router-dom'
 import NotFoundImage from '../assets/images/image404.png'
