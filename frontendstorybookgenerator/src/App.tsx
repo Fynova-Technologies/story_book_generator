@@ -1,5 +1,6 @@
 import './App.css'
 import LandingPage from './pages/LandingPage'
+import FeatureSection from './section/FeatureSection'
 
 function App() {
   
@@ -8,6 +9,7 @@ function App() {
    <div>
     <main>
       <LandingPage/>
+
     </main>
    </div>
     

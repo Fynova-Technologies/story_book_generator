@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage.tsx'
 import Login from './pages/Login.tsx'
 import Signup from './pages/Signup.tsx'
 import Page404 from './pages/Page404.tsx'
+import FeatureSection from './section/FeatureSection.tsx'
 
 const router = createBrowserRouter([
       {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path:'/login',
         element:<Login/>
+      },
+      {
+        path:'/featuresection',
+        element:<FeatureSection/>
       },
       {
         path:'*',

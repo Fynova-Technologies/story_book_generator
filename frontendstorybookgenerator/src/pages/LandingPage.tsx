@@ -1,3 +1,4 @@
+import FeatureSection from '../section/FeatureSection'
 import HeroSection from '../section/HeroSection'
 import HowItWorks from '../section/HowItWorks'
 
@@ -9,6 +10,9 @@ function LandingPage() {
 
       <HowItWorks/>
       </div>
+      {/* <div>
+        <FeatureSection/>
+      </div> */}
     </div>
   )
 }
