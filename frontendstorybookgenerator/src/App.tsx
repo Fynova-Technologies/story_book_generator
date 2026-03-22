@@ -1,6 +1,5 @@
 import './App.css'
 import LandingPage from './pages/LandingPage'
-import FeatureSection from './section/FeatureSection'
 
 function App() {
   
