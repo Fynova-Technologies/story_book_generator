@@ -8,6 +8,8 @@ import Login from './pages/Login.tsx'
 import Signup from './pages/Signup.tsx'
 import Page404 from './pages/Page404.tsx'
 import FeatureSection from './section/FeatureSection.tsx'
+import ReviewSection from './section/ReviewSection.tsx'
+import HowItWorks from './section/HowItWorks.tsx'
 
 const router = createBrowserRouter([
       {
@@ -27,8 +29,16 @@ const router = createBrowserRouter([
         element:<Login/>
       },
       {
+        path:'/how-it-works',
+        element:<HowItWorks/>
+      },
+      {
         path:'/featuresection',
         element:<FeatureSection/>
+      },
+      {
+        path:'/reviewsection',
+        element:<ReviewSection/>
       },
       {
         path:'*',
