@@ -10,6 +10,8 @@ import Page404 from './pages/Page404.tsx'
 import FeatureSection from './section/FeatureSection.tsx'
 import ReviewSection from './section/ReviewSection.tsx'
 import HowItWorks from './section/HowItWorks.tsx'
+import AdventureSection from './section/AdventureSection.tsx'
+import PricingPage from './pages/PricingPage.tsx'
 
 const router = createBrowserRouter([
       {
@@ -39,6 +41,14 @@ const router = createBrowserRouter([
       {
         path:'/reviewsection',
         element:<ReviewSection/>
+      },
+      {
+        path:'/adventuresection',
+        element:<AdventureSection/>
+      },
+      {
+        path:'/pricingpage',
+        element:<PricingPage/>
       },
       {
         path:'*',
