@@ -7,11 +7,9 @@ import LandingPage from './pages/LandingPage.tsx'
 import Login from './pages/Login.tsx'
 import Signup from './pages/Signup.tsx'
 import Page404 from './pages/Page404.tsx'
-import FeatureSection from './section/FeatureSection.tsx'
-import ReviewSection from './section/ReviewSection.tsx'
 import HowItWorks from './section/HowItWorks.tsx'
-import AdventureSection from './section/AdventureSection.tsx'
 import PricingPage from './pages/PricingPage.tsx'
+import ContactusPage from './pages/ContactusPage.tsx'
 
 const router = createBrowserRouter([
       {
@@ -34,21 +32,14 @@ const router = createBrowserRouter([
         path:'/how-it-works',
         element:<HowItWorks/>
       },
-      {
-        path:'/featuresection',
-        element:<FeatureSection/>
-      },
-      {
-        path:'/reviewsection',
-        element:<ReviewSection/>
-      },
-      {
-        path:'/adventuresection',
-        element:<AdventureSection/>
-      },
+      
       {
         path:'/pricingpage',
         element:<PricingPage/>
+      },
+      {
+        path:'/contact',
+        element:<ContactusPage/>
       },
       {
         path:'*',
