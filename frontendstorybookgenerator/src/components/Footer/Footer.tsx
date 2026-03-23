@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import instagramIcon from "../../assets/icons/SocialMedia/Instagram.png";
 import facebookIcon from "../../assets/icons/SocialMedia/Facebook.png";
 import twitterIcon from "../../assets/icons/SocialMedia/Twitter.png";
-import linkedInIcon from "../../assets/icons/SocialMedia/LinkedIn.png";
+import linkedInIcon from "../../assets/icons/SocialMedia/Linkedin.png";
 import youTubeIcon from "../../assets/icons/SocialMedia/Youtube.png";
 
 const navLinks = [
