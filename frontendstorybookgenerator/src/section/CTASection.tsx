@@ -1,5 +1,4 @@
 import CTABgImage from "../assets/images/CTAbg.png"
-import CTAButton from "../components/Button/CTAButton";
 
 const CTASection = () => {
   return (
