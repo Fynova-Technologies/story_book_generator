@@ -1,15 +1,16 @@
 import Navbar from '../components/Navbar/Navbar'
 import { Link } from 'react-router-dom'
 import NotFoundImage from '../assets/images/image404.png'
+import Footer from '../components/Footer/Footer'
 
 function Page404() {
   return (
-    <div>
+    <div className='bg-light-bg'>
         <div>
-        <Navbar page404={true} />
+        <Navbar bglight={true} />
         </div>
       <div className="grid place-items-center min-h-screen">
-        <div className="border border-black p-4">
+        <div className="p-0">
         <div>
             <h1
                 className='font-heading text-4xl font-bold text-center mb-4'
@@ -35,6 +36,7 @@ function Page404() {
         </div>
         </div>
       </div>
+      <Footer/>
     </div>
   )
 }
