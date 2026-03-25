@@ -1,4 +1,3 @@
-import React from 'react'
 import storyimg1 from "../../assets/images/storyimg1.png"
 import draft from "../../assets/icons/Dashboard/Draft.png"
 import DraftCard from '../../components/DraftCard/DraftCard';

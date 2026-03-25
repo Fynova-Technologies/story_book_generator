@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "How it Works",
-    path: "/how-it-works",
+    path: "/dashboard/videosection",
     icon:user
   },
 ];
