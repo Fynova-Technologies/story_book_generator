@@ -10,6 +10,8 @@ import Page404 from './pages/Page404.tsx'
 import HowItWorks from './section/HowItWorks.tsx'
 import PricingPage from './pages/PricingPage.tsx'
 import ContactusPage from './pages/ContactusPage.tsx'
+import DashboardLayout from './layouts/DashboardLayout.tsx'
+import Dashboard from './pages/Dashboard.tsx'
 
 const router = createBrowserRouter([
       {
@@ -40,6 +42,16 @@ const router = createBrowserRouter([
       {
         path:'/contact',
         element:<ContactusPage/>
+      },
+      {
+        path:'/dashboard',
+        element:<DashboardLayout/>,
+        children:[
+          {
+            path:"/dashboard",
+            element:<Dashboard/>
+          }
+        ]
       },
       {
         path:'*',
