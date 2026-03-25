@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "My Collection",
-    path: "/collection",
+    path: "/dashboard/collection",
     icon: heart
   },
   {

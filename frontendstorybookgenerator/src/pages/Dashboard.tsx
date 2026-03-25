@@ -1,56 +1,10 @@
-import { useState } from "react";
 import CTABgImage from "../assets/images/CTAbg.png"
-import DraftCard from "../components/DraftCard/DraftCard";
-import StoryCard from "../components/StoryCard/StoryCard";
-import avatar from "../assets/images/sampleavatar.png"
-import storyimg1 from "../assets/images/storyimg1.png"
-import draft from "../assets/icons/Dashboard/Draft.png"
-import completed from "../assets/icons/Dashboard/Completed.png"
+import DraftSection from "../section/Dashboard/DraftSection";
+import CompletedSection from "../section/Dashboard/CompletedSection";
 
-
-
-type FilterTab = "All" | "Favorites" | "Shared";
-
-const FILTER_TABS: FilterTab[] = ["All", "Favorites", "Shared"];
-
-const drafts= [
-  {
-    id: 1,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    editedAt: "2 hours ago",
-  },
-];
-const storiesData = [
-  {
-    id: 1,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 2,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 3,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-]
 
 
 const Dashboard = () => {
-    const [activeTab, setActiveTab] = useState<FilterTab>("All");
   return (
    <div className=" min-h-screen bg-light-bg dark:bg-dark-bg overflow-y-auto">
       <div className="w-full px-6 md:px-8 py-8 space-y-8">
@@ -135,94 +89,10 @@ const Dashboard = () => {
         </div>
 
         {/*  Your Drafts  */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <img src={draft} alt="drafts" className="w-4 h-4" />
-              <h2 className="font-display text-base font-bold text-light-text dark:text-dark-text">
-                Your Drafts
-              </h2>
-            </div>
-            <button className="font-body flex items-center gap-1 text-sm text-light-primary dark:text-dark-primary font-medium hover:underline underline-offset-2 transition-all">
-              View all →
-            </button>
-          </div>
-
-          {/* ✅ Same width cards using grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-
-            {/* Draft Cards */}
-            {drafts.map((item) => (
-              <DraftCard
-                key={item.id}
-                image={item.image}
-                title={item.title}
-                authorAvatar={avatar}
-                editedAt={item.editedAt}
-              />
-            ))}
-
-            {/* New Draft Card — same size as DraftCard */}
-            <div className="rounded-xl border-2 border-dashed border-light-outline-secondary dark:border-dark-primary-30 bg-light-on-primary/50 dark:bg-dark-primary-10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-light-primary dark:hover:border-dark-primary hover:bg-dark-primary-10 transition-all group aspect-[3/4]">
-              <div className="w-10 h-10 rounded-full bg-dark-primary-10 flex items-center justify-center group-hover:bg-light-primary/20 transition-colors">
-                <span className="text-light-primary dark:text-dark-primary text-2xl font-light leading-none">+</span>
-              </div>
-              <p className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-                New Draft
-              </p>
-              <p className="font-body text-[11px] text-light-outline dark:text-dark-text text-center px-3 leading-snug">
-                Start a fresh adventure from scratch
-              </p>
-            </div>
-
-          </div>
-        </section>
+        <DraftSection/>
 
         {/*Completed Stories */}
-         <section className="pb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <img src={completed} alt="completed" className="w-4 h-4" />
-              <h2 className="font-display text-base font-bold text-light-text dark:text-dark-text">
-                Completed Stories
-              </h2>
-            </div>
-
-            {/* Filter tabs */}
-            <div className="flex items-center gap-1 bg-dark-text dark:bg-dark-primary-10 border-light-outline-secondary
-             dark:border-dark-primary-30 rounded-2xl p-1">
-              {FILTER_TABS.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`font-body text-xs font-medium px-3 py-1 rounded-2xl transition-all
-                    ${activeTab === tab
-                      ? "bg-light-on-primary dark:bg-dark-bg text-light-primary dark:text-dark-text shadow-sm"
-                      : "text-light-outline dark:text-dark-text hover:text-light-text dark:hover:text-dark-primary"
-                    }
-                  `}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ✅ Same width as draft cards using same grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-            {storiesData.map((story) => (
-              <StoryCard
-                key={story.id}
-                image={story.image}
-                title={story.title}
-                description={story.description}
-                author={story.author}
-                authorAvatar={avatar}
-              />
-            ))}
-          </div>
-
-        </section>
+         <CompletedSection/>
 
 
       </div>

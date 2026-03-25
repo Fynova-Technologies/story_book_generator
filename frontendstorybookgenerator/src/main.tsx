@@ -12,6 +12,7 @@ import PricingPage from './pages/PricingPage.tsx'
 import ContactusPage from './pages/ContactusPage.tsx'
 import DashboardLayout from './layouts/DashboardLayout.tsx'
 import Dashboard from './pages/Dashboard.tsx'
+import Collection from './pages/Collection.tsx'
 
 const router = createBrowserRouter([
       {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
           {
             path:"/dashboard",
             element:<Dashboard/>
+          },
+          {
+            path:'/dashboard/collection',
+            element:<Collection/>
           }
         ]
       },
