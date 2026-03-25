@@ -13,6 +13,7 @@ import ContactusPage from './pages/ContactusPage.tsx'
 import DashboardLayout from './layouts/DashboardLayout.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Collection from './pages/Collection.tsx'
+import VideoSection from './section/Dashboard/VideoSection.tsx'
 
 const router = createBrowserRouter([
       {
@@ -55,7 +56,11 @@ const router = createBrowserRouter([
           {
             path:'/dashboard/collection',
             element:<Collection/>
-          }
+          },
+          {
+            path:'/dashboard/videosection',
+            element:<VideoSection/>
+          },
         ]
       },
       {
