@@ -14,6 +14,7 @@ import DashboardLayout from './layouts/DashboardLayout.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Collection from './pages/Collection.tsx'
 import VideoSection from './section/Dashboard/VideoSection.tsx'
+import SampleGallery from './pages/SampleGallery.tsx'
 
 const router = createBrowserRouter([
       {
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
           {
             path:'/dashboard/videosection',
             element:<VideoSection/>
+          },
+          {
+            path:'/dashboard/sample-gallery',
+            element:<SampleGallery/>
           },
         ]
       },
