@@ -1,26 +1,17 @@
-// 📁 src/components/StoryCard/StoryCard.tsx
 
-interface StoryCardProps {
+interface DraftCardProps {
   image: string;
   title: string;
-  description: string;
-  author: string;
   authorAvatar?: string;
-  onViewStory?: () => void;
-  onLike?: () => void;
-  isLiked?: boolean;
+  editedAt:string
 }
 
-const StoryCard = ({
+const DraftCard = ({
   image,
   title,
-  description,
-  author,
   authorAvatar,
-  onViewStory,
-  onLike,
-  isLiked = false,
-}: StoryCardProps) => {
+  editedAt
+}: DraftCardProps) => {
   return (
     <div className="flex flex-col bg-light-on-primary dark:bg-dark-bg rounded-2xl overflow-hidden 
     shadow-2xl hover:shadow-md transition-all duration-300 p-3">
@@ -31,28 +22,8 @@ const StoryCard = ({
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-fill object-center transition-transform duration-500 hover:scale-105"
+          className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
         />
-
-        {/* ── LIKE BUTTON ── */}
-        <button
-          onClick={onLike}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-dark-bg/80 flex items-center justify-center hover:scale-110 transition-all duration-200 backdrop-blur-sm"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={isLiked ? "#E53E3E" : "none"}
-            stroke={isLiked ? "#E53E3E" : "currentColor"}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-light-outline dark:text-dark-text"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-        </button>
 
       </div>
 
@@ -64,11 +35,6 @@ const StoryCard = ({
           {title}
         </h3>
 
-        {/* Description */}
-        <p className="font-body text-xs text-light-outline dark:text-dark-text leading-relaxed flex-1">
-          {description}
-        </p>
-
         {/* ── FOOTER — Author + Button ── */}
         <div className="flex items-center justify-between mt-2 pt-3 border-t border-light-outline-secondary dark:border-dark-primary-30">
 
@@ -79,7 +45,7 @@ const StoryCard = ({
               {authorAvatar ? (
                 <img
                   src={authorAvatar}
-                  alt={author}
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -90,18 +56,18 @@ const StoryCard = ({
               )}
             </div>
             <span className="font-body text-xs text-light-outline dark:text-dark-text">
-              {author}
+              {editedAt}
             </span>
           </div>
 
           {/* View Story Button */}
           <button
-            onClick={onViewStory}
+            // onClick={onViewStory}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-light-bg dark:bg-dark-primary-10
              border-light-outline-secondary dark:border-dark-primary-30 text-xs font-body font-medium text-light-text
               dark:text-dark-text hover:bg-light-primary hover:text-light-on-primary dark:hover:bg-dark-primary dark:hover:text-dark-text transition-all duration-200"
           >
-            View Story
+            Continue
             <svg
               width="12"
               height="12"
@@ -122,4 +88,4 @@ const StoryCard = ({
   );
 };
 
-export default StoryCard;
+export default DraftCard;
