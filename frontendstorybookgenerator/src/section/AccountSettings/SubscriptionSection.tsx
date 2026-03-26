@@ -1,5 +1,3 @@
-// 📁 src/pages/AccountSettings/sections/SubscriptionBilling.tsx
-
 import { useState } from "react";
 
 const billingHistory = [

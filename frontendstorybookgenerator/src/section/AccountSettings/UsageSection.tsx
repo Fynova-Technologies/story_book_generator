@@ -1,5 +1,3 @@
-// 📁 src/pages/AccountSettings/sections/UsageDetails.tsx
-
 const UsageSection = () => {
   const storiesUsed = 1;
   const storiesTotal = 2;

@@ -1,5 +1,3 @@
-// 📁 src/pages/AccountSettings/sections/NotificationPreferences.tsx
-
 import { useState } from "react";
 
 const notifications = [
