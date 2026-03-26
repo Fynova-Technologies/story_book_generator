@@ -14,6 +14,8 @@ import DashboardLayout from './layouts/DashboardLayout.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Collection from './pages/Collection.tsx'
 import VideoSection from './section/Dashboard/VideoSection.tsx'
+import AccountNav from './components/AccountNav/AccountNav.tsx'
+import AccountSettings from './pages/AccountSettings.tsx'
 
 const router = createBrowserRouter([
       {
@@ -62,6 +64,10 @@ const router = createBrowserRouter([
             element:<VideoSection/>
           },
         ]
+      },
+      {
+        path:'/account',
+        element:<AccountSettings/>
       },
       {
         path:'*',
