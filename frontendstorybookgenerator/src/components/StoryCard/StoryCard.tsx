@@ -31,7 +31,7 @@ const StoryCard = ({
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
+          className="w-full h-full object-fill object-center transition-transform duration-500 hover:scale-105"
         />
 
         {/* ── LIKE BUTTON ── */}

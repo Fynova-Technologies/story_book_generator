@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "Sample Gallery",
-    path: "/gallery",
+    path: "/dashboard/sample-gallery",
     icon: user
   },
   {
