@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard.tsx'
 import Collection from './pages/Collection.tsx'
 import VideoSection from './section/Dashboard/VideoSection.tsx'
 import SampleGallery from './pages/SampleGallery.tsx'
+import AccountSettings from './pages/AccountSettings.tsx'
 
 const router = createBrowserRouter([
       {
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
             element:<SampleGallery/>
           },
         ]
+      },
+      {
+        path:'/account',
+        element:<AccountSettings/>
       },
       {
         path:'*',

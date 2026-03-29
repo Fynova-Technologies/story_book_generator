@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink,Link } from "react-router-dom";
 import bookImg from "../../assets/icons/Sidebar/book.png"
 import dashboardImg from "../../assets/icons/Sidebar/Dashboard.png"
 import heart from "../../assets/icons/Sidebar/Heart.png"
@@ -116,9 +116,9 @@ const Sidebar = () => {
           <p className="text-[10px] text-[#9E9587] truncate">sarah@example.com</p>
         </div>
         <button className="text-[#9E9587] hover:text-[#5C5449] transition-colors flex-shrink-0">
-          <div className="w-4 h-4 rounded-full">
-            <img src={setting} alt="S" />
-          </div>
+          <Link to="/account" className="w-4 h-4 rounded-full">
+            <img src={setting} alt="S" className="w-4 h-4"/>
+          </Link>
         </button>
       </div>
     </aside>
