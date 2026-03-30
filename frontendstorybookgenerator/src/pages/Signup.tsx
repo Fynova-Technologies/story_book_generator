@@ -4,7 +4,9 @@ import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import { useForm,SubmitHandler } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { login } from "../store/authSlice";
 
 
 const Signup = () => {
@@ -17,9 +19,18 @@ const Signup = () => {
   const [rememberMe, setRememberMe] = useState(false)
   // const [email,setEmail] = useState(null)
  
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
    const handleLogin: SubmitHandler<FormData> = (data) => {
     console.log(data); // fully typed!
+      try {
+        dispatch(login({userData:{name:data.name,email:data.email}}));
+        navigate("/dashboard");
+      } catch (error) {
+        console.log("Login error");
+        
+      }
+
   };
 
   return (

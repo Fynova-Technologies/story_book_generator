@@ -6,12 +6,17 @@ import NotificationSection from "../section/AccountSettings/NotificationSection"
 import UsageSection from "../section/AccountSettings/UsageSection";
 import SubscriptionSection from "../section/AccountSettings/SubscriptionSection";
 import userAvatar from "../assets/images/sampleavatar.png"
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../store/authSlice";
 
 
 type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";
 
 const AccountSettings = () => {
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const renderSection = () => {
     switch (activeSection) {
@@ -107,6 +112,8 @@ const AccountSettings = () => {
             activeSection={activeSection}
             onSectionChange={(id: Section) => {
               if (id === "logout") {
+                dispatch(logout())
+                navigate("/")
                 console.log("Logout clicked")
                 return
               }
