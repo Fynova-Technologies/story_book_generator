@@ -1,58 +1,103 @@
+import { useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
-import Anime from "../../assets/images/artstyle/anime.png"
 
-const ArtStyleSection = () => {
-  const data = [
-    { title: "Anime", description: "Japanese animation style",image:Anime },
-    { title: "Realistic", description: "Highly detailed visuals",image:Anime },
-    { title: "3D Render", description: "Modern 3D design",image:Anime },
-    { title: "Pixel Art", description: "Retro game style",image:Anime },
-    {
-    title: "Cartoon",
-    description: "Bright colors and simplified shapes for fun, playful visuals.",
-    image:Anime
-    },
-    {
-    title: "Fantasy",
-    description: "Magical worlds with mythical creatures and imaginative environments.",
-    image:Anime
-    },
-    {
-    title: "Minimalist",
-    description: "Clean and simple design with fewer details and lots of space.",
-    image:Anime
-    }
-  ];
+
+// import watercolorImg   from "../../assets/images/artStyles/watercolor.png"
+// import clay3dImg       from "../../assets/images/artStyles/clay3d.png"
+// import animeImg        from "../../assets/images/artStyles/anime.png"
+// import storyBookImg    from "../../assets/images/artStyles/storybook.png"
+// import cinematicImg    from "../../assets/images/artStyles/cinematic.png"
+import anime from "../../assets/images/artstyle/anime.png"
+
+const artStyles = [
+  {
+    id: "watercolor",
+    name: "Watercolor",
+    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    image: anime, // 👉 replace with: watercolorImg
+  },
+  {
+    id: "clay3d",
+    name: "3D Clay",
+    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    image: anime, // 👉 replace with: clay3dImg
+  },
+  {
+    id: "anime",
+    name: "Anime",
+    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    image: anime, // 👉 replace with: animeImg
+  },
+  {
+    id: "storybook",
+    name: "Storybook",
+    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+   image: anime, // 👉 replace with: storyBookImg
+  },
+  {
+    id: "cinematic",
+    name: "Cinematic",
+    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    image: anime, // 👉 replace with: cinematicImg
+  },
+];
+
+const ArtStyleSection = ({ onArtStyleSelect }: any) => {
+
+  // ✅ Selected art style stored in state
+  const [selectedArtStyle, setSelectedArtStyle] = useState<string | null>(null);
+
+  const handleSelect = (styleId: string, styleName: string) => {
+    // ✅ Store selected art style
+    setSelectedArtStyle(styleId);
+
+    // ✅ Pass to parent if needed
+    onArtStyleSelect?.(styleName);
+
+    console.log("Selected art style:", styleName);
+  };
 
   return (
-    <div className="bg-light-on-primary rounded-3xl p-10">
-      
-      {/* Container */}
-      <div className="max-w-7xl mx-auto px-2">
+    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
 
-        {/* Heading */}
-        <div className="flex flex-col items-center">
-        <h2 className="font-heading text-light-text text-3xl font-bold mb-2">
-            Choose Art Styles
+      {/* ── HEADING ── */}
+      <div className="text-center mb-8">
+        <h2 className="font-heading text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
+          Choose Art Style
         </h2>
-        <p className="text-light-text mb-6">
-            Select the visual style for your storybook illustrations
+        <p className="font-body text-sm text-light-outline dark:text-dark-text">
+          Select the visual style for your storybook illustrations.
         </p>
-        </div>
-
-        {/* Cards Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 ">
-          {data.map((item, index) => (
-            <ArtStyleCard
-              key={index}
-              title={item.title}
-              description={item.description}
-              image={item.image}
-            />
-          ))}
-        </div>
-
       </div>
+
+      {/* ✅ Selected art style display */}
+      {selectedArtStyle && (
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
+              {artStyles.find((s) => s.id === selectedArtStyle)?.name} selected
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ── ART STYLE GRID ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {artStyles.map((style) => (
+          <ArtStyleCard
+            key={style.id}
+            name={style.name}
+            description={style.description}
+            image={style.image}
+            isSelected={selectedArtStyle === style.id}
+            onSelect={() => handleSelect(style.id, style.name)}
+          />
+        ))}
+      </div>
+
     </div>
   );
 };
