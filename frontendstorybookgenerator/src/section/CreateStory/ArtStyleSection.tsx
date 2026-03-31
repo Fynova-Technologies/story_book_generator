@@ -2,7 +2,7 @@ import { useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
 
 import watercolorImg from "../../assets/images/artstyle/Watercolor.png"
-import animeImg from "../../assets/images/artstyle/Anime.png"
+import animeImg from "../../assets/images/artstyle/anime.png"
 import clay3dImg from "../../assets/images/artstyle/3D.png"
 import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
 import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
