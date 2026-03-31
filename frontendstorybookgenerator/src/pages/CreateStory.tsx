@@ -6,6 +6,7 @@ import CustomQuestionnaireSection from "../section/CreateStory/CustomQuestionnai
 import ArtStyleSection from "../section/CreateStory/ArtStyleSection";
 import VoiceNarrationSection from "../section/CreateStory/VoiceNarrationSection";
 import GenerateStorySection from "../section/CreateStory/GenerateStorySection";
+import TemplateSelection from "../section/CreateStory/TemplateSelection";
 
 // ✅ Steps defined in order
 const STEPS = [
@@ -51,7 +52,7 @@ const CreateStory = () => {
 
   const renderSection = () => {
     switch (activeSection) {
-      case "templete":       return <UploadPhotoSection />;
+      case "templete":       return <TemplateSelection />;
       case "photo":          return <UploadPhotoSection />;
       case "questionnaire":  return <CustomQuestionnaireSection />;
       case "art":            return <ArtStyleSection />;

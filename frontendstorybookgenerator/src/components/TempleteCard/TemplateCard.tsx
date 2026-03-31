@@ -4,10 +4,13 @@ const TemplateCard = ({
   image,
   title,
   description,
-  likes = "2.4k",
-  views = "10k",
+  likes = "",
+  views = "",
   onUseTemplate,
   onLike,
+  isSelected,
+  onClick,
+
 }: any) => {
   const [isLiked, setIsLiked] = useState(false);
 
@@ -17,8 +20,10 @@ const TemplateCard = ({
   };
 
   return (
-    <div className="flex flex-col p-3 bg-light-on-primary dark:bg-dark-bg rounded-3xl overflow-hidden  border-light-outline-secondary
-     dark:border-dark-primary-30 hover:shadow-lg hover:scale-[1.02] transition-all duration-300">
+    <div 
+    onClick={onClick}
+    className={`flex flex-col p-3 ${likes===""?"bg-light-bg":"bg-light-on-primary"}  dark:bg-dark-bg rounded-3xl overflow-hidden  border-light-outline-secondary
+     dark:border-dark-primary-30 hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
 
       {/* ── IMAGE ── */}
       <div className="relative w-full aspect-4/3 overflow-hidden rounded-2xl">
@@ -30,8 +35,17 @@ const TemplateCard = ({
           />
         ) : null
          }
+         {/* ✅ Selected checkmark badge */}
+        {isSelected && (
+          <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-light-primary dark:bg-dark-primary flex items-center justify-center shadow-md">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        )}
 
         {/* ── Heart Like Button ── */}
+        {likes &&(
         <button
           onClick={handleLike}
           className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 dark:bg-dark-bg/80 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-all duration-200"
@@ -50,6 +64,7 @@ const TemplateCard = ({
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>
+        )}
       </div>
 
       {/* ── CONTENT ── */}
@@ -61,7 +76,7 @@ const TemplateCard = ({
         </h4>
 
         {/* Description */}
-        <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 leading-relaxed flex-1">
+        <p className="font-body text-xs text-light-outline dark:text-dark-text leading-relaxed flex-1">
           {description}
         </p>
 
@@ -69,6 +84,7 @@ const TemplateCard = ({
         <div className="flex items-center justify-between mt-2 pt-3 border-t border-light-outline-secondary dark:border-dark-primary-30">
 
           {/* Stats */}
+          {likes && (
           <div className="flex items-center gap-3">
             {/* Likes */}
             <div className="flex items-center gap-1">
@@ -87,8 +103,10 @@ const TemplateCard = ({
               <span className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">{views}</span>
             </div>
           </div>
+          )}
 
           {/* Use Template Button */}
+          {likes && (
           <button
             onClick={onUseTemplate}
             className="flex items-center gap-1.5 px-1 py-1.5 rounded-full border border-light-primary
@@ -101,7 +119,7 @@ const TemplateCard = ({
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </button>
-
+      )}
         </div>
       </div>
     </div>

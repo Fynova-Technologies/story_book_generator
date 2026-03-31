@@ -37,7 +37,7 @@ const Signup = () => {
     <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
-        <div className="hidden lg:block lg:w-[48%] xl:w-[52%] relative rounded-3xl m-3 overflow-hidden">
+        <div className="hidden lg:block lg:w-[40%] xl:w-[40%] relative rounded-3xl m-3 overflow-hidden">
         <img
             src={LoginImage}
             alt="Storybook illustration"
@@ -46,10 +46,10 @@ const Signup = () => {
         </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-14 xl:px-20 rounded-3xl my-3 mx-0">
+      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-center pt-8 pb-6">
+        <div className="flex items-center justify-center pt-3 pb-6">
           {/* Logo */}
           <span
             className="text-2xl text-light-text dark:text-dark-text items-center"
@@ -65,12 +65,12 @@ const Signup = () => {
           {/* Heading */}
           <div className="items-center mb-8 mx-auto">
             <h1
-              className="text-4xl font-bold text-light-text dark:text-dark-text mb-2"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="font-heading text-4xl font-bold text-light-text dark:text-dark-text mb-2"
+
             >
               Create an Account
             </h1>
-            <p className="text-light-outline dark:text-dark-text text-sm">
+            <p className="text-bodytext-light-outline dark:text-dark-text text-sm">
               Enter your email and password to access your account
             </p>
           </div>

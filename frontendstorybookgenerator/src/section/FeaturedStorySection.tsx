@@ -2,6 +2,7 @@ import FeaturedStoryCard from "../components/FeaturedStoryCard/FeaturedStoryCard
 
 // 👉 Import your story images here
 import story1 from "../assets/images/storyimg1.png"
+import { useNavigate } from "react-router";
 
 
 
@@ -89,6 +90,7 @@ const storiesData = [
 ];
 
 const FeaturedStoriesSection = () => {
+  const navigate = useNavigate();
   return (
     <section
       data-bg="light"
@@ -111,7 +113,7 @@ const FeaturedStoriesSection = () => {
 
           {/* Right — Create your own button */}
           <button
-            onClick={() => console.log("Create your own clicked")}
+            onClick={() => navigate("/login")}
             className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200 flex-shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

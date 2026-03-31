@@ -1,44 +1,43 @@
 import { useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
 
+import watercolorImg from "../../assets/images/artstyle/Watercolor.png"
+import animeImg from "../../assets/images/artstyle/Anime.png"
+import clay3dImg from "../../assets/images/artstyle/3D.png"
+import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
+import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
 
-// import watercolorImg   from "../../assets/images/artStyles/watercolor.png"
-// import clay3dImg       from "../../assets/images/artStyles/clay3d.png"
-// import animeImg        from "../../assets/images/artStyles/anime.png"
-// import storyBookImg    from "../../assets/images/artStyles/storybook.png"
-// import cinematicImg    from "../../assets/images/artStyles/cinematic.png"
-import anime from "../../assets/images/artstyle/anime.png"
 
 const artStyles = [
   {
     id: "watercolor",
     name: "Watercolor",
     description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
-    image: anime, // 👉 replace with: watercolorImg
+    image: watercolorImg, 
   },
   {
     id: "clay3d",
-    name: "3D Clay",
+    name: "3D",
     description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
-    image: anime, // 👉 replace with: clay3dImg
+    image: clay3dImg, 
   },
   {
     id: "anime",
     name: "Anime",
     description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
-    image: anime, // 👉 replace with: animeImg
+    image: animeImg, 
   },
   {
-    id: "storybook",
-    name: "Storybook",
+    id: "ghibli",
+    name: "Ghibli",
     description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
-   image: anime, // 👉 replace with: storyBookImg
+   image: ghibliImg, 
   },
   {
-    id: "cinematic",
-    name: "Cinematic",
+    id: "photorealistic",
+    name: "Photorealistic",
     description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
-    image: anime, // 👉 replace with: cinematicImg
+    image: photorealisticImg,
   },
 ];
 

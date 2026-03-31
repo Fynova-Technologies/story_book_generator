@@ -4,12 +4,12 @@
 // import Logo from "../../assets/logo/logo.svg"
 
 const steps = [
-  { id: "templete", label: "Select Template" },
-  { id: "photo", label: "Upload Photo" },
-  { id: "questionnaire", label: "Questionnaire" },
-  { id: "art", label: "Art Style Selection" },
-  { id: "voice", label: "Voice Narration" },
-  { id: "generate", label: "Generate" },
+  { SN:1,id: "templete", label: "Select Template" },
+  { SN:2,id: "photo", label: "Upload Photo" },
+  { SN:3,id: "questionnaire", label: "Questionnaire" },
+  { SN:4,id: "art", label: "Art Style Selection" },
+  { SN:5,id: "voice", label: "Voice Narration" },
+  { SN:6,id: "generate", label: "Generate" },
 ];
 
 const StoryStepperNav = ({
@@ -39,7 +39,7 @@ const StoryStepperNav = ({
               <span className="shrink-0">
                 {/* <img src={step.icon} alt="" className="w-4 h-4"/> */}
               </span>
-              <span className="font-body text-xs font-bold">{step.label}</span>
+              <span className="font-body text-xs font-bold">{step.SN}. {step.label}</span>
             </button>
 
             

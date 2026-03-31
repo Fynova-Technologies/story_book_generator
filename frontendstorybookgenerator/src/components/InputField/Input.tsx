@@ -32,11 +32,11 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         <div className="relative">
         <input
           {...rest}
-          type={type}
+          type={showPassword?"text":type}
           placeholder={placeholder}
           ref={ref}
           id={id}
-          className={`w-full px-4 py-3 rounded-lg 
+          className={`w-full px-4 py-2 rounded-lg 
             bg-light-on-primary dark:bg-dark-primary-10 
             border text-light-text dark:text-dark-text 
             placeholder:text-light-outline-secondary 
