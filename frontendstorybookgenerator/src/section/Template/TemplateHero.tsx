@@ -26,10 +26,10 @@ const TemplateHero = ({ onSearch }: any) => {
       />
      
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* ── CONTENT ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-16 gap-5">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-30 pb-5 gap-5">
 
         {/* Top badge */}
         <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">

@@ -23,6 +23,7 @@ import FeatureSection from './section/FeatureSection.tsx'
 import { Provider } from 'react-redux'
 import { store } from './store/store.ts'
 import AuthLayout from './components/AuthLayout/AuthLayout.tsx'
+import FeaturedStoryPage from './pages/FeaturedStoryPage.tsx'
 
 const router = createBrowserRouter([
       {
@@ -91,6 +92,14 @@ const router = createBrowserRouter([
         <ContactusPage/>
         </AuthLayout>
 
+        )
+      },
+      {
+        path:'/stories',
+        element:(
+          <AuthLayout authentication={false}>
+            <FeaturedStoryPage/>
+          </AuthLayout>
         )
       },
       {

@@ -21,7 +21,7 @@ const TemplateCard = ({
      dark:border-dark-primary-30 hover:shadow-lg hover:scale-[1.02] transition-all duration-300">
 
       {/* ── IMAGE ── */}
-      <div className="relative w-full aspect-video overflow-hidden rounded-2xl">
+      <div className="relative w-full aspect-4/3 overflow-hidden rounded-2xl">
         {image ? (
           <img
             src={image}

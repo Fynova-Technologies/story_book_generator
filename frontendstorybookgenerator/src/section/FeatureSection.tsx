@@ -4,6 +4,7 @@ import Story1 from "../assets/images/storyimg1.png";
 import Story2 from "../assets/images/storyimg2.png";
 import Story3 from "../assets/images/storyimg3.png";
 import Story4 from "../assets/images/storyimg4.png";
+import { useNavigate } from "react-router-dom";
 
 const storiesData = [
   {
@@ -41,6 +42,7 @@ const storiesData = [
 ];
 
 const FeatureSection = () => {
+  const navigate = useNavigate();
   const [likedCards, setLikedCards] = useState<number[]>([]);
 
   const handleLike = (id: number) => {
@@ -77,7 +79,9 @@ const FeatureSection = () => {
           </div>
 
           {/* Right — View All Button */}
-          <button className="hidden md:flex items-center gap-2 px-6 py-3 rounded-full border border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary font-body font-medium text-sm hover:bg-light-primary hover:text-light-on-primary dark:hover:bg-dark-primary dark:hover:text-dark-text transition-all duration-200 whitespace-nowrap">
+          <button 
+          onClick={()=>navigate("/stories")}
+          className="hidden md:flex items-center gap-2 px-6 py-3 rounded-full border border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary font-body font-medium text-sm hover:bg-light-primary hover:text-light-on-primary dark:hover:bg-dark-primary dark:hover:text-dark-text transition-all duration-200 whitespace-nowrap">
             View All Stories
           </button>
 
