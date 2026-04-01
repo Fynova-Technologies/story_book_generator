@@ -23,6 +23,9 @@ const UploadPhotoSection = () => {
     );
   };
 
+  // console.log(photos);
+  
+
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-2 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
 

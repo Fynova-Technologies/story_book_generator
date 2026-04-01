@@ -14,6 +14,8 @@ import travel from "../../assets/images/templete/Travel.png"
 import retirement from "../../assets/images/templete/Retirement.png"
 import educational from "../../assets/images/templete/Educational.png"
 import gratitude from "../../assets/images/templete/Thankyou.png"
+import { useDispatch } from "react-redux";
+import { setTemplate } from "../../store/slices/storyWizardSlice";
 
 
 
@@ -59,7 +61,7 @@ const templatesData = [
     title: "Long Distance Relations",
     description: "Miles apart, hearts connected. Tell the story of love across continents and time zones.",
     image: longdistance,
-    category: "Long Distance",
+    category: "LongDistance",
     likes: "2.4k",
     views: "10k",
   },
@@ -129,10 +131,12 @@ const templatesData = [
 ];
 
 const TemplateSelection = () => {
+  const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const handleSelect = ( templateCategory: string) => {
     setSelectedTemplate(templateCategory);
+    dispatch(setTemplate(templateCategory));
   }
   console.log(selectedTemplate);
   

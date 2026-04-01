@@ -6,7 +6,7 @@ import GoogleButton from "../components/Button/GoogleButton";
 import { useForm,SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
-import { login } from "../store/authSlice";
+import { login } from "../store/slices/authSlice";
 
 
 const Signup = () => {

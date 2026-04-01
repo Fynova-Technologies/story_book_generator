@@ -7,6 +7,9 @@ import ArtStyleSection from "../section/CreateStory/ArtStyleSection";
 import VoiceNarrationSection from "../section/CreateStory/VoiceNarrationSection";
 import GenerateStorySection from "../section/CreateStory/GenerateStorySection";
 import TemplateSelection from "../section/CreateStory/TemplateSelection";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
 
 // ✅ Steps defined in order
 const STEPS = [
@@ -21,6 +24,7 @@ const STEPS = [
 type Section = "templete" | "photo" | "questionnaire" | "art" | "voice" | "generate";
 
 const CreateStory = () => {
+  const template = useSelector((state: RootState) => state.story.template);
 
   // ✅ Track step using index
   const [currentStepIndex, setCurrentStepIndex] = useState(1); // starts at "photo"
@@ -54,7 +58,9 @@ const CreateStory = () => {
     switch (activeSection) {
       case "templete":       return <TemplateSelection />;
       case "photo":          return <UploadPhotoSection />;
-      case "questionnaire":  return <CustomQuestionnaireSection />;
+      case "questionnaire":  
+          if(template) return <TemplateQuestionnaireSection />;
+          return <CustomQuestionnaireSection />;
       case "art":            return <ArtStyleSection />;
       case "voice":          return <VoiceNarrationSection />;
       case "generate":       return <GenerateStorySection />;

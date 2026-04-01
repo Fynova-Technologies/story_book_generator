@@ -8,7 +8,7 @@ import SubscriptionSection from "../section/AccountSettings/SubscriptionSection"
 import userAvatar from "../assets/images/sampleavatar.png"
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../store/authSlice";
+import { logout } from "../store/slices/authSlice";
 
 
 type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";

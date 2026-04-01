@@ -1,8 +1,14 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+
 
 const CHAR_LIMIT = 500;
 
 const CustomQuestionnaireSection = () => {
+  const selectedTemplate = useSelector((state: RootState) => state.story.template);
+  console.log(selectedTemplate);
+  
   const [story, setStory] = useState("");
 
   const handleChange = (e: any) => {
