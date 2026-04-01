@@ -8,7 +8,7 @@ const ImageUploadCard = ({
 }: any) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const charLimit = 20;
+  const charLimit = 100;
 
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];

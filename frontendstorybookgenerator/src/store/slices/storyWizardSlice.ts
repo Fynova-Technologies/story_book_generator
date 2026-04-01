@@ -1,8 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface StoryImage {
+  image: string | null;
+  description: string;
+}
 interface StoryWizardState {
   template:      string;
-  images:        string[];
+  images:        StoryImage[];
   questionnaire: Record<string, string>;
   artStyle:      string;
   narration:     string;
@@ -23,7 +27,7 @@ const storyWizardSlice = createSlice({
     setTemplate: (state, action: PayloadAction<string>) => { 
         state.template = action.payload; 
     },
-    setImages:(state, action: PayloadAction<string[]>)=> {
+    setImages:(state, action: PayloadAction<StoryImage[]>)=> {
         state.images = action.payload;
     },
     setQuestionnaire: (state, action: PayloadAction<Record<string,string>>) => {
