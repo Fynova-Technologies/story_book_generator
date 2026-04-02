@@ -1,6 +1,6 @@
 // 📁 src/pages/CreateStory/VoiceNarration.tsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const voiceOptions = [
   {
@@ -25,9 +25,16 @@ const voiceOptions = [
   },
 ];
 
-const VoiceNarrationSection = () => {
-  const [isEnabled, setIsEnabled] = useState(true);
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
+const VoiceNarrationSection = ({ onValidChange }: props) => {
+  const [isEnabled, setIsEnabled] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState("storyteller");
+  
+  useEffect(() => {
+    onValidChange(true); // Voice narration is optional, so we consider it valid even if not enabled
+  }, [isEnabled]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8 border-light-outline-secondary dark:border-dark-primary-30">

@@ -1,14 +1,19 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setQuestionnaire } from "../../store/slices/storyWizardSlice";
 
 
 const CHAR_LIMIT = 500;
 
-const CustomQuestionnaireSection = () => {
-  const selectedTemplate = useSelector((state: RootState) => state.story.template);
-  console.log(selectedTemplate);
-  
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
+const CustomQuestionnaireSection = ({
+  onValidChange,
+}:props) => {
+  // const selectedTemplate = useSelector((state: RootState) => state.story.template);
+  // console.log(selectedTemplate);
+  const dispatch = useDispatch();
   const [story, setStory] = useState("");
 
   const handleChange = (e: any) => {
@@ -16,7 +21,17 @@ const CustomQuestionnaireSection = () => {
     if (value.length <= CHAR_LIMIT) {
       setStory(value);
     }
+    onValidChange(value.length > 0);
   };
+ useEffect(() => {
+  if(story.length > 100){
+    dispatch(setQuestionnaire({ story }));
+    onValidChange(true);
+  }else{
+    onValidChange(false);
+  }
+},[story]);
+  
 
   const handleInspireMe = () => {
     const inspirations = [

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TemplateCard from "../../components/TempleteCard/TemplateCard";
 
 // 👉 Import your template images here
@@ -130,15 +130,28 @@ const templatesData = [
   },
 ];
 
-const TemplateSelection = () => {
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
+
+const TemplateSelection = ({
+  onValidChange,
+}:props) => {
   const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const handleSelect = ( templateCategory: string) => {
     setSelectedTemplate(templateCategory);
     dispatch(setTemplate(templateCategory));
-  }
-  console.log(selectedTemplate);
+  };
+  useEffect(() => {
+    // Mark this step as valid when a template is selected
+    
+      onValidChange(selectedTemplate !== null);
+    
+
+},[selectedTemplate]);
+  // console.log(selectedTemplate);
   
 
 

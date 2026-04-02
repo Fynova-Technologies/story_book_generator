@@ -1,10 +1,19 @@
-// 📁 src/pages/CreateStory/GenerateStory.tsx
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const GenerateStorySection = ({ 
     storyData, 
     credits = 12, 
     storyCost = 1 
 }: any) => {
+  const template = useSelector((state: RootState) => state.story.template);
+  const images = useSelector((state: RootState) => state.story.images);
+  const questionnaire = useSelector((state: RootState) => state.story.questionnaire);
+  const artStyle = useSelector((state: RootState) => state.story.artStyle);
+  const narration = useSelector((state: RootState) => state.story.narration);
+
+  console.log(template,images,questionnaire,"artstyle"+artStyle,narration);
+  
   const remaining = credits - storyCost;
 
   const handleGenerate = () => {

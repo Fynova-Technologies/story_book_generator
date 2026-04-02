@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import StoryStepperNav from "../components/StoryStepperNav/StoryStepperNav";
 import UploadPhotoSection from "../section/CreateStory/UploadPhotoSection";
 import userAvatar from "../assets/images/sampleavatar.png"
@@ -24,6 +24,7 @@ const STEPS = [
 type Section = "templete" | "photo" | "questionnaire" | "art" | "voice" | "generate";
 
 const CreateStory = () => {
+  const [isValid, setIsValid] = useState(false);
   const template = useSelector((state: RootState) => state.story.template);
 
   // ✅ Track step using index
@@ -45,8 +46,12 @@ const CreateStory = () => {
   const handleNext = () => {
     if (currentStepIndex < STEPS.length - 1) {
       setCurrentStepIndex((prev) => prev + 1);
+      setIsValid(false); // reset validity for next step
     }
   };
+  const handleStepValidChange = useCallback((valid: boolean) => {
+    setIsValid(valid);
+  }, []);
 
   // ✅ Stepper click — jump to any step
   const handleSectionChange = (id: Section) => {
@@ -56,15 +61,18 @@ const CreateStory = () => {
 
   const renderSection = () => {
     switch (activeSection) {
-      case "templete":       return <TemplateSelection />;
-      case "photo":          return <UploadPhotoSection />;
-      case "questionnaire":  
-          if(template) return <TemplateQuestionnaireSection />;
-          return <CustomQuestionnaireSection />;
-      case "art":            return <ArtStyleSection />;
-      case "voice":          return <VoiceNarrationSection />;
-      case "generate":       return <GenerateStorySection />;
-      default:               return <UploadPhotoSection />;
+      case "templete":       return <TemplateSelection onValidChange={handleStepValidChange} />;
+      case "photo":          return <UploadPhotoSection onValidChange={handleStepValidChange} />;
+      case "questionnaire": 
+
+          if(template) return <TemplateQuestionnaireSection onValidChange={handleStepValidChange} />;
+
+          return <CustomQuestionnaireSection onValidChange={handleStepValidChange} />;
+
+      case "art":            return <ArtStyleSection onValidChange={handleStepValidChange} />;
+      case "voice":          return <VoiceNarrationSection onValidChange={handleStepValidChange} />;
+      case "generate":       return <GenerateStorySection onValidChange={handleStepValidChange} />;
+      default:               return <UploadPhotoSection onValidChange={handleStepValidChange} />;
     }
   };
 
@@ -144,7 +152,9 @@ const CreateStory = () => {
           {currentStepIndex < STEPS.length - 1 ? (
             <button
               onClick={handleNext}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+              disabled={!isValid} // disable Next if current step is not valid
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl ${!isValid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'} bg-light-primary dark:bg-dark-primary text-light-on-primary
+               font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200`}
             >
               Next
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

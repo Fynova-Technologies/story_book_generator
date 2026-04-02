@@ -1,35 +1,57 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { templateQuestions } from "../../Data/templateQuestions";
+import { setQuestionnaire } from "../../store/slices/storyWizardSlice";
 
 
 
 // Default fallback questions
 const defaultQuestions = templateQuestions["templete"];
+const numberOfQuestions = 10; // Set the number of questions to display
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
 
-const TemplateQuestionnaireSection = () => {
+const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
+  const dispatch = useDispatch();
   // ✅ Get selected template from Redux store
   const selectedTemplate = useSelector((state: RootState) => state.story?.template || "templete");
 
   // ✅ Get questions based on selected template
   const questions = templateQuestions[selectedTemplate] || defaultQuestions;
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isFilled, setIsFilled] = useState(false);
 
   // ✅ Store answers
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentProgress, setCurrentProgress] = useState(0);
 
-  const handleAnswerChange = (id: number, value: string) => {
-    const updated = { ...answers, [id]: value };
+  const handleAnswerChange = (question: string, value: string) => {
+    const updated = { ...answers, [question]: value };
     setAnswers(updated);
     const answered = Object.values(updated).filter((v) => v.trim() !== "").length;
-    setCurrentProgress(Math.round((answered / questions.length) * 100));
+    setCurrentProgress(Math.round((answered /numberOfQuestions) * 100));
   };
 
+
+
   const handleSubmit = () => {
-    console.log("Answers submitted:", answers);
+    // console.log("Answers submitted:", answers);
     // 👉 Dispatch to Redux or pass to parent
+    dispatch(setQuestionnaire( answers ));
+    setIsSubmitted(true);
+    // console.log(answers);
+    
+
   };
+ useEffect(() => {
+    // Mark this step as valid when all questions are answered
+    if(Object.values(answers).filter((v) => v.trim() !== "").length === numberOfQuestions){
+      setIsFilled(true);
+    }
+    onValidChange(Object.values(answers).filter((v) => v.trim() !== "").length === numberOfQuestions && isSubmitted);
+  },[answers, questions.length, isSubmitted]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl  border-light-outline-secondary dark:border-dark-primary-30 overflow-hidden flex flex-col"
@@ -80,7 +102,7 @@ const TemplateQuestionnaireSection = () => {
 
       {/* ── SCROLLABLE QUESTIONS AREA ── */}
       <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-6">
-        {questions.slice(0,10).map((q, index) => (
+        {questions.slice(0, numberOfQuestions).map((q, index) => (
           <div key={q.id} className="space-y-2">
 
             {/* Question label */}
@@ -94,8 +116,8 @@ const TemplateQuestionnaireSection = () => {
             {/* Input or Textarea */}
             {q.type === "textarea" ? (
               <textarea
-                value={answers[q.id] || ""}
-                onChange={(e: any) => handleAnswerChange(q.id, e.target.value)}
+                value={answers[q.question] || ""}
+                onChange={(e: any) => handleAnswerChange(q.question, e.target.value)}
                 placeholder={q.placeholder}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all resize-none leading-relaxed"
@@ -103,8 +125,8 @@ const TemplateQuestionnaireSection = () => {
             ) : (
               <input
                 type="text"
-                value={answers[q.id] || ""}
-                onChange={(e: any) => handleAnswerChange(q.id, e.target.value)}
+                value={answers[q.question] || ""}
+                onChange={(e: any) => handleAnswerChange(q.question, e.target.value)}
                 placeholder={q.placeholder}
                 className="w-full px-4 py-3 rounded-xl bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
               />
@@ -117,11 +139,13 @@ const TemplateQuestionnaireSection = () => {
       {/* ── FIXED FOOTER ── */}
       <div className="flex-shrink-0 px-6 md:px-8 py-4 border-t border-light-outline-secondary dark:border-dark-primary-30 flex items-center justify-between bg-light-on-primary dark:bg-dark-bg">
         <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-80">
-          {Object.values(answers).filter((v) => v.trim() !== "").length} of {questions.length} answered
+          {Object.values(answers).filter((v) => v.trim() !== "").length} of {numberOfQuestions} answered
         </p>
         <button
           onClick={handleSubmit}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+          disabled={!isFilled}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl ${isFilled ? 'bg-light-primary dark:bg-dark-primary' : 'bg-light-outline-secondary dark:bg-dark-primary-30'} text-light-on-primary 
+            font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200`}
         >
           Save Answers
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

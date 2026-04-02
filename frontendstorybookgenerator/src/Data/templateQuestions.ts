@@ -265,7 +265,7 @@ export const templateQuestions: Record<string, { id: number; question: string; p
     {id:15, question: "Should the story include any cultural or diverse characters and settings?", placeholder: "e.g. Yes, include characters from different cultural backgrounds and a setting that reflects diversity", type: "text"},
   ],
 
-  ThankuAndGratitude:[
+  Gratitude:[
     {id:1, question: "What is the full name of the person expressing gratitude?", placeholder: "e.g. Sarah Johnson", type: "text"},
     {id:2, question: "Who is the recipient of the gratitude (e.g. a friend, family member, mentor)?", placeholder: "e.g. My best friend, Emily", type: "text"},
     {id:3, question: "What specific actions or qualities of the recipient are you grateful for?", placeholder: "e.g. Always being there for me during tough times", type: "textarea"},

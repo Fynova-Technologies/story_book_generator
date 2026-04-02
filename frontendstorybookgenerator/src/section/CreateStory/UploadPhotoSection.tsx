@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
+import { useDispatch } from "react-redux";
+import { setImages } from "../../store/slices/storyWizardSlice";
 
 const MAX_PHOTOS = 5;
 const MIN_PHOTOS = 5;
 
-const UploadPhotoSection = () => {
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
+const UploadPhotoSection = ({
+  onValidChange,
+}:props) => {
+  const dispatch = useDispatch();
   const [photos, setPhotos] = useState<{ image: string | null; description: string }[]>(
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
   );
@@ -22,6 +30,16 @@ const UploadPhotoSection = () => {
       prev.map((p, i) => (i === index ? { ...p, description } : p))
     );
   };
+
+  // send the data to the store and mark step as valid if minimum photos uploaded
+  useEffect(() => {
+  if(photos.filter(p=>p.image !== null).length >= MIN_PHOTOS){
+    dispatch(setImages(photos));
+    onValidChange(true);
+  }else{
+    onValidChange(false);
+  }
+},[photos]);
 
   // console.log(photos);
   

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
 
 import watercolorImg from "../../assets/images/artstyle/Watercolor.png"
@@ -6,6 +6,8 @@ import animeImg from "../../assets/images/artstyle/anime.png"
 import clay3dImg from "../../assets/images/artstyle/3D.png"
 import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
 import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
+import { useDispatch } from "react-redux";
+import { setArtStyle } from "../../store/slices/storyWizardSlice";
 
 
 const artStyles = [
@@ -40,9 +42,11 @@ const artStyles = [
     image: photorealisticImg,
   },
 ];
-
-const ArtStyleSection = ({ onArtStyleSelect }: any) => {
-
+interface props{
+  onValidChange:(valid:boolean)=>void;
+}
+const ArtStyleSection = ( { onValidChange }: props) => {
+  const dispatch = useDispatch();
   // ✅ Selected art style stored in state
   const [selectedArtStyle, setSelectedArtStyle] = useState<string | null>(null);
 
@@ -51,10 +55,19 @@ const ArtStyleSection = ({ onArtStyleSelect }: any) => {
     setSelectedArtStyle(styleId);
 
     // ✅ Pass to parent if needed
-    onArtStyleSelect?.(styleName);
+    // onArtStyleSelect?.(styleName);
 
     console.log("Selected art style:", styleName);
+    
   };
+  useEffect(() => {
+  if(selectedArtStyle!==null){
+      onValidChange(true);
+      dispatch(setArtStyle(selectedArtStyle));
+    }else{      
+      onValidChange(false);
+    }
+},[selectedArtStyle]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
