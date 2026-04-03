@@ -5,8 +5,10 @@ import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import { useForm,SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
-import { login } from "../store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { login, setError, setLoading } from "../store/slices/authSlice";
+import { signInWithGoogle, signUpWithEmailAndPassword } from "../firebase/authService";
+import { RootState } from "../store/store";
 
 
 const Signup = () => {
@@ -17,20 +19,40 @@ const Signup = () => {
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
   const [rememberMe, setRememberMe] = useState(false)
-  // const [email,setEmail] = useState(null)
+  const loading = useSelector((state:RootState)=>state.auth.loading);
+  const error = useSelector((state:RootState)=>state.auth.error);
  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-   const handleLogin: SubmitHandler<FormData> = (data) => {
-    console.log(data); // fully typed!
-      try {
-        dispatch(login({userData:{name:data.name,email:data.email}}));
-        navigate("/dashboard");
-      } catch (error) {
-        console.log("Login error");
-        
-      }
+  
+  const handleAuthSuccess=(user:any) => {
+    dispatch(login({ userData: {
+      uid:         user.uid,
+      email:       user.email,
+      displayName: user.displayName,
+      photoURL:    user.photoURL,
+    }}));
+    navigate("/dashboard");
+  }
 
+  const handleSignup: SubmitHandler<FormData> = async(data) => {
+     dispatch(setLoading(true));
+      try {
+        const user= await signUpWithEmailAndPassword(data.email,data.password);
+        handleAuthSuccess(user);
+      } catch (error:any) {
+        dispatch(setError(error.message));
+      }
+  };
+
+  const handleGoogleSignup = async() => {
+      dispatch(setLoading(true));
+      try{
+        const user = await signInWithGoogle();
+        handleAuthSuccess(user);
+      }catch(error:any){
+        dispatch(setError(error.message));
+      }
   };
 
   return (
@@ -74,7 +96,7 @@ const Signup = () => {
               Enter your email and password to access your account
             </p>
           </div>
-          <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
+          <form onSubmit={handleSubmit(handleSignup)} className="space-y-5">
              <InputField
                 label="Name"
                 type="text"
@@ -111,6 +133,7 @@ const Signup = () => {
                   minLength: { value: 8, message: "At least 8 characters" },
                 })}
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
               {/* Remember me + Forgot password */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -133,10 +156,13 @@ const Signup = () => {
                     </div>
                     <Button
                         type = "submit"
-                        name = "Register"
-                        disabled={isSubmitting}
+                        name = {`${loading ? "Signing up..." : "Register"}`}
+                        disabled={loading||isSubmitting}
                     /> 
-                    <GoogleButton/>
+                    <GoogleButton
+                    loading={loading}
+                    onClick={handleGoogleSignup}
+                    />
             </form>
 
           {/* Sign Up Link */}
@@ -161,6 +187,8 @@ const Signup = () => {
       </div>
     </div>
   );
+
 };
+
 
 export default Signup;
