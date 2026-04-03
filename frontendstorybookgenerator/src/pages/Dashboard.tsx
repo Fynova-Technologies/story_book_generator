@@ -1,10 +1,36 @@
 import CTABgImage from "../assets/images/CTAbg.png"
 import DraftSection from "../section/Dashboard/DraftSection";
 import CompletedSection from "../section/Dashboard/CompletedSection";
+import { useNavigate } from "react-router";
+// import { useState } from "react";
+// import Collection from "./Collection";
+// import TemplateSection from "../section/Template/TemplateSection";
+// import FeatureSection from "../section/FeatureSection";
+// import VideoSection from "../section/Dashboard/VideoSection";
 
 
-
+// type Section = "Dashboard" | "My Collection" | "Templates" | "Sample Gallery" | "How it Works";
 const Dashboard = () => {
+  const navigate = useNavigate();
+  // const [activeSection, setActiveSection] = useState<Section>("Dashboard");
+
+  // const renderSection = () => {
+  //   switch (activeSection) {
+  //     case "Dashboard":
+  //       return <Dashboard />;
+  //     case "My Collection":
+  //       return <Collection/>;
+  //     case "Templates":
+  //       return <TemplateSection/>;
+  //     case "Sample Gallery":
+  //       return <FeatureSection/>;
+  //     case "How it Works":
+  //       return <VideoSection/>;
+  //     default:
+  //       return <Dashboard />;
+  //   }
+  // };
+
   return (
    <div className=" min-h-screen bg-light-bg dark:bg-dark-bg overflow-y-auto">
       <div className="w-full px-6 md:px-8 py-8 space-y-8">
@@ -80,7 +106,9 @@ const Dashboard = () => {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full flex items-center justify-center gap-2 bg-light-on-primary text-light-primary font-body text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all">
+              <button 
+                onClick={()=>navigate("/create-story")}
+                className="w-full flex items-center justify-center gap-2 bg-light-on-primary text-light-primary font-body text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all">
                 ✦ Create New Story
               </button>
 

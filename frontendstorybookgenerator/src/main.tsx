@@ -7,7 +7,7 @@ import LandingPage from './pages/LandingPage.tsx'
 import Login from './pages/Login.tsx'
 import Signup from './pages/Signup.tsx'
 import Page404 from './pages/Page404.tsx'
-import HowItWorks from './section/HowItWorks.tsx'
+import HowItWorks from './pages/HowItWorks.tsx'
 import PricingPage from './pages/PricingPage.tsx'
 import ContactusPage from './pages/ContactusPage.tsx'
 import DashboardLayout from './layouts/DashboardLayout.tsx'
@@ -16,6 +16,14 @@ import Collection from './pages/Collection.tsx'
 import VideoSection from './section/Dashboard/VideoSection.tsx'
 import SampleGallery from './pages/SampleGallery.tsx'
 import AccountSettings from './pages/AccountSettings.tsx'
+import CreateStory from './pages/CreateStory.tsx'
+import TemplatesPage from './pages/TemplatesPage.tsx'
+import TemplateSection from './section/Template/TemplateSection.tsx'
+import FeatureSection from './section/FeatureSection.tsx'
+import { Provider } from 'react-redux'
+import { store } from './store/store.ts'
+import AuthLayout from './components/AuthLayout/AuthLayout.tsx'
+import FeaturedStoryPage from './pages/FeaturedStoryPage.tsx'
 
 const router = createBrowserRouter([
       {
@@ -28,36 +36,97 @@ const router = createBrowserRouter([
       },
       {
         path:'/signup',
-        element:<Signup/>
+        element:(
+          <AuthLayout authentication={false}>
+            <Signup/>
+          </AuthLayout>
+                
+        )
       },
       {
         path:'/login',
-        element:<Login/>
+        element:(
+          <AuthLayout authentication={false}>
+            <Login/>
+          </AuthLayout>
+        )
       },
       {
         path:'/how-it-works',
-        element:<HowItWorks/>
+        element:(
+          <AuthLayout authentication={false}>
+            <HowItWorks/>
+          </AuthLayout>
+        )
+      },
+      {
+        path:'/templates',
+        element:(
+          <AuthLayout authentication={false}>
+              <TemplatesPage/>
+          </AuthLayout>)              
       },
       
       {
         path:'/pricing',
-        element:<PricingPage/>
+        element:(
+          <AuthLayout authentication={false}>
+        <PricingPage/>
+        </AuthLayout>
+
+        )
+      },
+      {
+        path:'/samples',
+        element:(
+          <AuthLayout authentication={false}>
+            <SampleGallery/>
+          </AuthLayout>
+
+        )
       },
       {
         path:'/contact',
-        element:<ContactusPage/>
+        element:(
+          <AuthLayout authentication={false}>
+        <ContactusPage/>
+        </AuthLayout>
+
+        )
+      },
+      {
+        path:'/stories',
+        element:(
+          <AuthLayout authentication={false}>
+            <FeaturedStoryPage/>
+          </AuthLayout>
+        )
       },
       {
         path:'/dashboard',
-        element:<DashboardLayout/>,
+        element:(
+          <AuthLayout authentication={true}>
+            <DashboardLayout/>
+          </AuthLayout>
+
+        ),
         children:[
           {
-            path:"/dashboard",
-            element:<Dashboard/>
+            path:"/dashboard/",
+            element:(
+              <AuthLayout authentication={true}>
+              <Dashboard/>
+              </AuthLayout>
+
+            )
           },
           {
             path:'/dashboard/collection',
             element:<Collection/>
+          },
+          {
+            path:'/dashboard/templates',
+            element:<TemplateSection/>
           },
           {
             path:'/dashboard/videosection',
@@ -65,13 +134,26 @@ const router = createBrowserRouter([
           },
           {
             path:'/dashboard/sample-gallery',
-            element:<SampleGallery/>
+            element:<FeatureSection/>
           },
         ]
       },
       {
         path:'/account',
-        element:<AccountSettings/>
+        element:(
+          <AuthLayout authentication={true}>
+            <AccountSettings/>
+          </AuthLayout>
+        )
+      },
+      {
+        path:'/create-story',
+        element:(
+          <AuthLayout authentication={true}>
+            <CreateStory/>
+          </AuthLayout>
+
+        )
       },
       {
         path:'*',
@@ -83,6 +165,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <Provider store={store}>
      <RouterProvider router={router}/>
+     </Provider>
   </StrictMode>,
 )

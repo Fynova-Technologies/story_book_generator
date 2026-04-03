@@ -1,4 +1,4 @@
-import { NavLink,Link } from "react-router-dom";
+import { NavLink,Link, useNavigate } from "react-router-dom";
 import bookImg from "../../assets/icons/Sidebar/book.png"
 import dashboardImg from "../../assets/icons/Sidebar/Dashboard.png"
 import heart from "../../assets/icons/Sidebar/Heart.png"
@@ -26,7 +26,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "Templates",
-    path: "/templates",
+    path: "/dashboard/templates",
     icon: templete
   },
   {
@@ -42,6 +42,7 @@ const navItems: NavItem[] = [
 ];
 
 const Sidebar = () => {
+  const navigate = useNavigate()
   return (
     <aside className="fixed top-0 left-0 h-screen w-[300px] bg-light-bg border-r border-[#E2DDD5] flex flex-col z-50">
 
@@ -102,7 +103,9 @@ const Sidebar = () => {
         <p className="font-body text-sm text-light-text mb-3 leading-snug">
           Unlock unlimited stories and magical AI voices.
         </p>
-        <button className="w-full bg-white text-[#4F6AF5] text-xs font-semibold py-2 rounded-lg hover:bg-white/90 transition-colors">
+        <button 
+          onClick={()=>navigate("/pricing")}
+          className="w-full bg-white text-[#4F6AF5] text-xs font-semibold py-2 rounded-lg hover:bg-white/90 transition-colors">
           Upgrade Now
         </button>
       </div>
