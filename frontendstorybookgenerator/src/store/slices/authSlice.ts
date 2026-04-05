@@ -34,12 +34,12 @@ const authSlice = createSlice({
       state.error    = null;
     },
 
-    logout: (state) => {
-      state.status   = false;
-      state.userData = null;
-      state.loading  = false;
-      state.error    = null;
-    },
+    // logout: (state) => {
+    //   state.status   = false;
+    //   state.userData = null;
+    //   state.loading  = false;
+    //   state.error    = null;
+    // },
 
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -49,9 +49,15 @@ const authSlice = createSlice({
       state.error   = action.payload;
       state.loading = false;
     },
+    clearAuth: (state) => {
+      state.status
+      state.userData    = null;
+      state.loading = false;
+      state.error   = null;
+    },
 
   },
 });
 
-export const { login, logout, setLoading, setError } = authSlice.actions;
+export const { login,  setLoading, setError, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

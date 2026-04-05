@@ -52,10 +52,10 @@ const Footer = () => {
       data-bg="dark"
       className="w-full bg-dark-bg"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-8 xl:px-10 py-6">
+      <div className="max-w-8xl mx-auto px-6 md:px-8 xl:px-10 py-10 pb-15">
 
         {/* ── TOP ROW — Logo + Nav Links + Social Icons ── */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-5">
 
           {/* ── Logo ── */}
           <div
@@ -66,7 +66,7 @@ const Footer = () => {
           </div>
 
           {/* ── Nav Links ── */}
-          <div className="flex items-center flex-wrap justify-center gap-6">
+          <div className="flex items-center flex-wrap justify-center gap-10">
             {navLinks.map((link) => (
               <Link
                 key={link.label}

@@ -60,7 +60,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
+    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
       <div className="hidden lg:flex lg:w-[40%] xl:w-[40%] relative overflow-hidden rounded-3xl m-3">
@@ -72,7 +72,7 @@ const Login = () => {
       </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3">
+      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3">
 
         {/* Top Bar */}
         <div className="flex items-center justify-between pt-2 pb-6">
@@ -183,8 +183,8 @@ const Login = () => {
           </div>
 
           {/* Footer */}
-          <div className="text-center py-6">
-            <p className="text-xs text-light-outline-secondary dark:text-dark-text opacity-50">
+          <div className=" py-6">
+            <p className="font-body text-sm text-light-text dark:text-dark-text">
               © 2025 Storyboard
             </p>
           </div>

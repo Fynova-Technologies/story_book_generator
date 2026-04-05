@@ -15,7 +15,7 @@ const TemplateHero = ({ onSearch }: any) => {
   };
 
   return (
-    <div className="relative w-full overflow-hidden  mx-auto" style={{ minHeight: "340px" }}>
+    <div className="relative w-full mx-auto pt-40" style={{ minHeight: "340px" }}>
 
       {/* ── BACKGROUND IMAGE ── */}
       👉 Uncomment when image is ready:
@@ -29,7 +29,7 @@ const TemplateHero = ({ onSearch }: any) => {
       <div className="absolute inset-0 bg-black/60" />
 
       {/* ── CONTENT ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-30 pb-5 gap-5">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-0 pb-0 gap-5">
 
         {/* Top badge */}
         <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
@@ -53,7 +53,7 @@ const TemplateHero = ({ onSearch }: any) => {
         </p>
 
         {/* ── SEARCH BOX ── */}
-        <div className="flex items-center w-full max-w-xl mt-2">
+        <div className="flex items-center w-full max-w-xl mt-2 -mb-7 relative z-20 bg-white rounded-full p-1 shadow-lg">
           <input
             type="text"
             value={searchQuery}
@@ -64,7 +64,7 @@ const TemplateHero = ({ onSearch }: any) => {
           />
           <button
             onClick={handleSearch}
-            className="px-6 py-3.5 rounded-r-full bg-light-primary dark:bg-dark-primary text-white font-body font-bold text-sm hover:opacity-90 transition-all duration-200"
+            className="px-6 py-3.5 rounded-3xl bg-light-primary dark:bg-dark-primary text-white font-body font-bold text-sm hover:opacity-90 transition-all duration-200"
           >
             GO
           </button>

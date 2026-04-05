@@ -8,7 +8,8 @@ import SubscriptionSection from "../section/AccountSettings/SubscriptionSection"
 import userAvatar from "../assets/images/sampleavatar.png"
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../store/slices/authSlice";
+import { clearAuth } from "../store/slices/authSlice";
+import { logout } from "../firebase/authService";
 
 
 type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";
@@ -112,7 +113,8 @@ const AccountSettings = () => {
             activeSection={activeSection}
             onSectionChange={(id: Section) => {
               if (id === "logout") {
-                dispatch(logout())
+                logout();
+                dispatch(clearAuth());
                 navigate("/")
                 console.log("Logout clicked")
                 return

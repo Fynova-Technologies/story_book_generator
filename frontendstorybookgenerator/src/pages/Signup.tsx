@@ -40,6 +40,8 @@ const Signup = () => {
       try {
         const user= await signUpWithEmailAndPassword(data.email,data.password);
         handleAuthSuccess(user);
+        // console.log(user);
+        
       } catch (error:any) {
         dispatch(setError(error.message));
       }
@@ -56,7 +58,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
+    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
         <div className="hidden lg:block lg:w-[40%] xl:w-[40%] relative rounded-3xl m-3 overflow-hidden">
@@ -68,7 +70,7 @@ const Signup = () => {
         </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
+      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
 
         {/* Top Bar */}
         <div className="flex items-center justify-center pt-3 pb-6">
@@ -178,8 +180,8 @@ const Signup = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center py-6">
-          <p className="text-xs text-light-outline-secondary dark:text-dark-text opacity-50">
+        <div className="py-6">
+          <p className="font-body text-sm text-light-text dark:text-dark-text">
             © 2025 Storyboard
           </p>
         </div>
