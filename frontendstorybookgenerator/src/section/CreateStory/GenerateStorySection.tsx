@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import { generateStory } from "../../services/storyService";
 
 const GenerateStorySection = ({ 
     storyData, 
@@ -12,12 +13,22 @@ const GenerateStorySection = ({
   const artStyle = useSelector((state: RootState) => state.story.artStyle);
   const narration = useSelector((state: RootState) => state.story.narration);
 
+  
+
   console.log(template,images,questionnaire,"artstyle"+artStyle,narration);
   
   const remaining = credits - storyCost;
 
-  const handleGenerate = () => {
+  const handleGenerate = async() => {
     console.log("Generating story...");
+    try {
+      const story = await generateStory({ template, questionnaire, artStyle });
+      console.log("Generated Story:", story);
+      console.log(story);
+    } catch (error) {
+      console.error("Error generating story:", error);
+    }
+    
   };
 
   const handleEditDetails = () => {

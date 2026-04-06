@@ -37,7 +37,8 @@ export const signInWithEmail = async (email: string, password: string) => {
 //function to logout a user
 export const logout = async() => {
   try {
-    await auth.signOut();
+    const result = await auth.signOut();
+    return result;
   } catch (error) {
     console.error("Error signing out:", error);
     throw error;
