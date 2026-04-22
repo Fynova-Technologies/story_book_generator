@@ -1,9 +1,10 @@
-
+import { useNavigate } from "react-router-dom";
 import CompletedSection from './CompletedSection'
 import DraftSection from './DraftSection'
 import CTABgImage from "../../assets/images/CTAbg.png";
 
 function DashboardSection() {
+  const navigate = useNavigate();
   return (
     <div>
        <div className=" min-h-screen bg-light-bg dark:bg-dark-bg overflow-y-auto">

@@ -24,7 +24,6 @@ import { Provider } from 'react-redux'
 import { store } from './store/store.ts'
 import AuthLayout from './components/AuthLayout/AuthLayout.tsx'
 import FeaturedStoryPage from './pages/FeaturedStoryPage.tsx'
-import StoryFlipBook from './components/StoryFlipBook/StoryFlipBook.tsx'
 import FlipBookPage from './pages/FlipBookPage.tsx'
 // import { initAuthListener } from './firebase/authService.ts'
 // import { setLoading } from './store/slices/authSlice.ts';
@@ -184,5 +183,5 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
      <RouterProvider router={router}/>
      </Provider>
-  </StrictMode>,
+  </StrictMode>
 )

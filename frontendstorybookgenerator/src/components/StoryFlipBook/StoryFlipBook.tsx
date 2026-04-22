@@ -127,6 +127,7 @@ const StoryFlipBook = ({ story }: Props) => {
         swipeDistance={20}
         showPageCorners={true}
         disableFlipByClick={false}
+        onFlip={onFlip}
       >
 
         {/* Cover Page */}

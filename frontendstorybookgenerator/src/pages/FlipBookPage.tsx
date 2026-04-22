@@ -1,4 +1,3 @@
-import React from 'react'
 import StoryFlipBook from '../components/StoryFlipBook/StoryFlipBook';
 import { useSelector } from 'react-redux';
 
