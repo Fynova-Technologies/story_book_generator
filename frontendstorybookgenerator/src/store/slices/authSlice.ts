@@ -34,12 +34,6 @@ const authSlice = createSlice({
       state.error    = null;
     },
 
-    // logout: (state) => {
-    //   state.status   = false;
-    //   state.userData = null;
-    //   state.loading  = false;
-    //   state.error    = null;
-    // },
 
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;

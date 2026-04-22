@@ -7,6 +7,7 @@ interface StoryImage {
 interface StoryWizardState {
   template:      string;
   images:        StoryImage[];
+  story:         string;
   questionnaire: Record<string, string>;
   artStyle:      string;
   narration:     string;
@@ -15,6 +16,7 @@ interface StoryWizardState {
 const initialState: StoryWizardState = {
   template:      '',
   images:        [],
+  story:         '',
   questionnaire: {},
   artStyle:      '',
   narration:     '',
@@ -29,6 +31,9 @@ const storyWizardSlice = createSlice({
     },
     setImages:(state, action: PayloadAction<StoryImage[]>)=> {
         state.images = action.payload;
+    },
+    setCustomStory:(state, action: PayloadAction<string>) => { 
+        state.story = action.payload; 
     },
     setQuestionnaire: (state, action: PayloadAction<Record<string,string>>) => {
          state.questionnaire = action.payload; 
@@ -46,6 +51,7 @@ const storyWizardSlice = createSlice({
 export const {
   setTemplate,
   setImages,
+  setCustomStory,
   setQuestionnaire,
   setArtStyle,
   setNarration,

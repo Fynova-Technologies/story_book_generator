@@ -1,6 +1,9 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { generateStory } from "../../services/storyService";
+import { useState } from "react";
+import { setGeneratedStory } from "../../store/slices/generatedStorySlice";
+import { useNavigate } from "react-router-dom";
+
 
 const GenerateStorySection = ({ 
     storyData, 
@@ -12,22 +15,58 @@ const GenerateStorySection = ({
   const questionnaire = useSelector((state: RootState) => state.story.questionnaire);
   const artStyle = useSelector((state: RootState) => state.story.artStyle);
   const narration = useSelector((state: RootState) => state.story.narration);
+  const story = useSelector((state: RootState) => state.story.story);
+  // const story1 = useSelector((state:RootState)=>state.generatedStory.story);
 
-  
-
-  console.log(template,images,questionnaire,"artstyle"+artStyle,narration);
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
+  // const [story, setStory] = useState<any>(null);
+  const [loading,setloading]= useState(false);
+ 
   
   const remaining = credits - storyCost;
+  // const [image, setImage]= useState<any>(null)
 
   const handleGenerate = async() => {
-    console.log("Generating story...");
-    try {
-      const story = await generateStory({ template, questionnaire, artStyle });
-      console.log("Generated Story:", story);
-      console.log(story);
-    } catch (error) {
-      console.error("Error generating story:", error);
+  console.log("generating story.....");
+  
+  setloading(true);
+  // const story="Group of school friends enjoying in a picnic ,talking about their past and creating memories";
+  try {
+    const response = await fetch('http://localhost:5000/api/story/generate', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        template,
+        artStyle,
+        narration,
+        images,
+        story,
+        questionnaire,
+        // questionnaire: {
+        //   "Couple names":          "Sarbin and Sangita",
+        //   "How long together":     "8 years",
+        //   "Where they met":        "Computer lab in class 10",
+        //   "Favorite activity":     "Cooking and bike rides",
+        //   "Memorable moment":      "Sangita cooked for family on Maghi",
+        // }
+      })
+    });
+
+    const data = await response.json();
+    console.log(data);
+    
+  if (data.success && data.story) {
+      setloading(false);
+      dispatch(setGeneratedStory(data.story));
+      navigate('/flipbook');
     }
+  }catch (error) {
+   console.error("Failed to generate story:", error);
+  }finally{
+    setloading(false);
+  }
+  
     
   };
 
@@ -39,8 +78,9 @@ const GenerateStorySection = ({
     console.log("Get more credits clicked");
   };
 
+
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
+    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30"> 
 
       {/* ── HEADING ── */}
       <div className="text-center mb-8">
@@ -187,7 +227,7 @@ const GenerateStorySection = ({
                 Includes 12 high-res illustrations
               </p>
             </div>
-            <span className="font-body text-sm font-bold text-light-accent dark:text-dark-accent flex-shrink-0">
+            <span className="font-body text-sm font-bold text-light-accent dark:text-dark-accent shrink-0">
               - {storyCost} Credit
             </span>
           </div>
@@ -208,12 +248,14 @@ const GenerateStorySection = ({
           {/* Generate Button */}
           <button
             onClick={handleGenerate}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-light-primary dark:bg-dark-primary
+             text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            Generate Story
+            {loading?"Generating...": "Generate Story"}
           </button>
 
           {/* Disclaimer */}

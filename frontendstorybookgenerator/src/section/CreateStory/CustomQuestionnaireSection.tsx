@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { setQuestionnaire } from "../../store/slices/storyWizardSlice";
+import { setCustomStory } from "../../store/slices/storyWizardSlice";
 
 
 const CHAR_LIMIT = 500;
@@ -16,6 +16,9 @@ const CustomQuestionnaireSection = ({
   const dispatch = useDispatch();
   const [story, setStory] = useState("");
 
+  // Debounce ref for the dispatch function
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleChange = (e: any) => {
     const value = e.target.value;
     if (value.length <= CHAR_LIMIT) {
@@ -23,14 +26,30 @@ const CustomQuestionnaireSection = ({
     }
     onValidChange(value.length > 0);
   };
+
+  // Debounced dispatch function
+  const debouncedDispatch = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      if(story.length > 100){
+        dispatch(setCustomStory(story));
+        onValidChange(true);
+      }else{
+        onValidChange(false);
+      }
+    }, 500); // 500ms debounce delay
+  }, [story, dispatch, onValidChange]);
+
  useEffect(() => {
-  if(story.length > 100){
-    dispatch(setQuestionnaire({ story }));
-    onValidChange(true);
-  }else{
-    onValidChange(false);
-  }
-},[story]);
+  debouncedDispatch();
+  return () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+  };
+},[story, debouncedDispatch]);
   
 
   const handleInspireMe = () => {

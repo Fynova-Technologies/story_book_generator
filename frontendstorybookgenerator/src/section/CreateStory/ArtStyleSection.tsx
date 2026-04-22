@@ -6,8 +6,9 @@ import animeImg from "../../assets/images/artstyle/anime.png"
 import clay3dImg from "../../assets/images/artstyle/3D.png"
 import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
 import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
-import { useDispatch } from "react-redux";
+import { useDispatch} from "react-redux";
 import { setArtStyle } from "../../store/slices/storyWizardSlice";
+
 
 
 const artStyles = [

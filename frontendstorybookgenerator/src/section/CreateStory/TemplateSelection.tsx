@@ -143,6 +143,8 @@ const TemplateSelection = ({
   const handleSelect = ( templateCategory: string) => {
     setSelectedTemplate(templateCategory);
     dispatch(setTemplate(templateCategory));
+    console.log(selectedTemplate);
+    
   };
   useEffect(() => {
     // Mark this step as valid when a template is selected
