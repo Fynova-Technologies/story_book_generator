@@ -1,7 +1,7 @@
 import express   from 'express';
 import cors      from 'cors';
 import dotenv    from 'dotenv';
-import storyRouter from './routes/story.route.ts';
+import storyRouter from './routes/story.route';
 
 dotenv.config();
 

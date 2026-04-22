@@ -1,6 +1,6 @@
-import { generateStoryText } from '../services/geminiService.ts';
-import { generateImageFromText, transformImage } from '../services/imageService.ts';
-import { generateImagePrompt } from '../services/imagePromptService.ts';
+import { generateStoryText } from '../services/geminiService';
+import { generateImageFromText, transformImage } from '../services/imageService';
+import { generateImagePrompt } from '../services/imagePromptService';
 import pkg from 'express';
 const { Router } = pkg;
 import type { Request, Response } from 'express';

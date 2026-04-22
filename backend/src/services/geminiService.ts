@@ -1,4 +1,4 @@
-import { genAI } from './gemini.ts';
+import { genAI } from './gemini';
 
 export const generateStoryText = async (data: {
   template:      string;
