@@ -3,7 +3,9 @@ import { RootState } from "../../store/store";
 import { useState } from "react";
 import { setGeneratedStory } from "../../store/slices/generatedStorySlice";
 import { useNavigate } from "react-router-dom";
+import dotenv from 'dotenv'
 
+dotenv.config();
 
 const GenerateStorySection = ({ 
     storyData, 
@@ -33,7 +35,7 @@ const GenerateStorySection = ({
   setloading(true);
   // const story="Group of school friends enjoying in a picnic ,talking about their past and creating memories";
   try {
-    const response = await fetch('http://localhost:5000/api/story/generate', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/story/generate`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -54,7 +56,7 @@ const GenerateStorySection = ({
     });
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
     
   if (data.success && data.story) {
       setloading(false);
