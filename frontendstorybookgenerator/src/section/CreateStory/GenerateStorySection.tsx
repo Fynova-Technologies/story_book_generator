@@ -28,12 +28,14 @@ const GenerateStorySection = ({
   // const [image, setImage]= useState<any>(null)
 
   const handleGenerate = async() => {
+  // console.log(import.meta.env.VITE_BACKEND_URL);
+  
   console.log("generating story.....");
   
   setloading(true);
   // const story="Group of school friends enjoying in a picnic ,talking about their past and creating memories";
   try {
-    const response = await fetch(`${import.meta.env.REACT_APP_API_URL}/api/story/generate`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/story/generate`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
