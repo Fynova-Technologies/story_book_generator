@@ -38,6 +38,9 @@ const buildImagePrompt = (text: string, artStyle: string) => {
 
 // ── Generate full story with images ────────────────────────────
 router.post('/generate', async (req: Request, res: Response) => {
+   // set longer timeout
+  req.setTimeout(120000);   // 2 minutes
+  res.setTimeout(120000);
   const { template, questionnaire, artStyle, narration, images, story:storyText } = req.body;
 
   if (!storyText && (!template || !questionnaire)) {
