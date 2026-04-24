@@ -4,7 +4,7 @@ import { generateImagePrompt } from '../services/imagePromptService';
 import pkg from 'express';
 const { Router } = pkg;
 import type { Request, Response } from 'express';
-import { ApiResponse } from '../../utils/ApiResponse';
+import { ApiResponse } from '../utils/ApiResponse';
 
 const router = Router();
 

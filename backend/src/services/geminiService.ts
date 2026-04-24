@@ -1,4 +1,4 @@
-import { ApiError } from '../../utils/ApiError';
+import { ApiError } from '../utils/ApiError';
 import { genAI } from './gemini';
 
 export const generateStoryText = async (data: {
