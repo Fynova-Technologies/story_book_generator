@@ -1,3 +1,4 @@
+import { ApiError } from '../../utils/ApiError';
 import { genAI } from './gemini';
 
 export const generateStoryText = async (data: {
@@ -15,6 +16,7 @@ const prompt = `
 You are a professional storybook author. Write a 6-page personalized story.
 
 Details:
+- Art style: ${data.artStyle}
 - Template: ${data.template}
 - Tone: ${data.narration}
 ${details}
@@ -38,23 +40,34 @@ Return ONLY this JSON no markdown no extra text:
 ]}
   `;
 
-  try {
-    const response = await genAI.models.generateContent({
-      model:    'gemini-2.5-flash',
-      contents: { parts: [{ text: prompt }] },
-      config: {
-        temperature:     0.8,
-        maxOutputTokens: 8500,
+  const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+  let lastError: any = null;
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await genAI.models.generateContent({
+          model:    model,
+          contents: { parts: [{ text: prompt }] },
+          config: {
+            temperature:     0.8,
+            maxOutputTokens: 8500,
+          }
+        });
+        const text    = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const cleaned = text.replace(/```json|```/g, '').trim();
+        return JSON.parse(cleaned);
+      } catch (error) {
+        console.error(`Attempt ${attempt + 1} with model ${model} failed:`, error);
+        lastError = error;
+        if (attempt < 2) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
       }
-    });
-    const text    = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    return JSON.parse(cleaned);
-  } catch (error) {
-    console.error('Story generation error:', error);
-    throw error;
-    
+    }
   }
 
-  
+  // If all retries fail, throw the last error from the model
+  throw lastError || new ApiError(500, "All attempts to generate story failed with both models.");
 };

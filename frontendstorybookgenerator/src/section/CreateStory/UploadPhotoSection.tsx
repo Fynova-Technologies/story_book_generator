@@ -16,8 +16,10 @@ const UploadPhotoSection = ({
   const [photos, setPhotos] = useState<{ image: string | null; description: string }[]>(
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
   );
+  const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
 
-  const uploadedCount = photos.filter((p) => p.image !== null).length;
+  // const uploadedCount = photos.filter((p) => p.image !== null).length;
+  const totalSize = sizes.reduce((sum, s) => sum + s, 0);
 
   const handleImageUpload = (index: number, image: string) => {
     setPhotos((prev) =>
@@ -31,11 +33,19 @@ const UploadPhotoSection = ({
     );
   };
 
+  const handleFileSizeChange = (index: number, size: number) => {
+    setSizes((prev) =>
+      prev.map((s, i) => (i === index ? size : s))
+    );
+  };
+
   // send the data to the store and mark step as valid if minimum photos uploaded
   useEffect(() => {
   if(photos.filter(p=>p.image !== null).length >= MIN_PHOTOS){
+    if(totalSize <= 10){
     dispatch(setImages(photos));
     onValidChange(true);
+    }
   }else{
     onValidChange(false);
   }
@@ -72,8 +82,22 @@ const UploadPhotoSection = ({
         <h3 className="font-heading font-bold text-base text-light-text dark:text-dark-text">
           Uploaded Photos
         </h3>
-        <span className="font-body text-sm font-semibold text-light-outline dark:text-dark-text opacity-60 bg-light-bg dark:bg-dark-primary-10 px-3 py-1 rounded-full border border-light-outline-secondary dark:border-dark-primary-30">
-          {uploadedCount} / {MIN_PHOTOS}
+        {/* show limit exceed */}
+        {totalSize > 10 && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p className="font-body text-sm font-medium text-red-700 dark:text-red-400">
+              10MB Limit Exceeded
+            </p>
+          </div>
+        )}
+        
+        <span className={`font-body text-sm font-semibold opacity-60 bg-light-bg dark:bg-dark-primary-10 px-3 py-1 rounded-full border ${totalSize > 10 ? 'text-red-600 dark:text-red-400 border-red-300 dark:border-red-700' : 'text-light-outline dark:text-dark-text border-light-outline-secondary dark:border-dark-primary-30'}`}>
+          {totalSize.toFixed(1)} / 10 MB
         </span>
       </div>
 
@@ -86,6 +110,7 @@ const UploadPhotoSection = ({
             description={photo.description}
             onImageUpload={(image: string) => handleImageUpload(index, image)}
             onDescriptionChange={(desc: string) => handleDescriptionChange(index, desc)}
+            onFileSizeChange={(size: number) => handleFileSizeChange(index, size)}
           />
         ))}
       </div>

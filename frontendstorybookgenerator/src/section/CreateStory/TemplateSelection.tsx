@@ -140,9 +140,9 @@ const TemplateSelection = ({
   const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const handleSelect = ( templateCategory: string) => {
-    setSelectedTemplate(templateCategory);
-    dispatch(setTemplate(templateCategory));
+  const handleSelect = ( templateTitle: string) => {
+    setSelectedTemplate(templateTitle);
+    dispatch(setTemplate(templateTitle));
     console.log(selectedTemplate);
     
   };
@@ -182,7 +182,9 @@ const TemplateSelection = ({
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
                 <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-                  {templatesData.find((s) => s.category === selectedTemplate)?.title} selected
+                  {/* {templatesData.find((s) => s.category === selectedTemplate)?.title} selected */}
+                  {selectedTemplate} selected
+                
                 </span>
               </div>
             </div>
@@ -197,8 +199,8 @@ const TemplateSelection = ({
                 image={template.image}
                 title={template.title}
                 description={template.description}
-                isSelected={selectedTemplate === template.category}
-                onClick={() => handleSelect(template.category)}
+                isSelected={selectedTemplate === template.title}
+                onClick={() => handleSelect(template.title)}
               />
             ))}
           </div>

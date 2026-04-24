@@ -16,12 +16,36 @@ const GenerateStorySection = ({
   const artStyle = useSelector((state: RootState) => state.story.artStyle);
   const narration = useSelector((state: RootState) => state.story.narration);
   const story = useSelector((state: RootState) => state.story.story);
-  // const story1 = useSelector((state:RootState)=>state.generatedStory.story);
 
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
   // const [story, setStory] = useState<any>(null);
   const [loading,setloading]= useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+ 
+  // Helper function to extract first sentence from error message
+  const extractFirstSentence = (message: string): string => {
+    if (!message) return 'An error occurred.';
+    
+    // Try to parse if it's a JSON error response
+    try {
+      const parsed = JSON.parse(message);
+      if (parsed.error && parsed.error.message) {
+        message = parsed.error.message;
+      }
+    } catch (e) {
+      // Not JSON, use as is
+    }
+    
+    // Extract first sentence (up to first period, question mark, or exclamation mark)
+    const sentenceEnd = message.search(/[.!?]/);
+    if (sentenceEnd !== -1) {
+      return message.substring(0, sentenceEnd + 1).trim();
+    }
+    
+    // If no sentence end found, return first 100 characters
+    return message.length > 100 ? message.substring(0, 100) + '...' : message;
+  };
  
   
   const remaining = credits - storyCost;
@@ -31,9 +55,10 @@ const GenerateStorySection = ({
   // console.log(import.meta.env.VITE_BACKEND_URL);
   
   console.log("generating story.....");
-  
+  setErrorMessage(null);
   setloading(true);
   // const story="Group of school friends enjoying in a picnic ,talking about their past and creating memories";
+  
   try {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/story/generate`, {
       method:  'POST',
@@ -56,16 +81,24 @@ const GenerateStorySection = ({
     });
 
     const data = await response.json();
-    // console.log(data);
+    console.log(data.message);
+
+    if (!response.ok) {
+      setErrorMessage(extractFirstSentence(data.message) || 'Something went wrong while generating the story.');
+      return;
+    }
     
-  if (data.success && data.story) {
+    if (data.success && data.story) {
       setloading(false);
       dispatch(setGeneratedStory(data.story));
       navigate('/flipbook');
+    } else {
+      setErrorMessage(extractFirstSentence(data.message) || 'Failed to generate the story.');
     }
-  }catch (error) {
-   console.error("Failed to generate story:", error);
-  }finally{
+  } catch (error: any) {
+    console.error("Failed to generate story:", error);
+    setErrorMessage(extractFirstSentence(error?.message) || 'Unable to generate story. Please try again.');
+  } finally {
     setloading(false);
   }
   
@@ -73,16 +106,56 @@ const GenerateStorySection = ({
   };
 
   const handleEditDetails = () => {
-    console.log("Edit details clicked");
+    setloading(true)
+    setTimeout(() => {
+      console.log("Edit details clicked");
+      setloading(false)
+    }, 4000);
   };
 
   const handleGetMoreCredits = () => {
     console.log("Get more credits clicked");
   };
 
+  const clearErrorMessage = () => {
+    setErrorMessage(null);
+  };
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30"> 
+    <div className={`relative bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8 border-light-outline-secondary dark:border-dark-primary-30 ${loading ? 'pointer-events-none' : ''}`}> 
+
+      {errorMessage && (
+        <div role="alert" aria-live="assertive" className="absolute inset-x-6 top-6 z-10 mx-auto w-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/40 px-4 py-3 text-sm text-red-900 dark:text-red-200 shadow-lg shadow-red-200/50 transition-all duration-300 ease-out transform opacity-100 translate-y-0">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 text-red-600 dark:text-red-300">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 dark:text-red-300">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </span>
+            <div className="flex-1 leading-relaxed">
+              <p className="font-semibold">Alert</p>
+              <p>{errorMessage}</p>
+            </div>
+            <button onClick={clearErrorMessage} className="ml-2 rounded-full p-1 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
+              <span className="sr-only">Close alert</span>
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="absolute inset-0 z-20 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-3xl flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-light-primary dark:border-dark-primary border-t-transparent mb-4"></div>
+            <p className="font-body text-lg font-semibold text-light-text dark:text-dark-text">Weaving your magical story...</p>
+            <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70 mt-2">This usually takes 1-2 minutes</p>
+          </div>
+        </div>
+      )}
 
       {/* ── HEADING ── */}
       <div className="text-center mb-8">
@@ -251,13 +324,28 @@ const GenerateStorySection = ({
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-light-primary dark:bg-dark-primary
-             text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+            className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-body font-semibold text-sm transition-all duration-200 ${
+              loading 
+                ? 'bg-light-primary/80 dark:bg-dark-primary/80 cursor-not-allowed animate-pulse' 
+                : 'bg-light-primary dark:bg-dark-primary text-light-on-primary hover:opacity-90 active:scale-[0.99]'
+            }`}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            {loading?"Generating...": "Generate Story"}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Weaving your story...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                Generate Story
+              </>
+            )}
           </button>
 
           {/* Disclaimer */}

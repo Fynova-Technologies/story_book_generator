@@ -40,7 +40,7 @@ export const generateImagePrompt= async (
         - Mention placement inside panels
 
         Style & Visuals:
-        - Apply given art style consistently
+        - Apply given art style ${artStyle} consistently
         - Include lighting mood, color palette, emotional tone
         - Add relevant environment details
 
