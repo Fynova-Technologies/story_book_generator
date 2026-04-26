@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
-
 import watercolorImg from "../../assets/images/artstyle/Watercolor.png"
 import animeImg from "../../assets/images/artstyle/anime.png"
 import clay3dImg from "../../assets/images/artstyle/3D.png"
 import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
 import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
-import { useDispatch} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setArtStyle } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 
 
@@ -48,27 +48,36 @@ interface props{
 }
 const ArtStyleSection = ( { onValidChange }: props) => {
   const dispatch = useDispatch();
-  // ✅ Selected art style stored in state
+  const storedArtStyle = useSelector((state: RootState) => state.story?.artStyle || "");
+  
+  
+
+  // ✅ Selected art style stored in state - initialize from Redux
   const [selectedArtStyle, setSelectedArtStyle] = useState<string | null>(null);
+
+  // Initialize from Redux on mount
+  useEffect(() => {
+    if (storedArtStyle) {
+      const matchingStyle = artStyles.find(style => style.name === storedArtStyle);
+      if (matchingStyle) {
+        setSelectedArtStyle(matchingStyle.id);
+      }
+    }
+  }, [storedArtStyle]);
 
   const handleSelect = (styleId: string, styleName: string) => {
     // ✅ Store selected art style
     setSelectedArtStyle(styleId);
 
-    // ✅ Pass to parent if needed
-    // onArtStyleSelect?.(styleName);
+    // ✅ Dispatch to Redux
+    dispatch(setArtStyle(styleName));
 
     console.log("Selected art style:", styleName);
     
   };
   useEffect(() => {
-  if(selectedArtStyle!==null){
-      onValidChange(true);
-      dispatch(setArtStyle(selectedArtStyle));
-    }else{      
-      onValidChange(false);
-    }
-},[selectedArtStyle]);
+    onValidChange(selectedArtStyle !== null);
+  }, [selectedArtStyle, onValidChange]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">

@@ -13,32 +13,40 @@ export const generateStoryText = async (data: {
     .join('\n');
 
 const prompt = `
-You are a professional storybook author. Write a 6-page personalized story.
+You are a professional personalized storybook author and illustration prompt engineer.
+Create a polished, emotionally engaging 6-page storybook narrative using the exact user inputs.
 
-Details:
-- Art style: ${data.artStyle}
+Input:
 - Template: ${data.template}
-- Tone: ${data.narration}
+- Art style: ${data.artStyle}
+- Narrative tone: ${data.narration || 'warm and uplifting'}
 ${details}
 
-Rules:
-- Each page: 3-4 sentences max
-- Page main theme is in first 100 char
-- Weave details naturally, never list them
-- Pages must flow as one continuous story
-- End page 6 with hope or warmth
-- illustrationPrompt must describe the full scene in the given art style
-
-Return ONLY this JSON no markdown no extra text:
+Instructions:
+1. Return ONLY valid JSON with no markdown, code fences, explanation, or extra keys.
+2. Use this exact schema:
 {"title":"","subtitle":"","pages":[
-    { "page": 1, "text": "string", "imagePrompt": "string" },
-    { "page": 2, "text": "string", "imagePrompt": "string" },
-    { "page": 3, "text": "string", "imagePrompt": "string" },
-    { "page": 4, "text": "string", "imagePrompt": "string" },
-    { "page": 5, "text": "string", "imagePrompt": "string" },
-    { "page": 6, "text": "string", "imagePrompt": "string" },
+  { "page": 1, "text": "string", "imagePrompt": "string" },
+  { "page": 2, "text": "string", "imagePrompt": "string" },
+  { "page": 3, "text": "string", "imagePrompt": "string" },
+  { "page": 4, "text": "string", "imagePrompt": "string" },
+  { "page": 5, "text": "string", "imagePrompt": "string" },
+  { "page": 6, "text": "string", "imagePrompt": "string" }
 ]}
-  `;
+3. Create a compelling title and subtitle that match the template and tone.
+4. Produce exactly 6 pages.
+5. Each page text should be 40-60 words, 3-4 sentences, and read as a single narrative scene.
+6. Start each page with a strong scene anchor or vivid emotional image phrase.
+7. Integrate user details naturally; do not list them, repeat them verbatim, or create bullet lists.
+8. Keep the story consistent with the template theme and requested art style.
+9. Page 1 should introduce the main character, setting, and story goal.
+10. Pages 2-5 should develop the plot, add gentle tension, and deepen character connection.
+11. Page 6 should resolve with warmth, hope, growth, or meaningful closure.
+12. For each page, include an 'imagePrompt'describing one illustrated scene in the given art style.
+13. Each 'imagePrompt' should mention characters, setting, mood, lighting, composition, and key visual details.
+14. Keep each 'imagePrompt' concise, vivid, and under 120 words.
+15. Use polished, child-friendly language that feels professional and engaging.
+`;
 
   const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
   let lastError: any = null;
@@ -51,7 +59,7 @@ Return ONLY this JSON no markdown no extra text:
           contents: { parts: [{ text: prompt }] },
           config: {
             temperature:     0.8,
-            maxOutputTokens: 8500,
+            // maxOutputTokens: 8500,
           }
         });
         const text    = response.candidates?.[0]?.content?.parts?.[0]?.text || '';

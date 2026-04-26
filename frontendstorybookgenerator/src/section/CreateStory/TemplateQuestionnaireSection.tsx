@@ -4,7 +4,21 @@ import { RootState } from "../../store/store";
 import { templateQuestions } from "../../Data/templateQuestions";
 import { setQuestionnaire } from "../../store/slices/storyWizardSlice";
 
-
+// Mapping of template titles to their category keys
+const titleToCategoryMap: Record<string, string> = {
+  "Birthday & Celebrations": "Birthday",
+  "Love & Romance": "Love",
+  "Heartfelt Apologies": "Apology",
+  "Wedding Memories": "Wedding",
+  "Long Distance Relations": "LongDistance",
+  "Pet Memorial Tributes": "Memorial",
+  "Graduation Milestones": "Milestones",
+  "Family Heritage & History": "Family",
+  "Travel Adventures": "Adventures",
+  "Retirement Celebrations": "Retirement",
+  "Educational Stories for Kids": "Kids",
+  "Thank You & Gratitude": "Gratitude",
+};
 
 // Default fallback questions
 const defaultQuestions = templateQuestions["templete"];
@@ -17,15 +31,22 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
   const dispatch = useDispatch();
   // ✅ Get selected template from Redux store
   const selectedTemplate = useSelector((state: RootState) => state.story?.template || "templete");
+  const storedQuestionnaire = useSelector((state: RootState) => state.story?.questionnaire || {});
 
-  // ✅ Get questions based on selected template
-  const questions = templateQuestions[selectedTemplate] || defaultQuestions;
+  // ✅ Convert title to category and get questions based on selected template
+  const templateCategory = titleToCategoryMap[selectedTemplate] || selectedTemplate;
+  const questions = templateQuestions[templateCategory] || defaultQuestions;
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
-  // ✅ Store answers
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  // ✅ Store answers - initialize from Redux
+  const [answers, setAnswers] = useState<Record<string, string>>(storedQuestionnaire);
   const [currentProgress, setCurrentProgress] = useState(0);
+
+  // Update answers when Redux questionnaire changes (e.g., when navigating back)
+  useEffect(() => {
+    setAnswers(storedQuestionnaire);
+  }, [storedQuestionnaire]);
 
   const handleAnswerChange = (question: string, value: string) => {
     const updated = { ...answers, [question]: value };

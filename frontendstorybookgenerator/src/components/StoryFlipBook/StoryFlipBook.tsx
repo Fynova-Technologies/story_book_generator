@@ -155,7 +155,7 @@ const StoryFlipBook = ({ story }: Props) => {
               <img
                 src={page.imageUrl}
                 alt={`Page ${page.page}`}
-                className="w-full h-full object-center"
+                className="w-full h-full object-contain"
               />
             </div>
 

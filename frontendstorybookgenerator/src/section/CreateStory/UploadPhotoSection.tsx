@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setImages } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 const MAX_PHOTOS = 5;
 const MIN_PHOTOS = 5;
@@ -13,10 +14,23 @@ const UploadPhotoSection = ({
   onValidChange,
 }:props) => {
   const dispatch = useDispatch();
+  const storedImages = useSelector((state: RootState) => state.story?.images || []);
+
   const [photos, setPhotos] = useState<{ image: string | null; description: string }[]>(
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
   );
   const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
+
+  // Initialize from Redux on mount
+  useEffect(() => {
+    if (storedImages.length > 0) {
+      const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
+        const stored = storedImages[index];
+        return stored ? { image: stored.image, description: stored.description } : { image: null, description: "" };
+      });
+      setPhotos(initializedPhotos);
+    }
+  }, [storedImages]);
 
   // const uploadedCount = photos.filter((p) => p.image !== null).length;
   const totalSize = sizes.reduce((sum, s) => sum + s, 0);

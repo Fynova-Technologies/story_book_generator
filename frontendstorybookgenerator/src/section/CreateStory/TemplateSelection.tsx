@@ -14,8 +14,9 @@ import travel from "../../assets/images/templete/Travel.png"
 import retirement from "../../assets/images/templete/Retirement.png"
 import educational from "../../assets/images/templete/Educational.png"
 import gratitude from "../../assets/images/templete/Thankyou.png"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setTemplate } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 
 
@@ -140,10 +141,19 @@ const TemplateSelection = ({
   const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const storedTemplate = useSelector((state:RootState)=>state.story?.template ||null);
+
+  // Initialize from Redux on mount
+  useEffect(() => {
+    if (storedTemplate) {
+      setSelectedTemplate(storedTemplate);
+    }
+  }, [storedTemplate]);
+
   const handleSelect = ( templateTitle: string) => {
     setSelectedTemplate(templateTitle);
     dispatch(setTemplate(templateTitle));
-    console.log(selectedTemplate);
+    // console.log(selectedTemplate);
     
   };
   useEffect(() => {
@@ -152,7 +162,7 @@ const TemplateSelection = ({
       onValidChange(selectedTemplate !== null);
     
 
-},[selectedTemplate]);
+},[selectedTemplate, onValidChange]);
   // console.log(selectedTemplate);
   
 
@@ -182,9 +192,7 @@ const TemplateSelection = ({
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
                 <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-                  {/* {templatesData.find((s) => s.category === selectedTemplate)?.title} selected */}
-                  {selectedTemplate} selected
-                
+                  {templatesData.find((s) => s.title === selectedTemplate)?.title} selected
                 </span>
               </div>
             </div>

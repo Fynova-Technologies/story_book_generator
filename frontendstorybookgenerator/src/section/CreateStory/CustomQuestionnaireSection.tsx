@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCustomStory } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 
 const CHAR_LIMIT = 500;
@@ -14,10 +15,18 @@ const CustomQuestionnaireSection = ({
   // const selectedTemplate = useSelector((state: RootState) => state.story.template);
   // console.log(selectedTemplate);
   const dispatch = useDispatch();
+  const storedCustomStory = useSelector((state: RootState) => state.story?.story || "");
   const [story, setStory] = useState("");
 
+  // Initialize from Redux on mount
+  useEffect(() => {
+    if (storedCustomStory) {
+      setStory(storedCustomStory);
+    }
+  }, [storedCustomStory]);
+
   // Debounce ref for the dispatch function
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = (e: any) => {
     const value = e.target.value;
@@ -49,7 +58,7 @@ const CustomQuestionnaireSection = ({
       clearTimeout(debounceRef.current);
     }
   };
-},[story, debouncedDispatch]);
+},[story, debouncedDispatch, onValidChange]);
   
 
   const handleInspireMe = () => {

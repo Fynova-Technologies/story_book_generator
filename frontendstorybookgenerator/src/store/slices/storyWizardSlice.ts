@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface StoryImage {
+export interface StoryImage {
   image: string | null;
   description: string;
 }
-interface StoryWizardState {
+export interface StoryWizardState {
   template:      string;
   images:        StoryImage[];
   story:         string;
@@ -45,6 +45,15 @@ const storyWizardSlice = createSlice({
         state.narration     = action.payload; 
     },
     resetWizard:() => initialState,
+
+    restoreDraft: (state, action: PayloadAction<Partial<StoryWizardState>>) => {
+    const draft = action.payload;
+    if (draft.template)      state.template      = draft.template;
+    if (draft.questionnaire) state.questionnaire = draft.questionnaire;
+    if (draft.story)         state.story         = draft.story;
+    if (draft.artStyle)      state.artStyle      = draft.artStyle;
+    if (draft.narration)     state.narration     = draft.narration;
+  },
   },
 });
 
@@ -56,6 +65,7 @@ export const {
   setArtStyle,
   setNarration,
   resetWizard,
+  restoreDraft,
 } = storyWizardSlice.actions;
 
 export default storyWizardSlice.reducer;

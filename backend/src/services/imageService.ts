@@ -29,7 +29,9 @@ export const transformImage = async (
                 },
               },
               {
-                text: prompt,
+                text: `Use the provided image as the reference. Preserve its characters, lighting, 
+                mood, and style while adapting it to the scene below. Keep the result aligned with the 
+                page prompt.\n\n${prompt}`,
               },
             ],
           },
