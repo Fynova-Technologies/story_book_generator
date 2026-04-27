@@ -2,33 +2,40 @@ import { StoryWizardState } from '../store/slices/storyWizardSlice';
 
 // ── Types ──────────────────────────────────────────────────
 export interface Draft {
-  userId:           string;
-  template:         string;
-  questionnaire:    Record<string, string>;
-  story:            string;
-  artStyle:         string;
-  narration:        string;
+  id:              string;
+  userId:          string;
+  template:        string;
+  questionnaire:   Record<string, string>;
+  story:           string;
+  artStyle:        string;
+  narration:       string;
   currentStepIndex: number;
-  lastSavedAt:      string;
-  status:           'draft' | 'completed';
+  lastSavedAt:     string;
+  status:          'draft' | 'completed';
 }
 
 // ── Key generator — unique per user ───────────────────────
-const getDraftKey = (userId: string) => `storybook_draft_${userId}`;
+const getDraftsKey = (userId: string) => `storybook_drafts_${userId}`;
 
 // ── Save draft ─────────────────────────────────────────────
 export const saveDraftToLocal = (
   userId:           string,
   wizardState:      StoryWizardState | undefined,
   currentStepIndex: number
-): void => {
+): string | null => {
   if (!wizardState) {
     console.warn('Skipping draft save because wizard state is undefined');
-    return;
+    return null;
   }
 
   try {
+    const draftsKey = getDraftsKey(userId);
+    const existingDrafts: Draft[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+
+    const draftId = wizardState.currentDraftId || Date.now().toString();
+
     const draft: Draft = {
+      id: draftId,
       userId,
       template:         wizardState.template,
       questionnaire:    wizardState.questionnaire,
@@ -41,35 +48,60 @@ export const saveDraftToLocal = (
       // images not saved here — base64 too large for LocalStorage
     };
 
-    localStorage.setItem(getDraftKey(userId), JSON.stringify(draft));
+    // Remove existing draft with same ID if exists
+    const filteredDrafts = existingDrafts.filter(d => d.id !== draftId);
+    filteredDrafts.push(draft);
+
+    localStorage.setItem(draftsKey, JSON.stringify(filteredDrafts));
     console.log('Draft saved to LocalStorage');
+
+    return draftId;
 
   } catch (error) {
     // LocalStorage might be full
     console.warn('Failed to save draft to LocalStorage:', error);
+    return null;
   }
 };
 
-// ── Load draft ─────────────────────────────────────────────
-export const loadDraftFromLocal = (userId: string): Draft | null => {
+// ── Load draft by ID ───────────────────────────────────────
+export const loadDraftFromLocal = (userId: string, draftId: string): Draft | null => {
   try {
-    const raw = localStorage.getItem(getDraftKey(userId));
-    if (!raw) return null;
-    return JSON.parse(raw) as Draft;
+    const draftsKey = getDraftsKey(userId);
+    const drafts: Draft[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+    return drafts.find(d => d.id === draftId) || null;
   } catch {
     return null;
   }
 };
 
-// ── Delete draft ───────────────────────────────────────────
-export const deleteDraftFromLocal = (userId: string): void => {
-  localStorage.removeItem(getDraftKey(userId));
-  console.log('Draft deleted from LocalStorage');
+// ── Load all drafts ─────────────────────────────────────────
+export const loadAllDraftsFromLocal = (userId: string): Draft[] => {
+  try {
+    const draftsKey = getDraftsKey(userId);
+    return JSON.parse(localStorage.getItem(draftsKey) || '[]');
+  } catch {
+    return [];
+  }
 };
 
-// ── Check if draft exists ──────────────────────────────────
-export const hasDraft = (userId: string): boolean => {
-  return localStorage.getItem(getDraftKey(userId)) !== null;
+// ── Delete draft by ID ─────────────────────────────────────
+export const deleteDraftFromLocal = (userId: string, draftId: string): void => {
+  try {
+    const draftsKey = getDraftsKey(userId);
+    const drafts: Draft[] = JSON.parse(localStorage.getItem(draftsKey) || '[]');
+    const filteredDrafts = drafts.filter(d => d.id !== draftId);
+    localStorage.setItem(draftsKey, JSON.stringify(filteredDrafts));
+    console.log('Draft deleted from LocalStorage');
+  } catch (error) {
+    console.warn('Failed to delete draft from LocalStorage:', error);
+  }
+};
+
+// ── Check if any drafts exist ──────────────────────────────
+export const hasDrafts = (userId: string): boolean => {
+  const drafts = loadAllDraftsFromLocal(userId);
+  return drafts.length > 0;
 };
 
 // ── Format last saved time for display ────────────────────

@@ -1,6 +1,6 @@
 import {configureStore} from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
-import storyWizardReducer from './slices/storyWizardSlice'
+import storyWizardReducer, { setCurrentDraftId } from './slices/storyWizardSlice'
 import generatedStoryReducer from './slices/generatedStorySlice'
 import { saveDraftToLocal } from '../services/draftService';
 
@@ -25,7 +25,10 @@ const draftMiddleware = (storeAPI: any) => (next: any) => (action: any) => {
       const currentStep = parseInt(
         localStorage.getItem(`step_${userId}`) || '0'
       );
-      saveDraftToLocal(userId, state.story, currentStep);
+      const savedDraftId = saveDraftToLocal(userId, state.story, currentStep);
+      if (savedDraftId && !state.story.currentDraftId) {
+        storeAPI.dispatch(setCurrentDraftId(savedDraftId));
+      }
     }
   }
 

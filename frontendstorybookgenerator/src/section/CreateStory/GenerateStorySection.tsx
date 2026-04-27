@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { setGeneratedStory } from "../../store/slices/generatedStorySlice";
 import { useNavigate } from "react-router-dom";
-import { hasDraft, loadDraftFromLocal, deleteDraftFromLocal } from "../../services/draftService";
+// import { hasDraft, loadDraftFromLocal, deleteDraftFromLocal } from "../../services/draftService";
 
 
 const GenerateStorySection = ({ 
@@ -26,14 +26,14 @@ const GenerateStorySection = ({
 
 
 
-  const user = useSelector((state: RootState) => state.auth.userData);
+  // const user = useSelector((state: RootState) => state.auth.userData);
 
-  useEffect(() => {
-  if (user?.uid) {
-    console.log('Has draft:', hasDraft(user.uid));
-    console.log('Draft data:', loadDraftFromLocal(user.uid));
-  }
-}, [user]);
+  // useEffect(() => {
+  // if (user?.uid) {
+  //   console.log('Has draft:', hasDraft(user.uid));
+  //   console.log('Draft data:', loadDraftFromLocal(user.uid));
+  // }
+  // }, [user]);
  
   // Helper function to extract first sentence from error message
   const extractFirstSentence = (message: string): string => {
@@ -103,9 +103,9 @@ const GenerateStorySection = ({
     if (data.success && data.story) {
       setloading(false);
       // Delete draft when story generation is successful
-      if (user?.uid) {
-        deleteDraftFromLocal(user.uid);
-      }
+      // if (user?.uid) {
+      //   deleteDraftFromLocal(user.uid);
+      // }
       dispatch(setGeneratedStory(data.story));
       navigate('/flipbook');
     } else {

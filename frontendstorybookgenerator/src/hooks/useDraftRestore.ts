@@ -1,47 +1,45 @@
 import { useEffect, useState }    from 'react';
 import { useDispatch,useSelector }   from 'react-redux';
-import { resetWizard, restoreDraft }           from '../store/slices/storyWizardSlice';
+import { restoreDraft, setCurrentDraftId }           from '../store/slices/storyWizardSlice';
 import {
+  loadAllDraftsFromLocal,
   loadDraftFromLocal,
-  hasDraft,
-  formatLastSaved,
+  hasDrafts,
+  deleteDraftFromLocal,
   Draft,
 } from '../services/draftService';
 import { RootState } from '../store/store';
 
 interface UseDraftRestoreReturn {
-  draftExists:     boolean;
-  draft:           Draft | null;
-  lastSavedText:   string;
-  restoreConfirmed: () => void;    // user clicked "Continue"
-  discardDraft:    () => void;     // user clicked "Start Fresh"
+  drafts:           Draft[];
+  draftsExist:      boolean;
+  restoreDraftById: (draftId: string) => void;
+  deleteDraftById:  (draftId: string) => void;
 }
 
 export const useDraftRestore = (): UseDraftRestoreReturn => {
   const dispatch = useDispatch();
   const user     = useSelector((state: RootState) => state.auth.userData);
 
-  const [draftExists,   setDraftExists]   = useState(false);
-  const [draft,         setDraft]         = useState<Draft | null>(null);
-  const [lastSavedText, setLastSavedText] = useState('');
+  const [drafts,     setDrafts]     = useState<Draft[]>([]);
+  const [draftsExist, setDraftsExist] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
 
-    // check LocalStorage for existing draft
-    if (hasDraft(user.uid)) {
-      const savedDraft = loadDraftFromLocal(user.uid);
-
-      if (savedDraft) {
-        setDraft(savedDraft);
-        setDraftExists(true);
-        setLastSavedText(formatLastSaved(savedDraft.lastSavedAt));
-      }
+    // check LocalStorage for existing drafts
+    if (hasDrafts(user.uid)) {
+      const savedDrafts = loadAllDraftsFromLocal(user.uid);
+      setDrafts(savedDrafts);
+      setDraftsExist(true);
     }
   }, [user?.uid]);
 
-  // user clicked "Continue Story"
-  const restoreConfirmed = () => {
+  // restore draft by ID
+  const restoreDraftById = (draftId: string) => {
+    if (!user?.uid) return;
+
+    const draft = loadDraftFromLocal(user.uid, draftId);
     if (!draft) return;
 
     // restore all wizard fields to Redux
@@ -52,30 +50,30 @@ export const useDraftRestore = (): UseDraftRestoreReturn => {
       narration:     draft.narration,
       story:         draft.story,
     }));
+    dispatch(setCurrentDraftId(draftId));
 
-    setDraftExists(false);
     console.log('Draft restored to Redux successfully');
   };
 
-  // user clicked "Start Fresh"
-  const discardDraft = () => {
+  // delete draft by ID
+  const deleteDraftById = (draftId: string) => {
     if (!user?.uid) return;
 
-    // remove from localStorage
-    localStorage.removeItem(`storybook_draft_${user.uid}`);
-    localStorage.removeItem(`step_${user.uid}`);
-    dispatch(resetWizard());
+    deleteDraftFromLocal(user.uid, draftId);
 
-    setDraftExists(false);
-    setDraft(null);
-    console.log('Draft discarded');
+    // Update local state
+    setDrafts(prev => prev.filter(d => d.id !== draftId));
+    if (drafts.length === 1) {
+      setDraftsExist(false);
+    }
+
+    console.log('Draft deleted');
   };
 
   return {
-    draftExists,
-    draft,
-    lastSavedText,
-    restoreConfirmed,
-    discardDraft,
+    drafts,
+    draftsExist,
+    restoreDraftById,
+    deleteDraftById,
   };
 };

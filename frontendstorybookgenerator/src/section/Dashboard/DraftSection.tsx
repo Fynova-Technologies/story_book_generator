@@ -2,16 +2,23 @@ import storyimg1 from "../../assets/images/storyimg1.png"
 import draft from "../../assets/icons/Dashboard/Draft.png"
 import DraftCard from '../../components/DraftCard/DraftCard';
 import avatar from "../../assets/images/sampleavatar.png"
+import { useDraftRestore } from '../../hooks/useDraftRestore';
+import { formatLastSaved } from '../../services/draftService';
+import { useDispatch } from 'react-redux';
+import { resetWizard, setCurrentDraftId } from '../../store/slices/storyWizardSlice';
+import { useNavigate } from 'react-router-dom';
 
-const drafts= [
-  {
-    id: 1,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    editedAt: "2 hours ago",
-  },
-];
+
 function DraftSection() {
+  const navigate = useNavigate();
+  const { drafts, restoreDraftById, deleteDraftById } = useDraftRestore();
+  const dispatch = useDispatch();
+
+  const handleNewDraft = () => {
+    dispatch(resetWizard());
+    dispatch(setCurrentDraftId(null)); // New draft
+    navigate('/create-story');
+  };
 
   return (
     <section>
@@ -31,18 +38,28 @@ function DraftSection() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
 
             {/* Draft Cards */}
-            {drafts.map((item) => (
+            {drafts.map((draft) => (
               <DraftCard
-                key={item.id}
-                image={item.image}
-                title={item.title}
+                key={draft.id}
+                image={storyimg1} // Placeholder, maybe use a default or generate based on draft
+                title={draft.template || 'Untitled Draft'}
                 authorAvatar={avatar}
-                editedAt={item.editedAt}
+                editedAt={formatLastSaved(draft.lastSavedAt)}
+                onContinue={() => {
+                  restoreDraftById(draft.id);
+                  navigate('/create-story');
+                }}
+                onDelete={() => deleteDraftById(draft.id)}
               />
             ))}
 
             {/* New Draft Card — same size as DraftCard */}
-            <div className="rounded-xl border-2 border-dashed border-light-outline-secondary dark:border-dark-primary-30 bg-light-on-primary/50 dark:bg-dark-primary-10 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-light-primary dark:hover:border-dark-primary hover:bg-dark-primary-10 transition-all group aspect-[3/4]">
+            <div 
+            className="rounded-xl border-2 border-dashed border-light-outline-secondary dark:border-dark-primary-30
+             bg-light-on-primary/50 dark:bg-dark-primary-10 flex flex-col items-center justify-center
+              gap-2 cursor-pointer hover:border-light-primary dark:hover:border-dark-primary
+            hover:bg-dark-primary-10 transition-all group aspect-[3/4]" 
+            onClick={handleNewDraft}>
               <div className="w-10 h-10 rounded-full bg-dark-primary-10 flex items-center justify-center group-hover:bg-light-primary/20 transition-colors">
                 <span className="text-light-primary dark:text-dark-primary text-2xl font-light leading-none">+</span>
               </div>

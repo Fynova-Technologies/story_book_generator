@@ -10,7 +10,7 @@ import TemplateSelection from "../section/CreateStory/TemplateSelection";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
-import { useDraftRestore } from "../hooks/useDraftRestore";
+// import { useDraftRestore } from "../hooks/useDraftRestore";
 
 // ✅ Steps defined in order
 const STEPS = [
@@ -25,16 +25,16 @@ const STEPS = [
 type Section = "templete" | "photo" | "questionnaire" | "art" | "voice" | "generate";
 
 const CreateStory = () => {
-  const {
-    draftExists,
-    draft,
-    lastSavedText,
-    restoreConfirmed,
-    discardDraft,
-  } = useDraftRestore();
+  // const {
+  //   draftExists,
+  //   draft,
+  //   lastSavedText,
+  //   restoreConfirmed,
+  //   discardDraft,
+  // } = useDraftRestore();
   const [isValid, setIsValid] = useState(false);
   const template = useSelector((state: RootState) => state.story.template);
-  const user = useSelector((state: RootState) => state.auth.userData);
+  // const user = useSelector((state: RootState) => state.auth.userData);
 
   // ✅ Track step using index
   const [currentStepIndex, setCurrentStepIndex] = useState(1); // starts at "photo"
@@ -88,7 +88,7 @@ const CreateStory = () => {
   return (
     <div className="min-h-screen flex flex-col bg-light-bg dark:bg-dark-bg">
         {/* ── Draft Restore Banner ── */}
-      {draftExists && draft && (
+      {/* {draftExists && draft && (
         <div className="w-full bg-light-primary/10 dark:bg-dark-primary-10 border-b border-light-primary/20 dark:border-dark-primary-30 px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
@@ -128,7 +128,7 @@ const CreateStory = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ── TOP ROW — Logo + Credits + Avatar ── */}
       <div className="w-full px-6 md:px-10 h-14 flex items-center justify-between border-b border-light-outline-secondary dark:border-dark-primary-30">
