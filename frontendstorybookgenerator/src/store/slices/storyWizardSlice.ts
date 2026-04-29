@@ -10,6 +10,7 @@ export interface StoryWizardState {
   story:         string;
   questionnaire: Record<string, string>;
   artStyle:      string;
+  storyStyle:    string;
   narration:     string;
   currentDraftId: string | null;
 }
@@ -20,6 +21,7 @@ const initialState: StoryWizardState = {
   story:         '',
   questionnaire: {},
   artStyle:      '',
+  storyStyle:    '',
   narration:     '',
   currentDraftId: null,
 };
@@ -43,6 +45,9 @@ const storyWizardSlice = createSlice({
     setArtStyle:(state, action: PayloadAction<string>) => { 
         state.artStyle      = action.payload; 
     },
+    setStoryStyle:(state, action: PayloadAction<string>) => { 
+        state.storyStyle    = action.payload; 
+    },
     setNarration:(state, action: PayloadAction<string>) => { 
         state.narration     = action.payload; 
     },
@@ -57,6 +62,7 @@ const storyWizardSlice = createSlice({
     if (draft.questionnaire) state.questionnaire = draft.questionnaire;
     if (draft.story)         state.story         = draft.story;
     if (draft.artStyle)      state.artStyle      = draft.artStyle;
+    if (draft.storyStyle)    state.storyStyle    = draft.storyStyle;
     if (draft.narration)     state.narration     = draft.narration;
   },
   },
@@ -68,6 +74,7 @@ export const {
   setCustomStory,
   setQuestionnaire,
   setArtStyle,
+  setStoryStyle,
   setNarration,
   setCurrentDraftId,
   resetWizard,

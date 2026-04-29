@@ -1,5 +1,3 @@
-// 📁 src/components/StoryStepperNav/StoryStepperNav.tsx
-
 // 👉 Import your logo here
 // import Logo from "../../assets/logo/logo.svg"
 
@@ -7,9 +5,10 @@ const steps = [
   { SN:1,id: "templete", label: "Select Template" },
   { SN:2,id: "photo", label: "Upload Photo" },
   { SN:3,id: "questionnaire", label: "Questionnaire" },
-  { SN:4,id: "art", label: "Art Style Selection" },
-  { SN:5,id: "voice", label: "Voice Narration" },
-  { SN:6,id: "generate", label: "Generate" },
+  { SN:4,id: "storystyle", label: "Story Style Selection" },
+  { SN:5,id: "art", label: "Art Style Selection" },
+  { SN:6,id: "voice", label: "Voice Narration" },
+  { SN:7,id: "generate", label: "Generate" },
 ];
 
 const StoryStepperNav = ({
@@ -20,7 +19,7 @@ const StoryStepperNav = ({
     <div className="w-full bg-light-bg dark:bg-dark-bg border-light-outline-secondary dark:border-dark-primary-30">
 
       {/* ── BOTTOM ROW — Steps ── */}
-      <div className="max-w-6xl mx-auto px-6 md:px-10 h-12 flex items-center justify-center gap-2 md:gap-6 overflow-x-auto">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 h-12 flex items-center justify-center gap-2 md:gap-0 overflow-x-auto">
         {steps.map((step) => {
           return (
             // <div key={step.id} className="flex items-center gap-1.5 flex-shrink-0">

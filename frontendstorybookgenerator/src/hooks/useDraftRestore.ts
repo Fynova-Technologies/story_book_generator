@@ -47,6 +47,7 @@ export const useDraftRestore = (): UseDraftRestoreReturn => {
       template:      draft.template,
       questionnaire: draft.questionnaire,
       artStyle:      draft.artStyle,
+      storyStyle:    draft.storyStyle,
       narration:     draft.narration,
       story:         draft.story,
     }));

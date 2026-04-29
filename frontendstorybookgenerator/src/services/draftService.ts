@@ -8,6 +8,7 @@ export interface Draft {
   questionnaire:   Record<string, string>;
   story:           string;
   artStyle:        string;
+  storyStyle:      string;
   narration:       string;
   currentStepIndex: number;
   lastSavedAt:     string;
@@ -40,6 +41,7 @@ export const saveDraftToLocal = (
       template:         wizardState.template,
       questionnaire:    wizardState.questionnaire,
       artStyle:         wizardState.artStyle,
+      storyStyle:       wizardState.storyStyle,
       narration:        wizardState.narration,
       story:            wizardState.story,
       currentStepIndex,

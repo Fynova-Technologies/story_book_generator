@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import StoryStepperNav from "../components/StoryStepperNav/StoryStepperNav";
 import UploadPhotoSection from "../section/CreateStory/UploadPhotoSection";
 import userAvatar from "../assets/images/sampleavatar.png"
@@ -10,19 +10,20 @@ import TemplateSelection from "../section/CreateStory/TemplateSelection";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
-// import { useDraftRestore } from "../hooks/useDraftRestore";
+import StoryStyleSection from "../section/CreateStory/StoryStyleSection";
 
 // ✅ Steps defined in order
 const STEPS = [
   { id: "templete",      label: "Select Template" },
   { id: "photo",         label: "Upload Photo" },
   { id: "questionnaire", label: "Questionnaire" },
+  { id:"storystyle",     label:"Story Style Selection"},
   { id: "art",           label: "Art Style Selection" },
   { id: "voice",         label: "Voice Narration" },
   { id: "generate",      label: "Generate" },
 ];
 
-type Section = "templete" | "photo" | "questionnaire" | "art" | "voice" | "generate";
+type Section = "templete" | "photo" | "questionnaire" | "storystyle" | "art" | "voice" | "generate";
 
 const CreateStory = () => {
   // const {
@@ -58,14 +59,18 @@ const CreateStory = () => {
       setIsValid(false); // reset validity for next step
     }
   };
-  const handleStepValidChange = useCallback((valid: boolean) => {
-    setIsValid(valid);
-  }, []);
 
   // ✅ Stepper click — jump to any step
   const handleSectionChange = (id: Section) => {
     const index = STEPS.findIndex((step) => step.id === id);
-    if (index !== -1) setCurrentStepIndex(index);
+    if (index !== -1) {
+      setCurrentStepIndex(index);
+    }
+  };
+
+  // ✅ Handle step validation changes
+  const handleStepValidChange = (isValid: boolean) => {
+    setIsValid(isValid);
   };
 
   const renderSection = () => {
@@ -81,6 +86,7 @@ const CreateStory = () => {
       case "art":            return <ArtStyleSection onValidChange={handleStepValidChange} />;
       case "voice":          return <VoiceNarrationSection onValidChange={handleStepValidChange} />;
       case "generate":       return <GenerateStorySection onValidChange={handleStepValidChange} />;
+      case "storystyle":     return <StoryStyleSection onValidChange={handleStepValidChange} />;
       default:               return <UploadPhotoSection onValidChange={handleStepValidChange} />;
     }
   };

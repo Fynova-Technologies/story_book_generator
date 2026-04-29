@@ -49,7 +49,9 @@ function DraftSection() {
                   restoreDraftById(draft.id);
                   navigate('/create-story');
                 }}
-                onDelete={() => deleteDraftById(draft.id)}
+                onDelete={() => {
+                  deleteDraftById(draft.id);
+                }}
               />
             ))}
 
@@ -58,7 +60,7 @@ function DraftSection() {
             className="rounded-xl border-2 border-dashed border-light-outline-secondary dark:border-dark-primary-30
              bg-light-on-primary/50 dark:bg-dark-primary-10 flex flex-col items-center justify-center
               gap-2 cursor-pointer hover:border-light-primary dark:hover:border-dark-primary
-            hover:bg-dark-primary-10 transition-all group aspect-[3/4]" 
+            hover:bg-dark-primary-10 transition-all group aspect-3/4" 
             onClick={handleNewDraft}>
               <div className="w-10 h-10 rounded-full bg-dark-primary-10 flex items-center justify-center group-hover:bg-light-primary/20 transition-colors">
                 <span className="text-light-primary dark:text-dark-primary text-2xl font-light leading-none">+</span>
