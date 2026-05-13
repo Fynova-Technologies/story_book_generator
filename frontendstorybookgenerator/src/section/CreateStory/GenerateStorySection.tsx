@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 // import { hasDraft, loadDraftFromLocal, deleteDraftFromLocal } from "../../services/draftService";
 
 
+
 const GenerateStorySection = ({ 
     storyData, 
     credits = 12, 
@@ -17,24 +18,14 @@ const GenerateStorySection = ({
   const artStyle = useSelector((state: RootState) => state.story.artStyle);
   const narration = useSelector((state: RootState) => state.story.narration);
   const story = useSelector((state: RootState) => state.story.story);
+  const storyStyle = useSelector((state: RootState) => state.story.storyStyle);
+  
 
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
-  // const [story, setStory] = useState<any>(null);
   const [loading,setloading]= useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-
-
-  // const user = useSelector((state: RootState) => state.auth.userData);
-
-  // useEffect(() => {
-  // if (user?.uid) {
-  //   console.log('Has draft:', hasDraft(user.uid));
-  //   console.log('Draft data:', loadDraftFromLocal(user.uid));
-  // }
-  // }, [user]);
- 
   // Helper function to extract first sentence from error message
   const extractFirstSentence = (message: string): string => {
     if (!message) return 'An error occurred.';
@@ -61,15 +52,11 @@ const GenerateStorySection = ({
  
   
   const remaining = credits - storyCost;
-  // const [image, setImage]= useState<any>(null)
-
   const handleGenerate = async() => {
-  // console.log(import.meta.env.VITE_BACKEND_URL);
-  
+
   console.log("generating story.....");
   setErrorMessage(null);
   setloading(true);
-  // const story="Group of school friends enjoying in a picnic ,talking about their past and creating memories";
   
   try {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/story/generate`, {
@@ -82,34 +69,27 @@ const GenerateStorySection = ({
         images,
         story,
         questionnaire,
-        // questionnaire: {
-        //   "Couple names":          "Sarbin and Sangita",
-        //   "How long together":     "8 years",
-        //   "Where they met":        "Computer lab in class 10",
-        //   "Favorite activity":     "Cooking and bike rides",
-        //   "Memorable moment":      "Sangita cooked for family on Maghi",
-        // }
+        storyStyle
       })
     });
-
     const data = await response.json();
-    console.log(data.message);
+    console.log(data);
 
     if (!response.ok) {
       setErrorMessage(extractFirstSentence(data.message) || 'Something went wrong while generating the story.');
       return;
     }
     
-    if (data.success && data.story) {
+    if (data?.success) {
       setloading(false);
       // Delete draft when story generation is successful
       // if (user?.uid) {
       //   deleteDraftFromLocal(user.uid);
       // }
-      dispatch(setGeneratedStory(data.story));
+      dispatch(setGeneratedStory(data.data));
       navigate('/flipbook');
     } else {
-      setErrorMessage(extractFirstSentence(data.message) || 'Failed to generate the story.');
+      setErrorMessage(extractFirstSentence("failed to generate the story") || 'Failed to generate the story.');
     }
   } catch (error: any) {
     console.error("Failed to generate story:", error);
@@ -117,8 +97,6 @@ const GenerateStorySection = ({
   } finally {
     setloading(false);
   }
-  
-    
   };
 
   const handleEditDetails = () => {

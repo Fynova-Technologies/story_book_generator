@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
 import { useDispatch, useSelector } from "react-redux";
 import { setImages } from "../../store/slices/storyWizardSlice";
@@ -20,15 +20,17 @@ const UploadPhotoSection = ({
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
   );
   const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
+  const hasInitializedFromRedux = useRef(false);
 
-  // Initialize from Redux on mount
+  // Initialize from Redux on mount only once
   useEffect(() => {
-    if (storedImages.length > 0) {
+    if (!hasInitializedFromRedux.current && storedImages.length > 0) {
       const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
         const stored = storedImages[index];
         return stored ? { image: stored.image, description: stored.description } : { image: null, description: "" };
       });
       setPhotos(initializedPhotos);
+      hasInitializedFromRedux.current = true;
     }
   }, [storedImages]);
 
@@ -55,15 +57,15 @@ const UploadPhotoSection = ({
 
   // send the data to the store and mark step as valid if minimum photos uploaded
   useEffect(() => {
-  if(photos.filter(p=>p.image !== null).length >= MIN_PHOTOS){
-    if(totalSize <= 10){
-    dispatch(setImages(photos));
-    onValidChange(true);
+    const hasMinPhotos = photos.filter((p) => p.image !== null).length >= MIN_PHOTOS;
+    const isValid = hasMinPhotos && totalSize <= 10;
+
+    onValidChange(isValid);
+
+    if (isValid) {
+      dispatch(setImages(photos));
     }
-  }else{
-    onValidChange(false);
-  }
-},[photos]);
+  }, [photos, totalSize, dispatch, onValidChange]);
 
   // console.log(photos);
   

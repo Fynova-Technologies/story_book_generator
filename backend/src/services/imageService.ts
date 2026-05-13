@@ -92,7 +92,7 @@ export const generateImageFromText = async (
 
         // If no image, continue to next attempt
       } catch (error) {
-        console.error(`Attempt ${attempt + 1} with model ${model} failed:`, error);
+        // console.error(`Attempt ${attempt + 1} with model ${model} failed:`, error);
         if (attempt < 2) {
           // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));

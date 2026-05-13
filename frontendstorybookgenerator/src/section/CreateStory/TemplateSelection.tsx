@@ -142,12 +142,15 @@ const TemplateSelection = ({
   const [activeFilter, setActiveFilter] = useState("All Templates");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const storedTemplate = useSelector((state:RootState)=>state.story?.template ||null);
+  
 
   // Initialize from Redux on mount
   useEffect(() => {
     if (storedTemplate) {
       setSelectedTemplate(storedTemplate);
     }
+  ;
+    
   }, [storedTemplate]);
 
   const handleSelect = ( templateTitle: string) => {
