@@ -6,38 +6,40 @@ const models = [
 ];
 
 export const transformImage = async (
-  base64Image: string ,
-  prompt:      string,
+  base64Images: string[],   // ← array of images now
+  prompt:       string,
 ) => {
-  // 1. Extract raw base64 data and mime type
-  const base64Data = base64Image.split(',')[1];
-  const mimeType   = base64Image.split(';')[0].split(':')[1];
+  // build image parts from all photos
+  const imageParts = base64Images
+    .filter(img => img && img.includes(','))
+    .map(img => ({
+      inlineData: {
+        data:     img.split(',')[1],
+        mimeType: img.split(';')[0].split(':')[1],
+      }
+    }));
 
+  if (imageParts.length === 0) {
+    return { success: false, error: 'No valid images provided' };
+  }
 
   for (const model of models) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        // 2. Call Gemini model
         const response = await genAI.models.generateContent({
-          model:    model,
+          model,
           contents: {
             parts: [
+              ...imageParts,   // ← all photos sent together
               {
-                inlineData: {
-                  data:     base64Data,
-                  mimeType: mimeType,
-                },
-              },
-              {
-                text: `Use the provided image as the reference. Preserve its characters, lighting, 
-                mood, and style while adapting it to the scene below. Keep the result aligned with the 
-                page prompt.\n\n${prompt}`,
+                text: `Use the provided images as references. 
+                Preserve the characters, lighting, mood and style 
+                while adapting to the scene below.\n\n${prompt}`
               },
             ],
           },
         });
 
-        // 3. Parse result to find image part
         if (response.candidates?.[0]?.content?.parts) {
           for (const part of response.candidates[0].content.parts) {
             if (part.inlineData) {
@@ -49,18 +51,16 @@ export const transformImage = async (
           }
         }
 
-        // If no image, continue to next attempt
       } catch (error) {
         console.error(`Attempt ${attempt + 1} with model ${model} failed:`, error);
         if (attempt < 2) {
-          // Wait before retrying (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
         }
       }
     }
   }
 
-  return { success: false, error: 'All attempts to transform image failed with both models' };
+  return { success: false, error: 'All attempts failed' };
 };
 
 // ── Generate image from text only (no user photo) ──────────

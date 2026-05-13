@@ -1,5 +1,5 @@
 import { generateStory }        from '../services/geminiService';
-import { generateImageFromText } from '../services/imageService';
+import { generateImageFromText, transformImage } from '../services/imageService';
 import pkg from 'express';
 const { Router } = pkg;
 import type { Request, Response } from 'express';
@@ -21,9 +21,11 @@ router.post('/generate', async (req: Request, res: Response) => {
     story: storytext,
     storyStyle,
   } = req.body;
-  let imgprompts: string[] = [];
 
-  if (!storytext && (!template || !questionnaire)) {
+  // console.log(images);
+  
+
+  if (!storytext && (!template || !questionnaire || !images)) {
     return res.status(400).json(
       new ApiResponse(400, null, 'Missing required fields')
     );
@@ -46,7 +48,6 @@ router.post('/generate', async (req: Request, res: Response) => {
       });
       console.log('Story generated successfully');
       console.log(story);
-      imgprompts = story.pages.map((page: any) => page.imagePrompt);
     } catch (storyError: any) {
       const statusCode = storyError.statusCode || 500;
       const message    = storyError.message || 'Failed to generate story';
@@ -58,33 +59,44 @@ router.post('/generate', async (req: Request, res: Response) => {
     // ── Step 2: Generate one image per page from imagePrompt ──
     console.log(`Generating images for ${story.pages.length} pages...`);
 
-    const pagesWithImages = await Promise.all(
-      story.pages.map(async (page: any) => {
-        const prompt   = page.imagePrompt || '';
-        let   imageUrl: string | null = null;
+// extract all valid user photos once — used as reference for every page
+const allUserPhotos: string[] = (images || [])
+  .filter((img: any) => img?.image && img.image.trim() !== '')
+  .map((img: any) => img.image as string);
 
-        try {
-          // use only generateImageFromText — imagePrompt from Gemini
-          // already contains character context + art style + scene details
-          const response = await generateImageFromText(prompt);
-          imageUrl = response?.imageUrl || null;
-          // console.log(imageUrl);
-          
+console.log(`User photos available: ${allUserPhotos.length}`);
 
-        } catch (err) {
-          console.error(`Image failed for page ${page.page}:`, err);
-          // fallback to Pollinations
-          const encoded = encodeURIComponent(prompt);
-          imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=768&nologo=true`;
-        }
+const pagesWithImages = await Promise.all(
+  story.pages.map(async (page: any) => {
+    const prompt = page.imagePrompt || '';
+    let imageUrl: string | null = null;
 
-        return {
-          page:     page.page,
-          text:     page.text     || '',
-          imageUrl,
-        };
-      })
-    );
+    try {
+      let response;
+
+      if (allUserPhotos.length > 0) {
+        response = await transformImage(allUserPhotos, prompt);
+      } else {
+        // no user photos → generate from text prompt only
+        response = await generateImageFromText(prompt);
+      }
+
+      imageUrl = response?.imageUrl || null;
+
+    } catch (err) {
+      console.error(`Image failed for page ${page.page}:`, err);
+      // fallback to Pollinations
+      const encoded = encodeURIComponent(prompt);
+      imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=768&nologo=true`;
+    }
+
+    return {
+      page:     page.page,
+      text:     page.text || '',
+      imageUrl,
+    };
+  })
+);
 
     // ── Step 3: Send response ──────────────────────────────────
     return res.json(
@@ -102,7 +114,6 @@ router.post('/generate', async (req: Request, res: Response) => {
       new ApiResponse(500, null, error.message || 'Internal Server Error')
     );
   }
-  // console.log(imgprompts);
   
 });
 

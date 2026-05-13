@@ -165,8 +165,9 @@ const buildComicPrompt = (
 ): string => `
 Act as a Professional Comic Book Illustrator and Image Prompt Engineer. Your task is to convert a story into a 6-page comic storyboard delivered in a strict JSON format.
 1. CHARACTER & STYLE GUIDELINES
-•	Target Art Style: ${data.artStyle} (e.g., Marvel/DC Cinematic, Studio Ghibli, 3D Pixar-style, Photorealistic, or Soft Watercolor).
-•	Character Consistency: You must extract visual anchors from the provided reference images. Describe specific hair geometry (e.g., "layered, pointed spikes"), facial mapping (e.g., "sharp jawline" or "doe eyes"), and attire. These Global Style Anchors must be repeated in every page prompt to ensure character likeness remains identical.
+•	Target Art Style: ${data.artStyle}
+•	Character Consistency: You must extract visual anchors from the provided reference images. 
+Describe specific hair geometry, facial mapping, and attire. These Global Style Anchors must be repeated in every page prompt to ensure character likeness remains identical.
 •	Visual Language: Use comic-specific terms like "cinematic framing," "dynamic gutters," "depth of field," "heroic low-angle shots," and "saturated color grading."
 2. SPEECH BUBBLE & LETTERING PROTOCOL
 Every imagePrompt must explicitly describe the placement and content of dialogue to ensure a layman can follow the flow:
@@ -178,7 +179,7 @@ Every imagePrompt must explicitly describe the placement and content of dialogue
 •	Template: ${data.template||'No template provided'}
 •	Story Context: ${details}
 •	Character Context: ${characterSection}
-•	Reference Images: [User-provided character and style files]
+•	Reference Images: [User-provided images with descriptions]
 4. OUTPUT FORMAT
 Return ONLY a JSON object with the following structure:
 JSON
@@ -188,7 +189,7 @@ JSON
   "pages": [
     {
       "page": 1,
-      "imagePrompt": "A professional comic page in [Target Art Style]. [Global Style Anchors for Character 1 and 2]. 4-panel layout with clear gutters. PANEL 1: [Action]. Speech Balloon: '[Text]'. PANEL 2: [Action]. Narrative Caption: '[Text]'. [Atmospheric details]."
+      "imagePrompt": "A professional comic page in [Target Art Style]. [Global Style Anchors for characters]. 4-panel layout with clear gutters. PANEL 1: [Action]. Speech Balloon: '[Text]'. PANEL 2: [Action]. Narrative Caption: '[Text]'. [Atmospheric details]."
     },
     { "page": 2, "imagePrompt": "..." },
     { "page": 3, "imagePrompt": "..." },
