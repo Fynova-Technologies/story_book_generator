@@ -130,19 +130,44 @@ const StoryFlipBook = ({ story }: Props) => {
         onFlip={onFlip}
       >
 
-        {/* Cover Page */}
-        <div className="w-full h-full bg-light-primary dark:bg-dark-primary flex flex-col items-center justify-center 
-        p-8 text-center rounded-2xl">
-          <h1 className="font-heading text-2xl font-bold text-white leading-tight mb-4">
-            {story.title}
-          </h1>
-          <p className="font-body text-sm text-white/80">
-            {story.subtitle}
-          </p>
-          <p className="font-body text-xs text-white/60 mt-8">
+      {/* Cover Page */}
+      <div className="w-full h-full relative rounded-2xl overflow-hidden">
+
+        {/* Background Cover Image */}
+        {story.pages?.[0]?.imageUrl ? (
+          <img
+            src={story.pages[0].imageUrl}
+            alt="Comic Cover"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-light-primary dark:bg-dark-primary" />
+        )}
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/40" />
+
+        {/* Title & Subtitle on top */}
+        <div className="absolute inset-0 flex flex-col items-center justify-between p-6 text-center">
+          
+          {/* Top: Title & Subtitle */}
+          <div className="flex flex-col items-center gap-1">
+            <h1 className="font-heading text-2xl font-bold text-white leading-tight drop-shadow-lg">
+              {story.title}
+            </h1>
+            <p className="font-body text-sm text-white/90 drop-shadow-md">
+              {story.subtitle}
+            </p>
+          </div>
+
+          {/* Bottom: hint */}
+          <p className="font-body text-xs text-white/60">
             Tap or drag to turn pages
           </p>
+
         </div>
+
+      </div>
 
         {/* Story Pages */}
         {story.pages.map((page) => (

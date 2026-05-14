@@ -163,33 +163,34 @@ const buildComicPrompt = (
   details:          string,
   characterSection: string,
 ): string => `
-Act as a Professional Comic Book Illustrator and Image Prompt Engineer. Your task is to convert a story into a 6-page comic storyboard delivered in a strict JSON format.
-1. CHARACTER & STYLE GUIDELINES
-•	Target Art Style: ${data.artStyle}
-•	Character Consistency: You must extract visual anchors from the provided reference images. 
-Describe specific hair geometry, facial mapping, and attire. These Global Style Anchors must be repeated in every page prompt to ensure character likeness remains identical.
-•	Visual Language: Use comic-specific terms like "cinematic framing," "dynamic gutters," "depth of field," "heroic low-angle shots," and "saturated color grading."
+Act as a Professional Comic Book Illustrator and Image Prompt Engineer. 
+Your task is to convert a story into a 6-page comic storyboard delivered in a strict JSON format.
+
+1. STYLE GUIDELINES
+- Target Art Style: ${data.artStyle}
+- Visual Language: Use comic-specific terms like "cinematic framing," "dynamic gutters," 
+  "depth of field," "heroic low-angle shots," and "saturated color grading."
+
 2. SPEECH BUBBLE & LETTERING PROTOCOL
-Every imagePrompt must explicitly describe the placement and content of dialogue to ensure a layman can follow the flow:
-•	Dialogue: "Rounded speech balloons with tails pointing to the speaker."
-•	Exclamations: "Bold, jagged-edged shout bubbles with thick outlines."
-•	Internal Monologue: "Rectangular narrative captions at the top or bottom of panels."
-•	Sound Effects: "Stylized onomatopoeia integrated into the action (e.g., 'BOOM', 'CRACK', 'WHOOSH')."
+Every imagePrompt must explicitly describe the placement and content of dialogue:
+- Dialogue: "Rounded speech balloons with tails pointing to the speaker."
+- Exclamations: "Bold, jagged-edged shout bubbles with thick outlines."
+- Internal Monologue: "Rectangular narrative captions at the top or bottom of panels."
+- Sound Effects: "Stylized onomatopoeia integrated into the action (e.g., 'BOOM', 'CRACK', 'WHOOSH')."
+
 3. INPUT DATA
-•	Template: ${data.template||'No template provided'}
-•	Story Context: ${details}
-•	Character Context: ${characterSection}
-•	Reference Images: [User-provided images with descriptions]
+- Template: ${data.template || 'No template provided'}
+- Story Context: ${details}
+
 4. OUTPUT FORMAT
 Return ONLY a JSON object with the following structure:
-JSON
 {
   "title": "Title of the Comic",
   "subtitle": "Issue/Arc Name",
   "pages": [
     {
       "page": 1,
-      "imagePrompt": "A professional comic page in [Target Art Style]. [Global Style Anchors for characters]. 4-panel layout with clear gutters. PANEL 1: [Action]. Speech Balloon: '[Text]'. PANEL 2: [Action]. Narrative Caption: '[Text]'. [Atmospheric details]."
+      "imagePrompt": "A professional comic page in [Target Art Style]. 4-panel layout with clear gutters. PANEL 1: [Action]. Speech Balloon: '[Text]'. PANEL 2: [Action]. Narrative Caption: '[Text]'. [Atmospheric details]."
     },
     { "page": 2, "imagePrompt": "..." },
     { "page": 3, "imagePrompt": "..." },
@@ -197,10 +198,10 @@ JSON
     { "page": 5, "imagePrompt": "..." },
     { "page": 6, "imagePrompt": "..." }
   ]
-}
+}`;
 
 
-`;
+
 
 // ══ MAIN FUNCTION ══════════════════════════════════════════
 export const generateStory = async (data: GenerateStoryInput): Promise<any> => {
