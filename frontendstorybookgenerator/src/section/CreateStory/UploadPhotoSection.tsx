@@ -5,7 +5,7 @@ import { setImages } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
 
 const MAX_PHOTOS = 5;
-const MIN_PHOTOS = 5;
+const MIN_PHOTOS = 1;
 
 interface props{
   onValidChange:(valid:boolean)=>void;
