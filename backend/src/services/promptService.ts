@@ -274,31 +274,102 @@ Your task is to convert a story into a 6-page comic storyboard in strict JSON fo
 - Visual Language: Use comic-specific terms like "cinematic framing," "dynamic gutters,"
   "depth of field," "heroic low-angle shots," and "saturated color grading."
 
+STYLE ENFORCEMENT RULES — MANDATORY:
+- The phrase "${data.artStyle} comic page" MUST appear at the very START of every imagePrompt
+- The phrase "rendered in ${data.artStyle} style" MUST appear at the very END of every imagePrompt
+- Every panel description MUST include at least one of these style reinforcers:
+  "${data.artStyle} rendering", "hyper-detailed ${data.artStyle} art", 
+  "photorealistic comic art", "cinematic ${data.artStyle} illustration"
+- Never use terms that contradict the art style (e.g. "cartoon", "anime", "illustrated", 
+  "drawn", "sketch", "painted" if art style is Photorealistic)
+- If art style is Photorealistic: use terms like "8K resolution", "DSLR quality", 
+  "ray-traced lighting", "subsurface skin scattering", "cinematic lens flare"
+
 2. SPEECH BUBBLE & LETTERING PROTOCOL
 - Dialogue: "Rounded speech balloons with tails pointing to the speaker."
 - Exclamations: "Bold, jagged-edged shout bubbles with thick outlines."
 - Internal Monologue: "Rectangular narrative captions at the top or bottom of panels."
 - Sound Effects: "Stylized onomatopoeia integrated into the action (e.g., 'BOOM', 'CRACK', 'WHOOSH')."
 
-3. INPUT DATA
+DIALOGUE QUALITY RULES — MANDATORY:
+- Every word in every speech bubble MUST be correctly spelled — proofread before writing
+- Every sentence MUST be grammatically correct with proper punctuation
+- Max 10 words per speech balloon — short, punchy, natural
+- Max 15 words per narrative caption
+- Sound effects must be single stylized words only (BOOM, CRACK, WHOOSH, THUD, SNAP)
+- Never use placeholder text, incomplete sentences, or ellipsis as a full thought
+- Read each dialogue line aloud mentally before finalizing — if it sounds unnatural, rewrite it
+
+3. CHARACTER CONSISTENCY RULES — CRITICAL, DO NOT IGNORE
+${characterSection}
+
+These character descriptions are GLOBAL STYLE ANCHORS.
+You MUST follow these rules for every single page without exception:
+- Define characters ONCE at the top of each imagePrompt as CHARACTER ANCHOR (full description)
+- Inside each panel reference characters by SHORT TAG only: [CHARACTER NAME]
+- Never repeat the full description inside panels — the anchor applies globally
+- Never invent new visual traits, accessories, or clothing not in the description
+- Character appearance must be PIXEL-IDENTICAL from page 1 to page 6
+- Treat character descriptions as a LEGAL CONTRACT — zero deviation allowed
+
+4. INPUT DATA
 - Template: ${data.template || 'No template provided'}
 - Story Context: ${details}
-- Characters: ${characterSection}
 
-4. OUTPUT FORMAT
+5. IMAGE PROMPT CONSTRUCTION RULES
+Each imagePrompt MUST follow this EXACT structure:
+
+"${data.artStyle} comic page. 
+CHARACTER ANCHOR — [NAME]: [full description]. [NAME 2]: [full description].
+4-panel layout with clear gutters. 
+PANEL 1: [CHARACTER TAG] [action and scene], ${data.artStyle} rendering, [lighting details]. [Bubble type]: '[Proofread text]'. 
+PANEL 2: [Scene], hyper-detailed ${data.artStyle} art, [mood]. [Bubble type]: '[Proofread text]'.
+PANEL 3: [Action], cinematic ${data.artStyle} illustration, [atmosphere]. Sound Effect: '[Single word]'.
+PANEL 4: [CHARACTER TAG] [action + mood], ${data.artStyle} rendering, [lighting + depth].  [Bubble type]: '[Proofread text]'.
+Atmospheric details: [lighting, color grading, depth of field]. Rendered in ${data.artStyle} style, 
+8K resolution, ray-traced lighting, cinematic lens flare, subsurface skin scattering."
+
+PROMPT QUALITY CHECKLIST — run for EVERY page before writing:
+✓ Does the prompt START with "${data.artStyle} comic page"?
+✓ Does the prompt END with "rendered in ${data.artStyle} style"?
+✓ Does every panel contain a ${data.artStyle} style reinforcer?
+✓ Did I paste the full character description in CHARACTER ANCHOR?
+✓ Did I use short tags [NAME] inside panels only?
+✓ Is every dialogue word correctly spelled and grammatically natural?
+✓ Are sound effects single stylized words only?
+If ANY answer is NO — rewrite that section before moving to the next page.
+
+6. CONSISTENCY ENFORCEMENT
+After completing all 6 pages perform a final pass:
+- Confirm every imagePrompt starts with "${data.artStyle} comic page"
+- Confirm every imagePrompt ends with "rendered in ${data.artStyle} style"
+- Confirm every panel has at least one style reinforcer keyword
+- Confirm character descriptions match section 3 exactly on every page
+- Confirm all dialogue is grammatically correct and properly spelled
+Only output the JSON after this final pass is complete.
+
+7. OUTPUT FORMAT
 Return ONLY a JSON object:
 {
   "title": "Title of the Comic",
   "subtitle": "Issue/Arc Name",
   "pages": [
-    { "page": 1, "imagePrompt": "A professional comic page in [Target Art Style]. 4-panel layout with clear gutters. PANEL 1: [Action]. Speech Balloon: '[Text]'. PANEL 2: [Action]. Narrative Caption: '[Text]'. [Atmospheric details]." },
+    { "page": 1, "imagePrompt": "..." },
     { "page": 2, "imagePrompt": "..." },
     { "page": 3, "imagePrompt": "..." },
     { "page": 4, "imagePrompt": "..." },
     { "page": 5, "imagePrompt": "..." },
     { "page": 6, "imagePrompt": "..." }
   ]
-}`;
+}
+
+FINAL REMINDER BEFORE YOU OUTPUT:
+- Does every imagePrompt start with "${data.artStyle} comic page"?
+- Does every imagePrompt end with "rendered in ${data.artStyle} style"?
+- Does every panel contain a style reinforcer?
+- Are all character descriptions pixel-identical to section 3?
+- Is all dialogue correctly spelled and grammatically natural?
+If ANY answer is NO — rewrite before outputting.`;
 
 // ══ MAIN FUNCTION ══════════════════════════════════════════
 export const generateStory = async (data: GenerateStoryInput): Promise<any> => {
