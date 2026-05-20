@@ -1,4 +1,4 @@
-import { generateStory }        from '../services/promptService';
+import { generateStory }        from '../services/geminiService2';
 import { generateImageFromText, transformImage } from '../services/imageService';
 import pkg from 'express';
 const { Router } = pkg;
@@ -60,9 +60,9 @@ router.post('/generate', async (req: Request, res: Response) => {
     console.log(`Generating images for ${story.pages.length} pages...`);
 
 // extract all valid user photos once — used as reference for every page
-// const allUserPhotos: string[] = (images || [])
-//   .filter((img: any) => img?.image && img.image.trim() !== '')
-//   .map((img: any) => img.image as string);
+const allUserPhotos: string[] = (images || [])
+  .filter((img: any) => img?.image && img.image.trim() !== '')
+  .map((img: any) => img.image as string);
 
 // console.log(`User photos available: ${allUserPhotos.length}`);
 
@@ -74,13 +74,13 @@ const pagesWithImages = await Promise.all(
     try {
       let response;
 
-      // if (allUserPhotos.length > 0) {
-      //   response = await transformImage(allUserPhotos, prompt);
-      // } else {
-      //   // no user photos → generate from text prompt only
-      //   response = await generateImageFromText(prompt);
-      // }
-      response = await generateImageFromText(prompt);
+      if (allUserPhotos.length > 0) {
+        response = await transformImage(allUserPhotos, prompt);
+      } else {
+        // no user photos → generate from text prompt only
+        response = await generateImageFromText(prompt);
+      }
+      // response = await generateImageFromText(prompt);
 
 
       imageUrl = response?.imageUrl || null;

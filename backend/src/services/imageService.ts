@@ -6,6 +6,7 @@ import {
 } from '@google/genai';
 
 const models = [
+  // 'gemini-2.0-flash-preview-image-generation',
   'gemini-2.5-flash-image',
   'gemini-3.1-flash-image-preview',  // fallback to newer model
 ];
