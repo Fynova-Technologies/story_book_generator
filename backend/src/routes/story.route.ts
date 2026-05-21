@@ -1,4 +1,4 @@
-import { generateStory }        from '../services/geminiService2';
+import { generateStory }        from '../services/geminiService';
 import { generateImageFromText, transformImage } from '../services/imageService';
 import pkg from 'express';
 const { Router } = pkg;
