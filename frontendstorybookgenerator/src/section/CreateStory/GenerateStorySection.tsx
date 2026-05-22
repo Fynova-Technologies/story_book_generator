@@ -24,6 +24,7 @@ const GenerateStorySection = ({
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
   const [loading,setloading]= useState(false);
+  const [storyLength, setStoryLength] = useState<number>(storyData?.length || 6);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Helper function to extract first sentence from error message
@@ -69,7 +70,8 @@ const GenerateStorySection = ({
         images,
         story,
         questionnaire,
-        storyStyle
+        storyStyle,
+        storyLength,
       })
     });
     const data = await response.json();
@@ -214,11 +216,14 @@ const GenerateStorySection = ({
             {/* Length */}
             <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
               <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Length
+                Length (in pages)
               </p>
-              <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {storyData?.length || "12 Pages"}
-              </p>
+              <input 
+                type="number" 
+                value={storyLength}
+                onChange={(e) => setStoryLength(Number(e.target.value))}
+                className="w-full font-body text-sm font-medium text-light-text dark:text-dark-text"/>
+             
             </div>
 
             {/* Art Style */}

@@ -20,6 +20,7 @@ router.post('/generate', async (req: Request, res: Response) => {
     images,
     story: storytext,
     storyStyle,
+    storyLength,
   } = req.body;
 
   // console.log(images);
@@ -45,6 +46,7 @@ router.post('/generate', async (req: Request, res: Response) => {
         storytext:  storytext  || '',
         storyStyle: storyStyle || 'storybook',
         images:     images     || [],   // ← pass images with URLs + descriptions
+        storyLength,
       });
       console.log('Story generated successfully');
       console.log(story);

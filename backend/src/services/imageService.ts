@@ -118,13 +118,11 @@ export const transformImage = async (
     return { success: false, error: 'No valid images provided' };
   }
    // Detailed character-lock prompt reduces over-expressiveness
-      const characterPrompt = `You are given reference photo(s) of a character. 
+      const characterPrompt = `You are given reference photo(s) of a character.
       Your task is to generate a NEW image based on the scene described below.
       The generated image MUST closely resemble the character in the reference photo(s) in terms of
-      facial features, hairstyle, and overall appearance, while placing them in a new context that 
+      facial features, hairstyle,clothes, and overall appearance, while placing them in a new context that 
       fits the scene description.
-      
-
       SCENE TO GENERATE:
       ${prompt}`;
 

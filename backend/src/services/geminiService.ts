@@ -15,6 +15,7 @@ interface GenerateStoryInput {
   storyStyle: string;
   storytext: string;
   images?: StoryImage[];
+  storyLength: number;
 }
 
 // ── STYLE PRESETS ──────────────────────────────────────────
@@ -152,7 +153,7 @@ const buildStoryBookPrompt =(
 
     return `You are a world-class cinematic storyteller and AI image prompt engineer.
 
-    Generate a visually cinematic 6-page story in strict JSON format.
+    Generate a visually cinematic ${data.storyLength || 6}-page story in strict JSON format.
 
     INPUT:
     - Story template: ${data.template}
@@ -237,7 +238,7 @@ const buildComicPrompt = (
       You are a world-class cinematic storyboard writer and AI image prompt engineer.
 
       Your task:
-      Generate a professional 6-page visual storyboard in strict JSON format.
+      Generate a professional ${data.storyLength || 6}-page visual storyboard in strict JSON format.
 
       INPUT:
       - Story template: ${data.template || "No template provided"}
@@ -251,7 +252,7 @@ const buildComicPrompt = (
       1. Return ONLY valid JSON
       2. No markdown
       3. No code fences
-      4. Generate EXACTLY 6 pages
+      4. Generate EXACTLY ${data.storyLength || 6} pages
       5. Keep visual continuity across all pages
       6. Maintain consistent character appearance
       7. Use cinematic scene descriptions
@@ -320,6 +321,82 @@ const buildComicPrompt = (
       `;
 };
 
+const buildMangaPrompt = (
+  data: GenerateStoryInput,
+  details: string,
+): string => {
+  return `
+  You are a master Japanese manga artist, cinematic storyboard director, and AI image prompt engineer.
+
+Generate a professional ${data.storyLength || 6}-page traditional manga storyboard in strict JSON format.
+
+INPUT:
+- Story template: ${data.template}
+- Story context: ${details}
+- Narrative tone: ${data.narration || 'cinematic and emotional'}
+
+RULES:
+- Return ONLY valid JSON
+- No markdown or explanations
+- Generate EXACTLY ${data.storyLength || 6} pages
+- Output ONLY imagePrompt for each page
+- Maintain character and scene consistency across all pages
+- Follow authentic Japanese manga storytelling flow
+- Generate true multi-panel manga pages
+- Use black-and-white manga aesthetics
+- Keep imagePrompt under 250 words
+- No western comic style
+- No photorealistic rendering
+- No watercolor or painterly aesthetics
+- No 3D CGI language
+
+MANGA PAGE RULES:
+- Each page must contain 3-5 sequential panels
+- Use cinematic manga pacing and visual flow
+- Mix establishing shots, close-ups, reaction shots, overhead angles, and dynamic perspectives
+- Use larger panels for emotional or dramatic moments
+- Use smaller panels for reactions, tension, or pacing
+- Include authentic manga storytelling elements:
+  speech bubbles,
+  narration boxes,
+  internal monologue,
+  sound effects (SFX),
+  and silent emotional panels
+
+MANGA VISUAL LANGUAGE:
+- clean manga ink linework
+- screentones
+- dramatic black shadows
+- expressive facial reactions
+- dynamic perspective
+- speed lines during action
+- cinematic environmental framing
+- minimal backgrounds during emotional scenes
+- authentic serialized weekly manga aesthetic
+
+DIALOGUE RULES:
+- Keep dialogue short and natural
+- Maximum 10 words per speech bubble
+- Narration boxes should feel cinematic and emotional
+- Use SFX only during action or dramatic moments
+- Silent panels should be used for emotional impact when appropriate
+
+IMAGE PROMPT FORMAT:
+
+"Traditional Japanese manga page, black-and-white manga artwork, cinematic multi-panel layout with clean panel flow. Panel 1: [scene setup and environment], narration box: '[short narration]'. Panel 2: [character interaction or reaction], speech bubble: '[short dialogue]'. Panel 3: [action or dramatic moment], dynamic speed lines, SFX: '[single-word sound effect]'. Panel 4: [emotional close-up or cinematic transition], silent panel or internal monologue box: '[short thought if needed]'. Detailed manga ink linework, screentones, dramatic shadows, expressive eyes, dynamic framing, authentic weekly manga aesthetic, negative prompt: color, western comic style, photorealism, watercolor, painterly rendering, 3D CGI"
+
+JSON FORMAT:
+{
+  "title": "",
+  "subtitle": "",
+  "pages": [
+    {
+      "page": 1,
+      "imagePrompt": ""
+    },
+  ]
+}
+   `};
 // ── MAIN FUNCTION ─────────────────────────────────────────
 export const generateStory = async (
   data: GenerateStoryInput
@@ -339,9 +416,9 @@ export const generateStory = async (
   // );
   let prompt: string;
   switch (data.storyStyle.toLowerCase()) {
-    // case 'manga':
-    //   prompt = buildMangaPrompt(data, details);
-    //   break;
+    case 'manga':
+      prompt = buildMangaPrompt(data, details);
+      break;
     case 'comic':
       prompt = buildComicPrompt(data, details);
       break;
