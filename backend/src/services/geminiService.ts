@@ -15,7 +15,7 @@ interface GenerateStoryInput {
   storyStyle: string;
   storytext: string;
   images?: StoryImage[];
-  storyLength: number;
+  storyLength: any;
 }
 
 // ── STYLE PRESETS ──────────────────────────────────────────
@@ -175,7 +175,7 @@ const buildStoryBookPrompt =(
     RULES:
     - Return ONLY valid JSON
     - No markdown or explanations
-    - Generate EXACTLY 6 pages
+    - Generate EXACTLY ${data.storyLength || 6} pages
     - Match the requested art style accurately
     - Avoid mixing incompatible aesthetics
     - Keep imagePrompt under 140 words
@@ -188,8 +188,8 @@ const buildStoryBookPrompt =(
 
     STORY FLOW:
     - Page 1: introduce character and setting
-    - Pages 2-5: progression, conflict, emotion
-    - Page 6: emotional resolution
+    - Pages 2-secondlast: progression, conflict, emotion
+    - Page last: emotional resolution
 
     TEXT RULES:
     - 40-60 words per page
@@ -325,65 +325,66 @@ const buildMangaPrompt = (
   data: GenerateStoryInput,
   details: string,
 ): string => {
+  const styleKey = data.artStyle.toLowerCase();
+  const style =
+    STYLE_PRESETS[styleKey] ||
+    STYLE_PRESETS.photorealistic;
   return `
-  You are a master Japanese manga artist, cinematic storyboard director, and AI image prompt engineer.
-
-Generate a professional ${data.storyLength || 6}-page traditional manga storyboard in strict JSON format.
+You are a master seinen manga storyteller and AI image prompt engineer.
+Generate a professional ${data.storyLength || 6}-page cinematic seinen manga storyboard in strict JSON format.
 
 INPUT:
 - Story template: ${data.template}
-- Story context: ${details}
-- Narrative tone: ${data.narration || 'cinematic and emotional'}
+- Art style: ${data.artStyle}
+
+STORY CONTEXT:
+${details}
+
+STYLE:
+${style.intro}
+
+STYLE DETAILS:
+${style.styleDetails}
+
+NEGATIVE PROMPT:
+${style.negative}
 
 RULES:
 - Return ONLY valid JSON
 - No markdown or explanations
 - Generate EXACTLY ${data.storyLength || 6} pages
-- Output ONLY imagePrompt for each page
-- Maintain character and scene consistency across all pages
-- Follow authentic Japanese manga storytelling flow
-- Generate true multi-panel manga pages
-- Use black-and-white manga aesthetics
-- Keep imagePrompt under 250 words
-- No western comic style
-- No photorealistic rendering
-- No watercolor or painterly aesthetics
-- No 3D CGI language
+- Output ONLY imagePrompt
+- Maintain character, environment, and visual consistency
+- Follow authentic seinen manga pacing and panel flow
+- Adapt completely to the requested art style
+- Keep imagePrompt under 220 words
+- Avoid incompatible visual aesthetics
 
-MANGA PAGE RULES:
-- Each page must contain 3-5 sequential panels
-- Use cinematic manga pacing and visual flow
-- Mix establishing shots, close-ups, reaction shots, overhead angles, and dynamic perspectives
+MANGA STRUCTURE:
+- 3-5 cinematic panels per page
+- Mix establishing shots, close-ups, reaction shots, and dynamic angles
 - Use larger panels for emotional or dramatic moments
-- Use smaller panels for reactions, tension, or pacing
-- Include authentic manga storytelling elements:
-  speech bubbles,
-  narration boxes,
-  internal monologue,
-  sound effects (SFX),
-  and silent emotional panels
-
-MANGA VISUAL LANGUAGE:
-- clean manga ink linework
-- screentones
-- dramatic black shadows
-- expressive facial reactions
-- dynamic perspective
-- speed lines during action
-- cinematic environmental framing
-- minimal backgrounds during emotional scenes
-- authentic serialized weekly manga aesthetic
+- Use smaller panels for tension, silence, and pacing
+- Include speech bubbles, narration boxes, SFX, internal monologue, and silent panels when appropriate
 
 DIALOGUE RULES:
-- Keep dialogue short and natural
+- Natural and emotionally restrained
 - Maximum 10 words per speech bubble
-- Narration boxes should feel cinematic and emotional
-- Use SFX only during action or dramatic moments
-- Silent panels should be used for emotional impact when appropriate
+- Short reflective narration boxes
+- Use silence strategically
+- SFX only during action or tension
+
+VISUAL LANGUAGE:
+- cinematic framing
+- atmospheric composition
+- dramatic shadows
+- expressive emotions
+- environmental storytelling
+- dynamic perspective
+- authentic serialized manga pacing
 
 IMAGE PROMPT FORMAT:
-
-"Traditional Japanese manga page, black-and-white manga artwork, cinematic multi-panel layout with clean panel flow. Panel 1: [scene setup and environment], narration box: '[short narration]'. Panel 2: [character interaction or reaction], speech bubble: '[short dialogue]'. Panel 3: [action or dramatic moment], dynamic speed lines, SFX: '[single-word sound effect]'. Panel 4: [emotional close-up or cinematic transition], silent panel or internal monologue box: '[short thought if needed]'. Detailed manga ink linework, screentones, dramatic shadows, expressive eyes, dynamic framing, authentic weekly manga aesthetic, negative prompt: color, western comic style, photorealism, watercolor, painterly rendering, 3D CGI"
+"${style.intro} cinematic seinen manga page with clean multi-panel composition. Panel 1: [scene setup and atmosphere], narration box: '[short narration if needed]'. Panel 2: [interaction, reaction, or emotional focus], speech bubble: '[short dialogue if needed]'. Panel 3: [action, tension, or dramatic moment], dynamic framing, SFX: '[single-word sound effect if needed]'. Panel 4: [emotional close-up, silence, or transition], silent panel or internal monologue: '[short thought if needed]'. Atmospheric storytelling, cinematic pacing, dramatic composition, ${style.styleDetails}, negative prompt: ${style.negative}"
 
 JSON FORMAT:
 {

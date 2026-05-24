@@ -24,8 +24,9 @@ const GenerateStorySection = ({
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
   const [loading,setloading]= useState(false);
-  const [storyLength, setStoryLength] = useState<number>(storyData?.length || 6);
+  const [storyLength, setStoryLength] = useState<number>(6);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // console.log("Length of story:", storyLength);
 
   // Helper function to extract first sentence from error message
   const extractFirstSentence = (message: string): string => {
