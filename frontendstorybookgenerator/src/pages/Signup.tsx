@@ -18,7 +18,7 @@ const Signup = () => {
       password:string;
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const loading = useSelector((state:RootState)=>state.auth.loading);
   const error = useSelector((state:RootState)=>state.auth.error);
  
@@ -38,22 +38,26 @@ const Signup = () => {
   const handleSignup: SubmitHandler<FormData> = async(data) => {
      dispatch(setLoading(true));
       try {
-        const user= await signUpWithEmailAndPassword(data.email,data.password);
+        const user= await signUpWithEmailAndPassword(data.email,data.password,rememberMe);
         handleAuthSuccess(user);
         // console.log(user);
         
       } catch (error:any) {
         dispatch(setError(error.message));
+      } finally{
+        dispatch(setLoading(false));
       }
   };
 
   const handleGoogleSignup = async() => {
       dispatch(setLoading(true));
       try{
-        const user = await signInWithGoogle();
+        const user = await signInWithGoogle(rememberMe);
         handleAuthSuccess(user);
       }catch(error:any){
         dispatch(setError(error.message));
+      } finally{
+        dispatch(setLoading(false));
       }
   };
 
@@ -105,7 +109,7 @@ const Signup = () => {
                 placeholder="Enter your fullname"
                 error={errors.name?.message}
                 {...register("name", {
-                  required: "Email is required",
+                  required: "Name is required",
                 })}
               />
             {/* Email */}

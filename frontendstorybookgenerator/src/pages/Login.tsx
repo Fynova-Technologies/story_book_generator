@@ -17,7 +17,7 @@ const Login = () => {
       password:string;
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loading = useSelector((state:RootState)=>state.auth.loading);
@@ -36,25 +36,29 @@ const Login = () => {
     // console.log(data); // fully typed!
     dispatch(setLoading(true));
     try {
-      const user = await signInWithEmail(data.email, data.password);
+      const user = await signInWithEmail(data.email, data.password,rememberMe);
       // console.log(user);
       handleAuthSuccess(user);
     } catch (error: any) {
       // console.log("Login error",error);
       dispatch(setError(error.message));
+    } finally{
+      dispatch(setLoading(false));
     }
   };
 
   const GoogleLogin = async() => {
      dispatch(setLoading(true));
     try{
-      const user = await signInWithGoogle();
+      const user = await signInWithGoogle(rememberMe);
       // console.log(user.displayName,user.photoURL);
       handleAuthSuccess(user);
       navigate("/dashboard");
     }catch(error: any){
       // console.log("Google login error");
       dispatch(setError(error.message));
+    } finally{
+      dispatch(setLoading(false));
     }
 
   };

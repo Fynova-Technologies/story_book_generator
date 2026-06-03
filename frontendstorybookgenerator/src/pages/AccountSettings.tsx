@@ -9,6 +9,8 @@ import userAvatar from "../assets/images/sampleavatar.png"
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearAuth } from "../store/slices/authSlice";
+import { store } from "../store/store";
+import { auth } from "../firebase/config";
 import { logout } from "../firebase/authService";
 
 
@@ -111,12 +113,13 @@ const AccountSettings = () => {
           {/* ── LEFT — Account Nav ── */}
           <AccountNav
             activeSection={activeSection}
-            onSectionChange={(id: Section) => {
+            onSectionChange={async (id: Section) => {
               if (id === "logout") {
-                logout();
-                dispatch(clearAuth());
+                await logout();
                 navigate("/")
-                console.log("Logout clicked")
+                console.log("Logout clicked.Current user:",auth.currentUser);
+                dispatch(clearAuth());
+                console.log("Redux State:", store.getState().auth);
                 return
               }
               setActiveSection(id)

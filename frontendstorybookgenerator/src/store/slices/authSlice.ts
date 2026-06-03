@@ -13,6 +13,7 @@ interface AuthState {
   userData: User | null;
   loading:  boolean;
   error:    string | null;
+  authInitialized: boolean;
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
   userData: null,
   loading:  false,
   error:    null,
+  authInitialized: false,
 };
 
 const authSlice = createSlice({
@@ -44,14 +46,17 @@ const authSlice = createSlice({
       state.loading = false;
     },
     clearAuth: (state) => {
-      state.status
+      state.status = false;
       state.userData    = null;
       state.loading = false;
       state.error   = null;
+    },
+    setAuthInitialized: (state) => {
+      state.authInitialized = true;
     },
 
   },
 });
 
-export const { login,  setLoading, setError, clearAuth } = authSlice.actions;
+export const { login,  setLoading, setError, clearAuth, setAuthInitialized } = authSlice.actions;
 export default authSlice.reducer;

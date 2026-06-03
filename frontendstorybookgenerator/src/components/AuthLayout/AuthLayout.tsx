@@ -1,26 +1,38 @@
-import {useEffect, useState} from 'react'
-import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { RootState } from "../../store/store";
 
-export default function Protected({children, authentication = true}:any) {
+interface ProtectedProps {
+  children: React.ReactNode;
+  authentication?: boolean;
+}
 
-    const navigate = useNavigate()
-    const [loader, setLoader] = useState(true)
-    const authStatus = useSelector((state: RootState) => state.auth.status)
-    // console.log(authStatus);
-    
+export default function Protected({
+  children,
+  authentication = true,
+}: ProtectedProps) {
+  const { status, authInitialized } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-    useEffect(() => {
-       
+  // Wait until Firebase finishes checking auth state
+  if (!authInitialized) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
 
-        if(authentication && authStatus !== authentication){
-            navigate("/login")
-        } else if(!authentication && authStatus !== authentication){
-            navigate("/dashboard")
-        }
-        setLoader(false)
-    }, [authStatus, navigate, authentication])
+  // Protected pages (Dashboard, Profile, etc.)
+  if (authentication && !status) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return loader ? <h1>Loading...</h1> : <>{children}</>
+  // Public pages (Login, Signup)
+  if (!authentication && status) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 }

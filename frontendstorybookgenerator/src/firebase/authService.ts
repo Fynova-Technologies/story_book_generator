@@ -5,15 +5,25 @@ import {
     signInWithPopup,
     User,
     onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
  } from "firebase/auth";
 import { auth } from "./config";
-import { clearAuth, login } from "../store/slices/authSlice";
+import { clearAuth, login,setAuthInitialized } from "../store/slices/authSlice";
 import { store } from "../store/store";
 
 
 // Function to sign up a user with email and password
-export const signUpWithEmailAndPassword = async (email: string, password: string) => {
+export const signUpWithEmailAndPassword = async (email: string, password: string,rememberMe: boolean) => {
   try {
+    await setPersistence(
+    auth,
+    rememberMe
+      ? browserLocalPersistence
+      : browserSessionPersistence
+  );
+
     const userCredential = await createUserWithEmailAndPassword(auth,email, password);
     return userCredential.user;
   } catch (error) {
@@ -24,8 +34,14 @@ export const signUpWithEmailAndPassword = async (email: string, password: string
 
 
 //function to login a user with email and password
-export const signInWithEmail = async (email: string, password: string) => {
+export const signInWithEmail = async (email: string, password: string, rememberMe: boolean) => {
   try{
+    await setPersistence(
+    auth,
+    rememberMe
+      ? browserLocalPersistence
+      : browserSessionPersistence
+  );
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
@@ -46,9 +62,15 @@ export const logout = async() => {
 }
 
 //function to sign in with google
-const provider = new GoogleAuthProvider();
-export const signInWithGoogle = async () => {
+export const signInWithGoogle = async (rememberMe: boolean) => {
+  const provider = new GoogleAuthProvider();
   try {
+    await setPersistence(
+      auth,
+      rememberMe
+        ? browserLocalPersistence
+        : browserSessionPersistence
+    );
     const result = await signInWithPopup(auth, provider);
     return result.user;
   } catch (error) {
@@ -84,6 +106,7 @@ export const initAuthListener = () => {
     } else {
       store.dispatch(clearAuth());
     }
+     store.dispatch(setAuthInitialized())
   });
 };
   
