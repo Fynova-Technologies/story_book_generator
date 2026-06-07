@@ -1,9 +1,11 @@
 import { ApiError } from '../utils/ApiError';
 import { genAI } from './gemini';
+import { Type, Schema } from '@google/genai';
+import { getInstructionsByStyle } from './storyStyleConfig';
 
 // ── Types ──────────────────────────────────────────────────
 interface StoryImage {
-  imageUrl: string | null;
+  image: string | null;
   description: string;
 }
 
@@ -17,76 +19,183 @@ interface GenerateStoryInput {
   images?: StoryImage[];
   storyLength: any;
 }
+const StrictUserSchema: Schema = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING },
+    subtitle: { type: Type.STRING },
+    pages: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          page: { type: Type.INTEGER },
+          imagePrompt: { type: Type.STRING },
+        },
+        required: ["page", "imagePrompt"]
+      }
+    }
+  },
+  required: ["title", "subtitle", "pages"]
+};
+const getImagePart = (image: string) => {
+  if (image.startsWith('data:')) {
+    const [metadata, base64] = image.split(',');
+    const mimeType = metadata.split(';')[0].replace('data:', '');
+    return {
+      inlineData: {
+        data: base64,
+        mimeType,
+      },
+    };
+  }
+
+  return {
+    fileData: {
+      fileUri: image,
+      mimeType: 'image/jpeg',
+    },
+  };
+};
+
+const extractCharacterDescription = async (
+  image: string,
+  fallbackName: string,
+): Promise<string> => {
+  if (!image || !image.trim()) return '';
+  // console.log(`🔍 [Phase 1] Extracting visual formula for character: ${characterName}...`);
+
+  const visualAnalysisPrompt = `
+  Analyze this photo. Output a concise "Visual Formula" paragraph for an AI image generator to recreate this exact person.
+
+  Include strictly:
+  1. Estimated age and ethnicity (e.g., 20-year-old Nepali youth).
+  2. Hair: style, length, texture, color.
+  3. Face: eye shape, eyebrows, jaw structure, distinct expression.
+  4. Clothing: exact garment types and colors seen.
+
+  Rule: Output ONLY the raw description string. No markdown, intro, or bullet points.
+`;
+  try {
+    const response = await genAI.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: {
+        parts: [
+          getImagePart(image),
+          {
+            text: visualAnalysisPrompt,
+          },
+        ],
+      },
+      config: { temperature: 0.2 },
+    });
+
+    return (
+      response.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    ).trim();
+  } catch (error) {
+    console.error(`Failed to extract visual description for ${fallbackName}:`, error);
+    return '';
+  }
+};
+
+const extractAllImageDescriptions = async (
+  images: StoryImage[],
+): Promise<Record<string, string>> => {
+  const descriptions: Record<string, string> = {};
+  const validImages = (images || []).filter(
+    img => img.image && img.image.trim(),
+  );
+
+  for (let index = 0; index < validImages.length; index += 1) {
+    const image = validImages[index];
+    const name = image.description?.trim() || `Photo ${index + 1}`;
+
+    const description = image.description?.trim()
+      ? await extractCharacterDescription(image.image as string, name)
+      : image.description.trim();
+
+    descriptions[name] = description || `Reference photo ${index + 1}`;
+    console.log("Description:  ",descriptions[name]);
+    
+
+    if (index < validImages.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+
+  return descriptions;
+};
+
+const buildVisualDescriptionSection = (
+  descriptions: Record<string, string>,
+): string => {
+  const entries = Object.entries(descriptions).filter(([, desc]) => desc.trim());
+  if (!entries.length) return '';
+
+  const block = entries
+    .map(([name, desc]) => `- [${name}]: ${desc}`)
+    .join('\n');
+  console.log("Visual description section:\n", block);
+  return `\nVISUAL REFERENCE DESCRIPTIONS:\n${block}\n`;
+};
 
 // ── STYLE PRESETS ──────────────────────────────────────────
 const STYLE_PRESETS: Record<string, any> = {
   photorealistic: {
     intro:
-      'Photorealistic cinematic storyboard page.',
-    
-    styleDetails: `Ultra realistic cinematic photography,Sony A7R IV,85mm lens,RAW photo quality,natural skin texture,realistic anatomy,HDR lighting,depth of field,volumetric lighting,realistic shadows,cinematic composition.`,
-    
-    negative:'cartoon, anime, illustration, comic art, painting, cel shading, distorted anatomy, low quality'
+      "Photorealistic cinematic scene.",
+
+    styleDetails:
+      "Ultra-realistic photography, Sony A7R IV quality, 85mm lens, RAW photo realism, natural skin texture, realistic anatomy, HDR lighting, volumetric lighting, realistic shadows, cinematic composition, shallow depth of field.",
+
+    restrictions:
+      "Avoid anime styling, cartoon aesthetics, comic-book rendering, cel shading, painterly textures, exaggerated proportions, and artificial-looking anatomy."
   },
 
   anime: {
     intro:
-      'High-quality anime storyboard page.',
+      "High-quality anime cinematic scene.",
 
-    styleDetails: `
-      Modern anime aesthetic,clean anime line art,anime movie lighting,detailed cel shading,expressive anime eyes,Makoto Shinkai inspired atmosphere,dynamic anime framing,vibrant cinematic color harmony.`,
+    styleDetails:
+      "Modern anime aesthetic, clean linework, detailed cel shading, expressive eyes, anime movie lighting, cinematic framing, vibrant color harmony, dynamic composition, emotionally rich atmosphere.",
 
-    negative:
-      'photorealistic, DSLR photo, realistic skin pores, live action, RAW photography'
+    restrictions:
+      "Avoid photorealistic skin textures, DSLR photography appearance, live-action realism, realistic pores, photographic lighting artifacts, and CGI rendering."
   },
 
   ghibli: {
     intro:
-      'Studio Ghibli inspired storyboard page.',
+      "Studio Ghibli inspired cinematic scene.",
 
-    styleDetails: `
-      Soft painterly environments,warm emotional lighting,dreamlike scenery,gentle hand-painted textures,Hayao Miyazaki inspired composition,natural whimsical atmosphere,soft cinematic colors.`,
+    styleDetails:
+      "Hand-painted backgrounds, warm emotional lighting, whimsical natural environments, soft painterly textures, rich environmental storytelling, gentle color palette, dreamlike atmosphere, Miyazaki-inspired composition.",
 
-    negative:
-      '3D render, photorealistic skin, comic book style, hard shadows, CGI'
+    restrictions:
+      "Avoid photorealism, CGI rendering, comic-book aesthetics, hard shadows, hyper-detailed realism, and artificial digital textures."
   },
 
   watercolor: {
     intro:
-      'Watercolor illustrated storyboard page.',
+      "Traditional watercolor illustrated scene.",
 
-    styleDetails: `Soft watercolor textures,paper grain,organic brush strokes,delicate pigment blending,pastel palette,traditional watercolor painting aesthetic.`,
+    styleDetails:
+      "Organic watercolor brushwork, soft pigment blending, visible paper texture, delicate color transitions, pastel palette, hand-painted artistic atmosphere, fluid natural edges.",
 
-    negative:
-      '3D render, CGI, photorealistic, sharp digital outlines, cel shading'
+    restrictions:
+      "Avoid CGI rendering, photorealistic textures, sharp digital outlines, cel shading, comic-book rendering, and glossy materials."
   },
 
-  '3d': {
+  "3d": {
     intro:
-      'High-end 3D cinematic storyboard page.',
+      "High-end 3D cinematic scene.",
 
-    styleDetails: `Pixar-quality rendering,Unreal Engine lighting,Octane render,cinematic global illumination,high-detail textures,stylized 3D characters,realistic materials,cinematic depth of field.`,
+    styleDetails:
+      "Unreal Engine quality, cinematic global illumination, physically based rendering, realistic materials, detailed textures, volumetric lighting, cinematic depth of field, high-end CGI production quality.",
 
-    negative:
-      '2D drawing, watercolor, manga, sketch, flat illustration'
+    restrictions:
+      "Avoid hand-drawn aesthetics, watercolor textures, manga inking, sketch lines, flat illustration styles, and 2D rendering."
   },
-
-  manga: {
-    intro:
-      'Modern manga storyboard page.',
-
-    styleDetails: `
-      Detailed manga linework,
-      high-contrast screentones,
-      dynamic manga framing,
-      speed lines,
-      expressive manga eyes,
-      black-and-white manga aesthetic,
-      Japanese comic panel composition.`,
-
-    negative:
-      'photorealistic skin, CGI, 3D render, watercolor painting'
-  }
 };
 
 // ── Helper: build questionnaire details ───────────────────
@@ -145,6 +254,7 @@ const buildDetails = (
 const buildStoryBookPrompt =(
   data: GenerateStoryInput,
   details: string,
+  visualSection: string,
 ): string => {
   const styleKey = data.artStyle.toLowerCase();
   const style =
@@ -161,7 +271,7 @@ const buildStoryBookPrompt =(
     - Narrative tone: ${data.narration || 'cinematic and emotional'}
 
     STORY CONTEXT:
-    ${details}
+    ${details}${visualSection}
 
     STYLE:
     ${style.intro}
@@ -169,8 +279,8 @@ const buildStoryBookPrompt =(
     STYLE DETAILS:
     ${style.styleDetails}
 
-    NEGATIVE PROMPT:
-    ${style.negative}
+    RESTRICTIONS:
+    ${style.restrictions}
 
     RULES:
     - Return ONLY valid JSON
@@ -188,8 +298,8 @@ const buildStoryBookPrompt =(
 
     STORY FLOW:
     - Page 1: introduce character and setting
-    - Pages 2-secondlast: progression, conflict, emotion
-    - Page last: emotional resolution
+    - Page secondlast: progression, conflict, emotion
+    - Page last: emotional resolution 
 
     TEXT RULES:
     - 40-60 words per page
@@ -205,8 +315,8 @@ const buildStoryBookPrompt =(
     [lighting, mood, environmental depth, cinematic color harmony]
     Style details:
     ${style.styleDetails}
-    Negative prompt:
-    ${style.negative}"
+    RESTRICTIONS:
+    ${style.restrictions}"
 
     JSON FORMAT:
     {
@@ -227,6 +337,7 @@ const buildStoryBookPrompt =(
 const buildComicPrompt = (
   data: GenerateStoryInput,
   details: string,
+  visualSection: string,
 ): string => {
 
   const styleKey = data.artStyle.toLowerCase();
@@ -246,7 +357,7 @@ const buildComicPrompt = (
       - Narrative tone: ${data.narration || 'cinematic and emotional'}
 
       STORY CONTEXT:
-      ${details}
+      ${details}${visualSection}
 
       RULES:
       1. Return ONLY valid JSON
@@ -287,7 +398,7 @@ const buildComicPrompt = (
       Dialogue bubble: '[concluding emotional line]'OR Narration caption: '[warm concluding narration]'
       Visual atmosphere:[lighting behavior, environment mood, cinematic depth]
       Style details: ${style.styleDetails}
-      Negative prompt: ${style.negative}"
+      RESTRICTIONS: ${style.restrictions}"
 
       SPEECH BUBBLE & LETTERING PROTOCOL
       - Dialogue: "Rounded speech balloons with tails pointing to the speaker."
@@ -306,8 +417,8 @@ const buildComicPrompt = (
 
       STORY RULES:
       - Page 1 introduces the main character and setting
-      - Pages 2-5 develop emotional progression and conflict
-      - Page 6 delivers meaningful emotional resolution
+      - Pages 2-secondlast develop emotional progression and conflict
+      - Page last delivers meaningful emotional resolution
       - Each page text should be 40-60 words
       - Use natural polished storytelling
       - Avoid repetitive narration
@@ -324,6 +435,7 @@ const buildComicPrompt = (
 const buildMangaPrompt = (
   data: GenerateStoryInput,
   details: string,
+  visualSection: string,
 ): string => {
   const styleKey = data.artStyle.toLowerCase();
   const style =
@@ -338,7 +450,7 @@ INPUT:
 - Art style: ${data.artStyle}
 
 STORY CONTEXT:
-${details}
+${details}${visualSection}
 
 STYLE:
 ${style.intro}
@@ -399,138 +511,206 @@ JSON FORMAT:
 }
    `};
 // ── MAIN FUNCTION ─────────────────────────────────────────
+// export const generateStory = async (
+//   data: GenerateStoryInput
+// ): Promise<any> => {
+
+//   const details = buildDetails(
+//     data.questionnaire,
+//     data.storytext
+//   );
+
+//   // const characterSection = buildCharacterContext(
+//   //   data.images || []
+//   // );
+
+//   // const imageUrls = extractImageUrls(
+//   //   data.images || []
+//   // );
+//   let prompt: string;
+//   switch (data.storyStyle.toLowerCase()) {
+//     case 'manga':
+//       prompt = buildMangaPrompt(data, details, buildVisualDescriptionSection(
+//         await extractAllImageDescriptions(
+//           data.images || []
+//         )
+//       ));
+//       break;
+//     case 'comic':
+//       prompt = buildComicPrompt(data, details, buildVisualDescriptionSection(
+//         await extractAllImageDescriptions(
+//           data.images || []
+//         )
+//       ));
+//       break;
+//     case 'storybook':
+//     default:
+//       prompt = buildStoryBookPrompt(data, details, buildVisualDescriptionSection(
+//         await extractAllImageDescriptions(
+//           data.images || []
+//         )
+//       ));
+//       break;
+//   }
+
+//   // const prompt = buildComicPrompt(
+//   //   data,
+//   //   details,
+//   // );
+
+//   // const contents = buildContents(
+//   //   prompt,
+//   //   imageUrls
+//   // );
+
+//   const MODELS = [
+//     'gemini-2.5-flash',
+//     'gemini-2.5-pro'
+//   ];
+
+//   let lastError: any = null;
+
+//   for (const model of MODELS) {
+//     for (let attempt = 0; attempt < 3; attempt++) {
+
+//       try {
+
+//         console.log(
+//           `Trying model: ${model}, attempt: ${attempt + 1}`
+//         );
+
+//         const response =
+//           await genAI.models.generateContent({
+//             model,
+//             contents: [prompt],
+//             config: {
+//               temperature: 0.7
+//             }
+//           });
+
+//         const text =
+//           response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+//         const cleaned =
+//           text.replace(/```json|```/g, '').trim();
+
+//         const parsed = JSON.parse(cleaned);
+
+//         if (
+//           !parsed.pages ||
+//           parsed.pages.length < 6
+//         ) {
+//           throw new Error(
+//             'Incomplete story generated'
+//           );
+//         }
+//         console.log(
+//           `Avishek Story generated successfully with ${model}`
+//         );
+
+//         return {
+//           ...parsed,
+//           style: data.artStyle
+//         };
+
+//       } catch (error: any) {
+
+//         console.error(
+//           `Model ${model} attempt ${attempt + 1} failed:`,
+//           error.message
+//         );
+
+//         lastError = error;
+
+//         if (
+//           error.message?.includes('401') ||
+//           error.message?.includes('403') ||
+//           error.message?.includes('400')
+//         ) {
+//           throw new ApiError(
+//             error.statusCode || 500,
+//             error.message
+//           );
+//         }
+
+//         if (attempt < 2) {
+
+//           const waitTime =
+//             1000 * Math.pow(2, attempt);
+
+//           console.log(
+//             `Waiting ${waitTime}ms before retry...`
+//           );
+
+//           await new Promise(r =>
+//             setTimeout(r, waitTime)
+//           );
+//         }
+//       }
+//     }
+//   }
+
+//   throw (
+//     lastError ||
+//     new ApiError(
+//       500,
+//       'All attempts failed.'
+//     )
+//   );
+  
+  
+
+  
+// };
+
+
 export const generateStory = async (
   data: GenerateStoryInput
 ): Promise<any> => {
+   const styleKey = data.artStyle.toLowerCase();
+   const style = STYLE_PRESETS[styleKey] || STYLE_PRESETS.photorealistic;
 
-  const details = buildDetails(
-    data.questionnaire,
-    data.storytext
-  );
+  console.log(`Going through visual analyzer! Style Selected: ${data.storyStyle}`);
 
-  // const characterSection = buildCharacterContext(
-  //   data.images || []
-  // );
-
-  // const imageUrls = extractImageUrls(
-  //   data.images || []
-  // );
-  let prompt: string;
-  switch (data.storyStyle.toLowerCase()) {
-    case 'manga':
-      prompt = buildMangaPrompt(data, details);
-      break;
-    case 'comic':
-      prompt = buildComicPrompt(data, details);
-      break;
-    case 'storybook':
-    default:
-      prompt = buildStoryBookPrompt(data, details);
-      break;
-  }
-
-  // const prompt = buildComicPrompt(
-  //   data,
-  //   details,
-  // );
-
-  // const contents = buildContents(
-  //   prompt,
-  //   imageUrls
-  // );
-
-  const MODELS = [
-    'gemini-2.5-flash',
-    'gemini-2.5-pro'
-  ];
-
-  let lastError: any = null;
-
-  for (const model of MODELS) {
-    for (let attempt = 0; attempt < 3; attempt++) {
-
-      try {
-
-        console.log(
-          `Trying model: ${model}, attempt: ${attempt + 1}`
-        );
-
-        const response =
-          await genAI.models.generateContent({
-            model,
-            contents: [prompt],
-            config: {
-              temperature: 0.7
-            }
-          });
-
-        const text =
-          response.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-        const cleaned =
-          text.replace(/```json|```/g, '').trim();
-
-        const parsed = JSON.parse(cleaned);
-
-        if (
-          !parsed.pages ||
-          parsed.pages.length < 6
-        ) {
-          throw new Error(
-            'Incomplete story generated'
-          );
-        }
-        console.log(
-          `Avishek Story generated successfully with ${model}`
-        );
-
-        return {
-          ...parsed,
-          style: data.artStyle
-        };
-
-      } catch (error: any) {
-
-        console.error(
-          `Model ${model} attempt ${attempt + 1} failed:`,
-          error.message
-        );
-
-        lastError = error;
-
-        if (
-          error.message?.includes('401') ||
-          error.message?.includes('403') ||
-          error.message?.includes('400')
-        ) {
-          throw new ApiError(
-            error.statusCode || 500,
-            error.message
-          );
-        }
-
-        if (attempt < 2) {
-
-          const waitTime =
-            1000 * Math.pow(2, attempt);
-
-          console.log(
-            `Waiting ${waitTime}ms before retry...`
-          );
-
-          await new Promise(r =>
-            setTimeout(r, waitTime)
-          );
-        }
-      }
-    }
-  }
-
-  throw (
-    lastError ||
-    new ApiError(
-      500,
-      'All attempts failed.'
+  try{
+  const combinedFormulasString = buildVisualDescriptionSection(
+    await extractAllImageDescriptions(
+      data.images || []
     )
   );
-};
+  console.log(combinedFormulasString);// Dynamic Engine Hook: Fetch the customized instruction layout based on user's selected style
+    const dynamicDirectorInstructions = getInstructionsByStyle(
+      data, 
+      combinedFormulasString, 
+      style, // Your existing object containing style details, intro, restrictions, etc.
+      data.storytext
+    );
+
+  console.log("\n🎬 [Phase 2] Executing Storyboard Layout Director (gemini-2.5-pro)...");
+      const response = await genAI.models.generateContent({
+      model: 'gemini-2.5-pro',
+      contents: `
+        Story Context: ${data.storytext}
+        Visual Artstyle: ${style.details}
+        Global Avoid/Negative Elements: ${style.restrictions}
+
+        UNCHANGEABLE CHARACTER FORMULAS:
+        ${combinedFormulasString}
+      `,
+      config: {
+        systemInstruction: dynamicDirectorInstructions,
+        temperature: 0.3,
+        responseMimeType: 'application/json',
+        responseSchema: StrictUserSchema,
+      }
+    });
+      if (!response.text) throw new Error("Empty response from Director model.");
+      console.log(response);
+      return JSON.parse(response.text);
+    }catch(err){
+      console.error("Error in generateStoryboard:", err);
+      throw err;
+    }
+
+
+}

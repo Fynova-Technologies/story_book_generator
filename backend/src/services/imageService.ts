@@ -102,6 +102,7 @@ const models = [
 // };
 export const transformImage = async (
   base64Images: string[],   // ← array of images now
+  characterList: string,   // ← new parameter with all character names
   prompt:       string,
 ) => {
   // build image parts from all photos
@@ -118,13 +119,24 @@ export const transformImage = async (
     return { success: false, error: 'No valid images provided' };
   }
    // Detailed character-lock prompt reduces over-expressiveness
-      const characterPrompt = `You are given reference photo(s) of a character.
-      Your task is to generate a NEW image based on the scene described below.
-      The generated image MUST closely resemble the character in the reference photo(s) in terms of
-      facial features, hairstyle,clothes, and overall appearance, while placing them in a new context that 
-      fits the scene description.
-      SCENE TO GENERATE:
-      ${prompt}`;
+    const characterPrompt = `You are given ${base64Images.length} reference photo(s) of named characters:
+        ${characterList}
+        CHARACTER IDENTITY RULES (STRICT)
+        1. Each reference photo represents ONLY that specific named character
+        2. Every named character must appear EXACTLY ONCE in the scene
+        3. Named characters must visually match their reference photo exactly
+          (face, hairstyle, clothing, overall appearance)
+
+       THIRD PARTY / BACKGROUND PEOPLE RULES
+        4. ANY person NOT listed above is a THIRD PARTY
+        5. Third parties (crowd, bystanders, extras, background figures, audience, passersby, etc.) must NEVER resemble any reference character
+        6. Third party faces must be GENERIC, DIVERSE, and DISTINCT from all reference photos
+        7. If third parties are in the background, their faces should be BLURRED or INDISTINCT
+        8. Do NOT copy, reuse, or approximate any reference face on any third party under any circumstances
+
+        SCENE TO GENERATE
+        ${prompt}
+          `.trim();
 
   for (const model of models) {
     for (let attempt = 0; attempt < 3; attempt++) {

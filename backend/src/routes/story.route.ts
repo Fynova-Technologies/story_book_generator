@@ -5,12 +5,15 @@ const { Router } = pkg;
 import type { Request, Response } from 'express';
 import { ApiResponse } from '../utils/ApiResponse';
 
+let isGeneratingStory = false;
+
 const router = Router();
 
 // ── Generate full story with images ────────────────────────────
+
 router.post('/generate', async (req: Request, res: Response) => {
-  req.setTimeout(120000);
-  res.setTimeout(120000);
+  req.setTimeout(60000);
+  res.setTimeout(60000);
 
   const {
     template,
@@ -31,6 +34,14 @@ router.post('/generate', async (req: Request, res: Response) => {
       new ApiResponse(400, null, 'Missing required fields')
     );
   }
+
+  if (isGeneratingStory) {
+    return res.status(429).json(
+      new ApiResponse(429, null, 'Story generation already in progress. Please wait for the current request to complete.')
+    );
+  }
+
+  isGeneratingStory = true;
 
   try {
     // ── Step 1: Generate story text + image prompts ────────────
@@ -66,6 +77,11 @@ const allUserPhotos: string[] = (images || [])
   .filter((img: any) => img?.image && img.image.trim() !== '')
   .map((img: any) => img.image as string);
 
+const characterList = (images || [])
+  .filter((img: any) => img?.characterName && img.characterName.trim() !== '')
+  .map((c:any, i:any) => `Reference photo ${i + 1} = ${c.name}`)
+  .join('\n');
+
 // console.log(`User photos available: ${allUserPhotos.length}`);
 
 const pagesWithImages = await Promise.all(
@@ -76,8 +92,8 @@ const pagesWithImages = await Promise.all(
     try {
       let response;
 
-      if (allUserPhotos.length > 0) {
-        response = await transformImage(allUserPhotos, prompt);
+      if (allUserPhotos.length  <0) {
+        response = await transformImage(allUserPhotos,characterList, prompt);
       } else {
         // no user photos → generate from text prompt only
         response = await generateImageFromText(prompt);
@@ -117,6 +133,8 @@ const pagesWithImages = await Promise.all(
     return res.status(500).json(
       new ApiResponse(500, null, error.message || 'Internal Server Error')
     );
+  } finally {
+    isGeneratingStory = false;
   }
   
 });
