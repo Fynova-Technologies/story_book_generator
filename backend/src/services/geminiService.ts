@@ -43,48 +43,44 @@ const getImagePart = (image: string) => {
     const [metadata, base64] = image.split(',');
     const mimeType = metadata.split(';')[0].replace('data:', '');
     return {
-      inlineData: {
-        data: base64,
-        mimeType,
-      },
+      inlineData: { data: base64, mimeType },
     };
   }
-
   return {
-    fileData: {
-      fileUri: image,
-      mimeType: 'image/jpeg',
-    },
+    fileData: { fileUri: image, mimeType: 'image/jpeg' },
   };
 };
 
+// ── Extract visual description for ONE image ───────────────
 const extractCharacterDescription = async (
-  image: string,
-  fallbackName: string,
+  image:        string,
+  characterName: string,
 ): Promise<string> => {
   if (!image || !image.trim()) return '';
-  // console.log(`🔍 [Phase 1] Extracting visual formula for character: ${characterName}...`);
 
-  const visualAnalysisPrompt = `
-  Analyze this photo. Output a concise "Visual Formula" paragraph for an AI image generator to recreate this exact person.
+  const prompt = `
+Analyze this photo of a person named "${characterName}".
+Output a concise visual description paragraph for an AI image generator
+to recreate this exact person consistently across multiple illustrations.
 
-  Include strictly:
-  1. Estimated age and ethnicity (e.g., 20-year-old Nepali youth).
-  2. Hair: style, length, texture, color.
-  3. Face: eye shape, eyebrows, jaw structure, distinct expression.
-  4. Clothing: exact garment types and colors seen.
+Include strictly:
+1. Estimated age and ethnicity
+2. Hair: style, length, texture, color
+3. Face: eye shape, eyebrows, jaw structure, skin tone, distinct features
+4. Body: build and height impression
+5. Clothing: exact garment types and colors visible
 
-  Rule: Output ONLY the raw description string. No markdown, intro, or bullet points.
-`;
+Rule: Output ONLY the raw description. No markdown, no intro, no bullet points.
+Example output: "A 22-year-old Nepali young man with short silky black hair..."
+  `;
+
   try {
     const response = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model:    'gemini-2.5-flash',
       contents: {
         parts: [
           getImagePart(image),
-          {
-            text: visualAnalysisPrompt,
-          },
+          { text: prompt },
         ],
       },
       config: { temperature: 0.2 },
@@ -93,50 +89,68 @@ const extractCharacterDescription = async (
     return (
       response.candidates?.[0]?.content?.parts?.[0]?.text || ''
     ).trim();
+
   } catch (error) {
-    console.error(`Failed to extract visual description for ${fallbackName}:`, error);
+    console.error(`Failed to extract visual for ${characterName}:`, error);
     return '';
   }
 };
 
-const extractAllImageDescriptions = async (
+// ── Extract descriptions for ALL images in parallel ────────
+export const extractAllImageDescriptions = async (
   images: StoryImage[],
 ): Promise<Record<string, string>> => {
-  const descriptions: Record<string, string> = {};
+
   const validImages = (images || []).filter(
-    img => img.image && img.image.trim(),
+    img => img.image && img.image.trim()
   );
 
-  for (let index = 0; index < validImages.length; index += 1) {
-    const image = validImages[index];
-    const name = image.description?.trim() || `Photo ${index + 1}`;
+  if (validImages.length === 0) return {};
 
-    const description = image.description?.trim()
-      ? await extractCharacterDescription(image.image as string, name)
-      : image.description.trim();
+  // ✅ run ALL in parallel — no more sequential for loop
+  const results = await Promise.all(
+    validImages.map(async (img, index) => {
+      const name = img.description?.trim() || `Person ${index + 1}`;
 
-    descriptions[name] = description || `Reference photo ${index + 1}`;
-    console.log("Description:  ",descriptions[name]);
-    
+      // ✅ always extract from image — never skip
+      const visual = await extractCharacterDescription(
+        img.image as string,
+        name
+      );
 
-    if (index < validImages.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
+      return {
+        name,
+        visual: visual || `Reference photo ${index + 1}`,
+      };
+    })
+  );
+
+  // build Record<string, string>
+  const descriptions: Record<string, string> = {};
+  results.forEach(({ name, visual }) => {
+    descriptions[name] = visual;
+    console.log(`Description for [${name}]:`, visual);
+  });
 
   return descriptions;
 };
 
-const buildVisualDescriptionSection = (
+// ── Build visual section string ────────────────────────────
+export const buildVisualDescriptionSection = (
   descriptions: Record<string, string>,
 ): string => {
-  const entries = Object.entries(descriptions).filter(([, desc]) => desc.trim());
+  const entries = Object.entries(descriptions)
+    .filter(([, desc]) => desc.trim());
+
   if (!entries.length) return '';
 
+  // ✅ format: [Avishek]: a 22 yrs young boy...
   const block = entries
-    .map(([name, desc]) => `- [${name}]: ${desc}`)
+    .map(([name, desc]) => `[${name}]: ${desc}`)
     .join('\n');
-  console.log("Visual description section:\n", block);
+
+  console.log('Visual description section:\n', block);
+
   return `\nVISUAL REFERENCE DESCRIPTIONS:\n${block}\n`;
 };
 
@@ -667,30 +681,36 @@ JSON FORMAT:
 export const generateStory = async (
   data: GenerateStoryInput
 ): Promise<any> => {
-   const styleKey = data.artStyle.toLowerCase();
-   const style = STYLE_PRESETS[styleKey] || STYLE_PRESETS.photorealistic;
 
-  console.log(`Going through visual analyzer! Style Selected: ${data.storyStyle}`);
+  const styleKey = data.artStyle.toLowerCase();
+  const style    = STYLE_PRESETS[styleKey] || STYLE_PRESETS.photorealistic;
+  const details  = buildDetails(data.questionnaire, data.storytext);
 
-  try{
-  const combinedFormulasString = buildVisualDescriptionSection(
-    await extractAllImageDescriptions(
-      data.images || []
-    )
-  );
-  console.log(combinedFormulasString);// Dynamic Engine Hook: Fetch the customized instruction layout based on user's selected style
+  try {
+
+    // ── Phase 1: Character Visual Analysis ────────────────
+    console.log('Phase 1: Running character visual analysis...');
+
+    const descriptions         = await extractAllImageDescriptions(data.images || []);
+    const combinedFormulasString = buildVisualDescriptionSection(descriptions);
+
+    console.log('Phase 1 complete. Visual descriptions ready:\n', combinedFormulasString);
+
+    // ── Phase 2: Storyboard Director ──────────────────────
+    // only runs after Phase 1 completes — result passed directly
+    console.log('Phase 2: Executing Storyboard Director...');
+
     const dynamicDirectorInstructions = getInstructionsByStyle(
-      data, 
-      combinedFormulasString, 
-      style, // Your existing object containing style details, intro, restrictions, etc.
+      data,
+      combinedFormulasString,   // ← Phase 1 result injected here
+      style,
       data.storytext
     );
 
-  console.log("\n🎬 [Phase 2] Executing Storyboard Layout Director (gemini-2.5-pro)...");
-      const response = await genAI.models.generateContent({
-      model: 'gemini-2.5-pro',
+    const response = await genAI.models.generateContent({
+      model:    'gemini-2.5-pro',
       contents: `
-        Story Context: ${data.storytext}
+        Story Context: ${details}
         Visual Artstyle: ${style.details}
         Global Avoid/Negative Elements: ${style.restrictions}
 
@@ -699,18 +719,19 @@ export const generateStory = async (
       `,
       config: {
         systemInstruction: dynamicDirectorInstructions,
-        temperature: 0.3,
-        responseMimeType: 'application/json',
-        responseSchema: StrictUserSchema,
+        temperature:       0.3,
+        responseMimeType:  'application/json',
+        responseSchema:    StrictUserSchema,
       }
     });
-      if (!response.text) throw new Error("Empty response from Director model.");
-      console.log(response);
-      return JSON.parse(response.text);
-    }catch(err){
-      console.error("Error in generateStoryboard:", err);
-      throw err;
-    }
 
+    if (!response.text) throw new Error('Empty response from Director model.');
 
-}
+    console.log('Phase 2 complete. Story generated successfully.');
+    return JSON.parse(response.text);
+
+  } catch (err) {
+    console.error('Error in generateStory:', err);
+    throw err;
+  }
+};
