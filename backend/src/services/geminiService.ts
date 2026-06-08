@@ -710,12 +710,21 @@ export const generateStory = async (
     const response = await genAI.models.generateContent({
       model:    'gemini-2.5-pro',
       contents: `
-        Story Context: ${details}
-        Visual Artstyle: ${style.details}
-        Global Avoid/Negative Elements: ${style.restrictions}
+        THIS REQUEST
+        Template:       ${data.template   || 'Not provided'}
+        Art style:      ${data.artStyle   || 'cinematic'}
+        Narrative tone: ${data.narration  || 'cinematic and emotional'}
+        Total pages:    ${data.storyLength || 6}
 
-        UNCHANGEABLE CHARACTER FORMULAS:
-        ${combinedFormulasString}
+        STORY CONTEXT
+        ${details}
+
+        CHARACTER VISUAL FORMULAS (UNCHANGEABLE)
+        ${combinedFormulasString || 'No character photos provided — invent consistent characters.'}
+
+        ART STYLE DETAILS
+        Style details:    ${style.styleDetails  || data.artStyle}
+        Restrictions:     ${style.restrictions  || 'None'}
       `,
       config: {
         systemInstruction: dynamicDirectorInstructions,
