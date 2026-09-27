@@ -3,7 +3,7 @@ import AdventureSection from '../section/AdventureSection'
 import FAQSection from '../section/FAQSection'
 import FeatureSection from '../section/FeatureSection'
 import HeroSection from '../section/HeroSection'
-import HowItWorks from '../section/HowItWorks'
+import HowItWorksSection from '../section/HowItWorksSection'
 import PricingSection from '../section/PricingSection'
 import ReviewsSection from '../section/ReviewSection'
 
@@ -13,7 +13,7 @@ function LandingPage() {
       <HeroSection/>
       <div className='bg-light-bg dark:bg-dark-bg p-10'>
 
-      <HowItWorks/>
+      <HowItWorksSection/>
       </div>
 
       <div>

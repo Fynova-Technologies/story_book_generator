@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import CTABgImage from "../assets/images/CTAbg.png"
 
 const CTASection = () => {
+  const navigate = useNavigate();
   return (
     <section
       data-bg="dark"
@@ -40,6 +42,7 @@ const CTASection = () => {
                 className= "bg-white "
             /> */}
             <button
+              onClick={() => navigate("/login")}
               className="px-8 py-3 rounded-full bg-white border border-white/40 text-black font-body font-medium text-sm
                hover:bg-white hover:text-dark-primary transition-all duration-300 backdrop-blur-sm"
             >

@@ -6,7 +6,6 @@ const navLinks = [
   { name: "How it Works", path: "/how-it-works" },
   { name: "Samples", path: "/samples" },
   { name: "Pricing", path: "/pricing" },
-  { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" },
 ];
 
@@ -53,7 +52,7 @@ const Navbar = ({
             </Link>
 
             <Link
-              to="/start"
+              to="/login"
               className={`font-body font-bold text-sm ${bglight?"hover:bg-gray-600 transition-all ease-in":""} text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg`}
               style={{ background: "#FFFFFF" }}
             >

@@ -34,10 +34,10 @@ const steps = [
   },
 ];
 
-const HowItWorks = () => {
+const HowItWorksSection = () => {
   return (
     <section
-        className="max-h-screen px-5 pt-3 pb-15 md:px-12 xl:px-20 bg-dark-primary-10 dark:bg-dark-bg overflow-hidden rounded-3xl"
+        className="max-h-full px-5 pt-3 pb-10 md:px-12 xl:px-20 bg-dark-primary-10 dark:bg-dark-bg overflow-hidden rounded-3xl"
     >
       <div className="max-w-7xl mx-auto">
 
@@ -60,7 +60,7 @@ const HowItWorks = () => {
             <div className="flex flex-col lg:flex-row items-start gap-12 mb-5">
 
             {/* ── LEFT — 4 Steps in 2x2 Grid ── */}
-            <div className="w-full lg:w-[45%] grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
+            <div className="w-full lg:w-[45%] grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                 {steps.map((step) => (
                 <div key={step.id} className="flex flex-col gap-4">
 
@@ -105,4 +105,4 @@ const HowItWorks = () => {
   );
 };
 
-export default HowItWorks;
+export default HowItWorksSection;
