@@ -3,8 +3,6 @@ import InputField from "../components/InputField/Input";
 import {useForm} from "react-hook-form"
 import Navbar from "../components/Navbar/Navbar";
 
-
-
 const ContactUsSection = () => {
     type FormData = {
       name: string;
