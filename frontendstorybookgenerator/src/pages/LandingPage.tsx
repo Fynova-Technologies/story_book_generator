@@ -1,4 +1,6 @@
+import Footer from '../components/Footer/Footer'
 import AdventureSection from '../section/AdventureSection'
+import FAQSection from '../section/FAQSection'
 import FeatureSection from '../section/FeatureSection'
 import HeroSection from '../section/HeroSection'
 import HowItWorks from '../section/HowItWorks'
@@ -28,6 +30,10 @@ function LandingPage() {
 
       <PricingSection/>
       </div>
+      <div>
+        <FAQSection/>
+      </div>
+      <Footer/>
     </div>
   )
 }

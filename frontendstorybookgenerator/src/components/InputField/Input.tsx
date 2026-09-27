@@ -6,7 +6,13 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
-  function InputField({ label, type = "text", placeholder = "", error, ...rest }, ref) {
+  function InputField({ 
+    label, 
+    type = "text", 
+    placeholder = "", 
+    error, 
+    ...rest 
+  }, ref) {
     const [showPassword,setShowPassword]= useState(false)
     const id = useId();
 
@@ -67,9 +73,9 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         )}
         </div>
         {/* Error Message */}
-        {error && (
+        {error ? (
           <p className="text-xs text-red-500 mt-1">{error}</p>
-        )}
+        ) : null}
 
       </div>
     );
