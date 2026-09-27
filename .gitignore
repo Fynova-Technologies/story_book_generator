@@ -2,6 +2,12 @@
 *.env
 env.*
 # Logs
+.env
+.env.*
+!.env.sample
+!.env.example
+*.tsbuildinfo
+
 logs
 *.log
 npm-debug.log*
@@ -25,4 +31,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-

@@ -1,6 +1,6 @@
 [build]
-  base = "frontendstorybookgenerator"
-  command = "npm run build"
+  base = "."
+  command = "bun run build"
   publish = "dist"
 
 [build.environment]
