@@ -1,4 +1,14 @@
-# React + TypeScript + Vite
+# Story Book Generator
+
+The React frontend lives at the repository root; the Express backend lives in
+`backend/`. Use Bun for the frontend and the backend's existing npm lockfile for
+the backend.
+
+## Local development
+
+Copy `.env.sample` to `.env.local` and fill in the Firebase web-app configuration.
+Create `backend/.env` with `GEMINI_API_KEY`, and optionally `PORT` (default `5000`)
+and `FRONTEND_URL` (the frontend's origin). Keep the Gemini key on the backend.
 
 ```sh
 bun install
@@ -6,6 +16,21 @@ bun run dev      # dev server
 bun run build    # type-check + production build
 bun run lint
 ```
+
+In another terminal, run the backend:
+
+```sh
+npm --prefix backend ci
+npm --prefix backend run dev
+```
+
+Build and run the backend for production with `npm --prefix backend run build`
+and `npm --prefix backend start`. Run it from `backend/` when invoking Node
+directly so dotenv can load `backend/.env`.
+
+Netlify builds the frontend from the repository root. Firebase Hosting serves
+`dist/` with an SPA rewrite. The backend runs separately; set `VITE_BACKEND_URL`
+to its URL before building the frontend. No Firebase Functions source is included.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
