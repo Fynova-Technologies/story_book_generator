@@ -1,6 +1,6 @@
-// 📁 src/pages/CreateStory/VoiceNarration.tsx
-
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setNarration } from "../../store/slices/storyWizardSlice";
 
 const voiceOptions = [
   {
@@ -29,8 +29,11 @@ interface props{
   onValidChange:(valid:boolean)=>void;
 }
 const VoiceNarrationSection = ({ onValidChange }: props) => {
+  const dispatch = useDispatch();
+  
   const [isEnabled, setIsEnabled] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState("storyteller");
+  dispatch(setNarration(selectedVoice))
   
   useEffect(() => {
     onValidChange(true); // Voice narration is optional, so we consider it valid even if not enabled

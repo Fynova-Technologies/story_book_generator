@@ -5,8 +5,10 @@ import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import { useForm,SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
-import { login } from "../store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { login, setError, setLoading } from "../store/slices/authSlice";
+import { signInWithGoogle, signUpWithEmailAndPassword } from "../firebase/authService";
+import { RootState } from "../store/store";
 
 
 const Signup = () => {
@@ -16,25 +18,51 @@ const Signup = () => {
       password:string;
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
-  const [rememberMe, setRememberMe] = useState(false)
-  // const [email,setEmail] = useState(null)
+  const [rememberMe, setRememberMe] = useState(true)
+  const loading = useSelector((state:RootState)=>state.auth.loading);
+  const error = useSelector((state:RootState)=>state.auth.error);
  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-   const handleLogin: SubmitHandler<FormData> = (data) => {
-    console.log(data); // fully typed!
-      try {
-        dispatch(login({userData:{name:data.name,email:data.email}}));
-        navigate("/dashboard");
-      } catch (error) {
-        console.log("Login error");
-        
-      }
+  
+  const handleAuthSuccess=(user:any) => {
+    dispatch(login({ userData: {
+      uid:         user.uid,
+      email:       user.email,
+      displayName: user.displayName,
+      photoURL:    user.photoURL,
+    }}));
+    navigate("/dashboard");
+  }
 
+  const handleSignup: SubmitHandler<FormData> = async(data) => {
+     dispatch(setLoading(true));
+      try {
+        const user= await signUpWithEmailAndPassword(data.email,data.password,rememberMe);
+        handleAuthSuccess(user);
+        // console.log(user);
+        
+      } catch (error:any) {
+        dispatch(setError(error.message));
+      } finally{
+        dispatch(setLoading(false));
+      }
+  };
+
+  const handleGoogleSignup = async() => {
+      dispatch(setLoading(true));
+      try{
+        const user = await signInWithGoogle(rememberMe);
+        handleAuthSuccess(user);
+      }catch(error:any){
+        dispatch(setError(error.message));
+      } finally{
+        dispatch(setLoading(false));
+      }
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
+    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
         <div className="hidden lg:block lg:w-[40%] xl:w-[40%] relative rounded-3xl m-3 overflow-hidden">
@@ -46,7 +74,7 @@ const Signup = () => {
         </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
+      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
 
         {/* Top Bar */}
         <div className="flex items-center justify-center pt-3 pb-6">
@@ -74,14 +102,14 @@ const Signup = () => {
               Enter your email and password to access your account
             </p>
           </div>
-          <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
+          <form onSubmit={handleSubmit(handleSignup)} className="space-y-5">
              <InputField
                 label="Name"
                 type="text"
                 placeholder="Enter your fullname"
                 error={errors.name?.message}
                 {...register("name", {
-                  required: "Email is required",
+                  required: "Name is required",
                 })}
               />
             {/* Email */}
@@ -111,6 +139,7 @@ const Signup = () => {
                   minLength: { value: 8, message: "At least 8 characters" },
                 })}
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
               {/* Remember me + Forgot password */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -133,10 +162,13 @@ const Signup = () => {
                     </div>
                     <Button
                         type = "submit"
-                        name = "Register"
-                        disabled={isSubmitting}
+                        name = {`${loading ? "Signing up..." : "Register"}`}
+                        disabled={loading||isSubmitting}
                     /> 
-                    <GoogleButton/>
+                    <GoogleButton
+                    loading={loading}
+                    onClick={handleGoogleSignup}
+                    />
             </form>
 
           {/* Sign Up Link */}
@@ -152,8 +184,8 @@ const Signup = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center py-6">
-          <p className="text-xs text-light-outline-secondary dark:text-dark-text opacity-50">
+        <div className="py-6">
+          <p className="font-body text-sm text-light-text dark:text-dark-text">
             © 2025 Storyboard
           </p>
         </div>
@@ -161,6 +193,8 @@ const Signup = () => {
       </div>
     </div>
   );
+
 };
+
 
 export default Signup;

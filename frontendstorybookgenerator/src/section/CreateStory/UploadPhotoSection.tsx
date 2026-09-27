@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setImages } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 const MAX_PHOTOS = 5;
-const MIN_PHOTOS = 5;
+const MIN_PHOTOS = 1;
 
 interface props{
   onValidChange:(valid:boolean)=>void;
@@ -13,11 +14,28 @@ const UploadPhotoSection = ({
   onValidChange,
 }:props) => {
   const dispatch = useDispatch();
+  const storedImages = useSelector((state: RootState) => state.story?.images || []);
+
   const [photos, setPhotos] = useState<{ image: string | null; description: string }[]>(
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
   );
+  const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
+  const hasInitializedFromRedux = useRef(false);
 
-  const uploadedCount = photos.filter((p) => p.image !== null).length;
+  // Initialize from Redux on mount only once
+  useEffect(() => {
+    if (!hasInitializedFromRedux.current && storedImages.length > 0) {
+      const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
+        const stored = storedImages[index];
+        return stored ? { image: stored.image, description: stored.description } : { image: null, description: "" };
+      });
+      setPhotos(initializedPhotos);
+      hasInitializedFromRedux.current = true;
+    }
+  }, [storedImages]);
+
+  // const uploadedCount = photos.filter((p) => p.image !== null).length;
+  const totalSize = sizes.reduce((sum, s) => sum + s, 0);
 
   const handleImageUpload = (index: number, image: string) => {
     setPhotos((prev) =>
@@ -31,15 +49,23 @@ const UploadPhotoSection = ({
     );
   };
 
+  const handleFileSizeChange = (index: number, size: number) => {
+    setSizes((prev) =>
+      prev.map((s, i) => (i === index ? size : s))
+    );
+  };
+
   // send the data to the store and mark step as valid if minimum photos uploaded
   useEffect(() => {
-  if(photos.filter(p=>p.image !== null).length >= MIN_PHOTOS){
-    dispatch(setImages(photos));
-    onValidChange(true);
-  }else{
-    onValidChange(false);
-  }
-},[photos]);
+    const hasMinPhotos = photos.filter((p) => p.image !== null).length >= MIN_PHOTOS;
+    const isValid = hasMinPhotos && totalSize <= 10;
+
+    onValidChange(isValid);
+
+    if (isValid) {
+      dispatch(setImages(photos));
+    }
+  }, [photos, totalSize, dispatch, onValidChange]);
 
   // console.log(photos);
   
@@ -72,8 +98,22 @@ const UploadPhotoSection = ({
         <h3 className="font-heading font-bold text-base text-light-text dark:text-dark-text">
           Uploaded Photos
         </h3>
-        <span className="font-body text-sm font-semibold text-light-outline dark:text-dark-text opacity-60 bg-light-bg dark:bg-dark-primary-10 px-3 py-1 rounded-full border border-light-outline-secondary dark:border-dark-primary-30">
-          {uploadedCount} / {MIN_PHOTOS}
+        {/* show limit exceed */}
+        {totalSize > 10 && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p className="font-body text-sm font-medium text-red-700 dark:text-red-400">
+              10MB Limit Exceeded
+            </p>
+          </div>
+        )}
+        
+        <span className={`font-body text-sm font-semibold opacity-60 bg-light-bg dark:bg-dark-primary-10 px-3 py-1 rounded-full border ${totalSize > 10 ? 'text-red-600 dark:text-red-400 border-red-300 dark:border-red-700' : 'text-light-outline dark:text-dark-text border-light-outline-secondary dark:border-dark-primary-30'}`}>
+          {totalSize.toFixed(1)} / 10 MB
         </span>
       </div>
 
@@ -86,6 +126,7 @@ const UploadPhotoSection = ({
             description={photo.description}
             onImageUpload={(image: string) => handleImageUpload(index, image)}
             onDescriptionChange={(desc: string) => handleDescriptionChange(index, desc)}
+            onFileSizeChange={(size: number) => handleFileSizeChange(index, size)}
           />
         ))}
       </div>

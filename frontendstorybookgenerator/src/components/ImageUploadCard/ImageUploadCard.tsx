@@ -4,7 +4,8 @@ const ImageUploadCard = ({
     onImageUpload, 
     previewImage, 
     description, 
-    onDescriptionChange 
+    onDescriptionChange,
+    onFileSizeChange
 }: any) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -13,6 +14,8 @@ const ImageUploadCard = ({
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
+      const sizeMB = file.size / (1024 * 1024);
+      onFileSizeChange?.(sizeMB);
       const reader = new FileReader();
       reader.onloadend = () => {
         onImageUpload?.(reader.result as string);
@@ -33,6 +36,8 @@ const ImageUploadCard = ({
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) {
+      const sizeMB = file.size / (1024 * 1024);
+      onFileSizeChange?.(sizeMB);
       const reader = new FileReader();
       reader.onloadend = () => {
         onImageUpload?.(reader.result as string);
@@ -47,7 +52,7 @@ const ImageUploadCard = ({
 
       {/* ── IMAGE AREA ── */}
       <div
-        className={`relative w-full aspect-square cursor-pointer transition-all duration-200
+        className={`relative w-full h-50 cursor-pointer transition-all duration-200
           ${isDragging ? "bg-dark-primary-10" : "bg-light-bg dark:bg-dark-primary-10"}
           ${!previewImage ? "border-b border-dashed border-light-outline-secondary dark:border-dark-primary-30" : ""}
         `}
@@ -62,7 +67,7 @@ const ImageUploadCard = ({
             <img
               src={previewImage}
               alt="Uploaded"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
 
             {/* ✅ Blue checkmark badge */}

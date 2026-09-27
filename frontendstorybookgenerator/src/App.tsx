@@ -4,10 +4,12 @@ import LandingPage from './pages/LandingPage'
 import { RootState } from "../src/store/store";
 
 
+
+
 function App() {
   const authStatus = useSelector((state:RootState)=>state.auth.status)
   console.log(authStatus);
-  
+
 
   return (
    <div>

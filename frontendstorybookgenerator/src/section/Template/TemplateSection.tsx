@@ -152,7 +152,7 @@ const TemplateSection = () => {
   });
 
   return (
-    <section className="w-full py-10 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg">
+    <section className="w-full py-15 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg">
       <div className="max-w-7xl mx-auto">
 
         {/* ── FILTER TABS ── */}

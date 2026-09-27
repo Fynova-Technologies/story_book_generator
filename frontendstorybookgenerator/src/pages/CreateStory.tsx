@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import StoryStepperNav from "../components/StoryStepperNav/StoryStepperNav";
 import UploadPhotoSection from "../section/CreateStory/UploadPhotoSection";
 import userAvatar from "../assets/images/sampleavatar.png"
@@ -10,22 +10,32 @@ import TemplateSelection from "../section/CreateStory/TemplateSelection";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
+import StoryStyleSection from "../section/CreateStory/StoryStyleSection";
 
 // ✅ Steps defined in order
 const STEPS = [
   { id: "templete",      label: "Select Template" },
   { id: "photo",         label: "Upload Photo" },
   { id: "questionnaire", label: "Questionnaire" },
+  { id:"storystyle",     label:"Story Style Selection"},
   { id: "art",           label: "Art Style Selection" },
   { id: "voice",         label: "Voice Narration" },
   { id: "generate",      label: "Generate" },
 ];
 
-type Section = "templete" | "photo" | "questionnaire" | "art" | "voice" | "generate";
+type Section = "templete" | "photo" | "questionnaire" | "storystyle" | "art" | "voice" | "generate";
 
 const CreateStory = () => {
+  // const {
+  //   draftExists,
+  //   draft,
+  //   lastSavedText,
+  //   restoreConfirmed,
+  //   discardDraft,
+  // } = useDraftRestore();
   const [isValid, setIsValid] = useState(false);
   const template = useSelector((state: RootState) => state.story.template);
+  // const user = useSelector((state: RootState) => state.auth.userData);
 
   // ✅ Track step using index
   const [currentStepIndex, setCurrentStepIndex] = useState(1); // starts at "photo"
@@ -49,14 +59,18 @@ const CreateStory = () => {
       setIsValid(false); // reset validity for next step
     }
   };
-  const handleStepValidChange = useCallback((valid: boolean) => {
-    setIsValid(valid);
-  }, []);
 
   // ✅ Stepper click — jump to any step
   const handleSectionChange = (id: Section) => {
     const index = STEPS.findIndex((step) => step.id === id);
-    if (index !== -1) setCurrentStepIndex(index);
+    if (index !== -1) {
+      setCurrentStepIndex(index);
+    }
+  };
+
+  // ✅ Handle step validation changes
+  const handleStepValidChange = (isValid: boolean) => {
+    setIsValid(isValid);
   };
 
   const renderSection = () => {
@@ -72,12 +86,55 @@ const CreateStory = () => {
       case "art":            return <ArtStyleSection onValidChange={handleStepValidChange} />;
       case "voice":          return <VoiceNarrationSection onValidChange={handleStepValidChange} />;
       case "generate":       return <GenerateStorySection onValidChange={handleStepValidChange} />;
+      case "storystyle":     return <StoryStyleSection onValidChange={handleStepValidChange} />;
       default:               return <UploadPhotoSection onValidChange={handleStepValidChange} />;
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-light-bg dark:bg-dark-bg">
+        {/* ── Draft Restore Banner ── */}
+      {/* {draftExists && draft && (
+        <div className="w-full bg-light-primary/10 dark:bg-dark-primary-10 border-b border-light-primary/20 dark:border-dark-primary-30 px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <div>
+              <p className="font-body text-sm font-semibold text-light-text dark:text-dark-text">
+                You have an unfinished story
+              </p>
+              <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">
+                Last saved {lastSavedText}
+                {draft.template && ` · Template: ${draft.template}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={discardDraft}
+              className="font-body text-xs text-light-outline dark:text-dark-text hover:text-light-text transition-all"
+            >
+              Start Fresh
+            </button>
+            <button
+              onClick={() => {
+                restoreConfirmed();
+                // also restore step
+                if (user?.uid) {
+                  const savedStep = localStorage.getItem(`step_${user.uid}`);
+                  if (savedStep) setCurrentStepIndex(parseInt(savedStep));
+                }
+              }}
+              className="px-4 py-1.5 rounded-lg bg-light-primary dark:bg-dark-primary text-white font-body text-xs font-semibold hover:opacity-90 transition-all"
+            >
+              Continue Story
+            </button>
+          </div>
+        </div>
+      )} */}
 
       {/* ── TOP ROW — Logo + Credits + Avatar ── */}
       <div className="w-full px-6 md:px-10 h-14 flex items-center justify-between border-b border-light-outline-secondary dark:border-dark-primary-30">

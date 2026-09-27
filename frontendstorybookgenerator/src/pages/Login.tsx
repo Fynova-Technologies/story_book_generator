@@ -5,8 +5,10 @@ import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm,SubmitHandler } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { login } from "../store/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { login, setError, setLoading } from "../store/slices/authSlice";
+import { signInWithEmail,signInWithGoogle } from "../firebase/authService";
+import { RootState } from "../store/store";
 
 
 const Login = () => {
@@ -15,23 +17,54 @@ const Login = () => {
       password:string;
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
-  const [rememberMe, setRememberMe] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const loading = useSelector((state:RootState)=>state.auth.loading);
+  const error = useSelector((state:RootState)=>state.auth.error);
 
-   const handleLogin: SubmitHandler<FormData> = (data) => {
-    console.log(data); // fully typed!
+  const handleAuthSuccess=(user:any) => {
+    dispatch(login({ userData: {
+      uid:         user.uid,
+      email:       user.email,
+      displayName: user.displayName,
+      photoURL:    user.photoURL,
+    }}));
+    navigate("/dashboard");
+  }
+  const handleLogin: SubmitHandler<FormData> = async(data) => {
+    // console.log(data); // fully typed!
+    dispatch(setLoading(true));
     try {
-      dispatch(login({userData:{email:data.email}}));
-      navigate("/dashboard");
-    } catch (error) {
-      console.log("Login error");
-      
+      const user = await signInWithEmail(data.email, data.password,rememberMe);
+      // console.log(user);
+      handleAuthSuccess(user);
+    } catch (error: any) {
+      // console.log("Login error",error);
+      dispatch(setError(error.message));
+    } finally{
+      dispatch(setLoading(false));
     }
   };
 
+  const GoogleLogin = async() => {
+     dispatch(setLoading(true));
+    try{
+      const user = await signInWithGoogle(rememberMe);
+      // console.log(user.displayName,user.photoURL);
+      handleAuthSuccess(user);
+      navigate("/dashboard");
+    }catch(error: any){
+      // console.log("Google login error");
+      dispatch(setError(error.message));
+    } finally{
+      dispatch(setLoading(false));
+    }
+
+  };
+
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-on-primary dark:bg-dark-bg">
+    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
 
       {/* ── LEFT SIDE — Illustration ── */}
       <div className="hidden lg:flex lg:w-[40%] xl:w-[40%] relative overflow-hidden rounded-3xl m-3">
@@ -43,7 +76,7 @@ const Login = () => {
       </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-on-primary dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3">
+      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3">
 
         {/* Top Bar */}
         <div className="flex items-center justify-between pt-2 pb-6">
@@ -108,6 +141,7 @@ const Login = () => {
                   minLength: { value: 8, message: "At least 8 characters" },
                 })}
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
               {/* Remember me + Forgot password */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -130,10 +164,14 @@ const Login = () => {
                     </div>
                     <Button
                         type = "submit"
-                        name = "Log in"
-                        disabled={isSubmitting}
+                        name = {`${loading ? "Logging in..." : "Log in"}`}
+                        disabled={isSubmitting || loading}
                     /> 
-                    <GoogleButton/>
+                   
+                  <GoogleButton
+                    loading={loading} 
+                    onClick= {() => GoogleLogin()}
+                    />
             </form>
 
             {/* Sign Up Link */}
@@ -149,8 +187,8 @@ const Login = () => {
           </div>
 
           {/* Footer */}
-          <div className="text-center py-6">
-            <p className="text-xs text-light-outline-secondary dark:text-dark-text opacity-50">
+          <div className=" py-6">
+            <p className="font-body text-sm text-light-text dark:text-dark-text">
               © 2025 Storyboard
             </p>
           </div>

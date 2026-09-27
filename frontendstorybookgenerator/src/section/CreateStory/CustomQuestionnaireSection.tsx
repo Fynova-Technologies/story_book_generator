@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { setQuestionnaire } from "../../store/slices/storyWizardSlice";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setCustomStory } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 
 const CHAR_LIMIT = 500;
@@ -14,7 +15,18 @@ const CustomQuestionnaireSection = ({
   // const selectedTemplate = useSelector((state: RootState) => state.story.template);
   // console.log(selectedTemplate);
   const dispatch = useDispatch();
+  const storedCustomStory = useSelector((state: RootState) => state.story?.story || "");
   const [story, setStory] = useState("");
+
+  // Initialize from Redux on mount
+  useEffect(() => {
+    if (storedCustomStory) {
+      setStory(storedCustomStory);
+    }
+  }, [storedCustomStory]);
+
+  // Debounce ref for the dispatch function
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = (e: any) => {
     const value = e.target.value;
@@ -23,14 +35,30 @@ const CustomQuestionnaireSection = ({
     }
     onValidChange(value.length > 0);
   };
+
+  // Debounced dispatch function
+  const debouncedDispatch = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      if(story.length > 100){
+        dispatch(setCustomStory(story));
+        onValidChange(true);
+      }else{
+        onValidChange(false);
+      }
+    }, 500); // 500ms debounce delay
+  }, [story, dispatch, onValidChange]);
+
  useEffect(() => {
-  if(story.length > 100){
-    dispatch(setQuestionnaire({ story }));
-    onValidChange(true);
-  }else{
-    onValidChange(false);
-  }
-},[story]);
+  debouncedDispatch();
+  return () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+  };
+},[story, debouncedDispatch, onValidChange]);
   
 
   const handleInspireMe = () => {

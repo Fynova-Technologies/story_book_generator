@@ -37,7 +37,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
           ref={ref}
           id={id}
           className={`w-full px-4 py-2 rounded-lg 
-            bg-light-on-primary dark:bg-dark-primary-10 
+            bg-dark-primary-10 dark:bg-dark-primary-10 
             border text-light-text dark:text-dark-text 
             placeholder:text-light-outline-secondary 
             focus:outline-none focus:ring-2 focus:ring-dark-primary-10 
