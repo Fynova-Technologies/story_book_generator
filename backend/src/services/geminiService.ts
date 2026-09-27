@@ -2,13 +2,9 @@ import { ApiError } from '../utils/ApiError';
 import { genAI } from './gemini';
 import { Type, Schema } from '@google/genai';
 import { getInstructionsByStyle } from './storyStyleConfig';
+import { CharacterReference, referenceParts } from './characterReferences';
 
 // ── Types ──────────────────────────────────────────────────
-interface StoryImage {
-  image: string | null;
-  description: string;
-}
-
 interface GenerateStoryInput {
   template: string;
   questionnaire: Record<string, string>;
@@ -16,7 +12,7 @@ interface GenerateStoryInput {
   narration: string;
   storyStyle: string;
   storytext: string;
-  images?: StoryImage[];
+  images?: CharacterReference[];
   storyLength: any;
 }
 const StrictUserSchema: Schema = {
@@ -24,6 +20,14 @@ const StrictUserSchema: Schema = {
   properties: {
     title: { type: Type.STRING },
     subtitle: { type: Type.STRING },
+    characters: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: { name: { type: Type.STRING }, appearance: { type: Type.STRING } },
+        required: ['name', 'appearance'],
+      },
+    },
     pages: {
       type: Type.ARRAY,
       items: {
@@ -36,39 +40,27 @@ const StrictUserSchema: Schema = {
       }
     }
   },
-  required: ["title", "subtitle", "pages"]
+  required: ["title", "subtitle", "characters", "pages"]
 };
-const getImagePart = (image: string) => {
-  if (image.startsWith('data:')) {
-    const [metadata, base64] = image.split(',');
-    const mimeType = metadata.split(';')[0].replace('data:', '');
-    return {
-      inlineData: { data: base64, mimeType },
-    };
-  }
-  return {
-    fileData: { fileUri: image, mimeType: 'image/jpeg' },
-  };
-};
-
 // ── Extract visual description for ONE image ───────────────
 const extractCharacterDescription = async (
-  image:        string,
+  references: CharacterReference[],
   characterName: string,
 ): Promise<string> => {
-  if (!image || !image.trim()) return '';
-
   const prompt = `
-Analyze this photo of a person named "${characterName}".
+Analyze these photos of ONE character named ${JSON.stringify(characterName)}.
+All photos show the SAME character, not different people. The subject may be human,
+an animal or a fictional character. Use the notes only to identify the subject.
+Notes: ${JSON.stringify(references.map(reference => reference.description))}
 Output a concise visual description paragraph for an AI image generator
-to recreate this exact person consistently across multiple illustrations.
+to recreate this character consistently across multiple illustrations.
 
 Include strictly:
-1. Estimated age and ethnicity
+1. Visible age range and species; do not infer ethnicity or other hidden traits
 2. Hair: style, length, texture, color
 3. Face: eye shape, eyebrows, jaw structure, skin tone, distinct features
 4. Body: build and height impression
-5. Clothing: exact garment types and colors visible
+5. Clothing: exact garment types and colors from the FIRST photo, even if other photos differ
 
 Rule: Output ONLY the raw description. No markdown, no intro, no bullet points.
 Example output: "A 22-year-old Nepali young man with short silky black hair..."
@@ -79,54 +71,56 @@ Example output: "A 22-year-old Nepali young man with short silky black hair..."
       model:    'gemini-2.5-flash',
       contents: {
         parts: [
-          getImagePart(image),
+          ...referenceParts(references),
           { text: prompt },
         ],
       },
       config: { temperature: 0.2 },
     });
 
-    return (
+    const description = (
       response.candidates?.[0]?.content?.parts?.[0]?.text || ''
     ).trim();
+    if (!description) throw new Error('Empty character description');
+    return description;
 
   } catch (error) {
     console.error(`Failed to extract visual for ${characterName}:`, error);
-    return '';
+    throw new Error(`Could not analyze reference photos for ${characterName}. Please retry.`);
   }
 };
 
 // ── Extract descriptions for ALL images in parallel ────────
 export const extractAllImageDescriptions = async (
-  images: StoryImage[],
+  images: CharacterReference[],
 ): Promise<Record<string, string>> => {
 
-  const validImages = (images || []).filter(
-    img => img.image && img.image.trim()
-  );
-
-  if (validImages.length === 0) return {};
+  const groups = new Map<string, CharacterReference[]>();
+  for (const image of images) {
+    const group = groups.get(image.characterName) || [];
+    group.push(image);
+    groups.set(image.characterName, group);
+  }
 
   // ✅ run ALL in parallel — no more sequential for loop
   const results = await Promise.all(
-    validImages.map(async (img, index) => {
-      const name = img.description?.trim() || `Person ${index + 1}`;
+    [...groups].map(async ([name, references]) => {
 
       // ✅ always extract from image — never skip
       const visual = await extractCharacterDescription(
-        img.image as string,
+        references,
         name
       );
 
       return {
         name,
-        visual: visual || `Reference photo ${index + 1}`,
+        visual,
       };
     })
   );
 
   // build Record<string, string>
-  const descriptions: Record<string, string> = {};
+  const descriptions: Record<string, string> = Object.create(null);
   results.forEach(({ name, visual }) => {
     descriptions[name] = visual;
     console.log(`Description for [${name}]:`, visual);
@@ -691,7 +685,7 @@ export const generateStory = async (
     // ── Phase 1: Character Visual Analysis ────────────────
     console.log('Phase 1: Running character visual analysis...');
 
-    const descriptions         = await extractAllImageDescriptions(data.images || []);
+    const descriptions = await extractAllImageDescriptions(data.images || []);
     const combinedFormulasString = buildVisualDescriptionSection(descriptions);
 
     console.log('Phase 1 complete. Visual descriptions ready:\n', combinedFormulasString);
@@ -722,6 +716,12 @@ export const generateStory = async (
         CHARACTER VISUAL FORMULAS (UNCHANGEABLE)
         ${combinedFormulasString || 'No character photos provided — invent consistent characters.'}
 
+        Define the complete named cast ONCE in the characters array (name and appearance).
+        Use exactly the supplied names and appearances for characters with photos.
+        Define a fixed appearance and outfit for any additional story characters.
+        Refer to these characters by their exact names in every imagePrompt.
+        Photos with the same name are alternate views of ONE character.
+
         ART STYLE DETAILS
         Style details:    ${style.styleDetails  || data.artStyle}
         Restrictions:     ${style.restrictions  || 'None'}
@@ -737,7 +737,21 @@ export const generateStory = async (
     if (!response.text) throw new Error('Empty response from Director model.');
 
     console.log('Phase 2 complete. Story generated successfully.');
-    return JSON.parse(response.text);
+    const story = JSON.parse(response.text);
+    if (!Array.isArray(story.characters) || !Array.isArray(story.pages) || !story.pages.length) {
+      throw new Error('Invalid storyboard returned. Please retry.');
+    }
+    const cast: Record<string, string> = Object.create(null);
+    for (const character of story.characters) {
+      if (typeof character.name !== 'string' || !character.name.trim() ||
+          typeof character.appearance !== 'string' || !character.appearance.trim()) {
+        throw new Error('Invalid character definition returned. Please retry.');
+      }
+      cast[character.name] = character.appearance;
+    }
+    // Photo-derived definitions are authoritative, never the director's paraphrase.
+    Object.assign(cast, descriptions);
+    return { ...story, characterContext: buildVisualDescriptionSection(cast) };
 
   } catch (err) {
     console.error('Error in generateStory:', err);

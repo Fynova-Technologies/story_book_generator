@@ -1,5 +1,7 @@
 import { generateStory }        from '../services/geminiService';
-import { generateImageFromText, transformImage } from '../services/imageService';
+import { transformImage } from '../services/imageService';
+import { normalizeReferences, CharacterReference } from '../services/characterReferences';
+import { ApiError } from '../utils/ApiError';
 import pkg from 'express';
 const { Router } = pkg;
 import type { Request, Response } from 'express';
@@ -41,6 +43,14 @@ router.post('/generate', async (req: Request, res: Response) => {
     );
   }
 
+  let references: CharacterReference[];
+  try {
+    references = normalizeReferences(images);
+  } catch (error) {
+    return res.status(400).json(new ApiResponse(400, null,
+      error instanceof Error ? error.message : 'Invalid reference photos'));
+  }
+
   isGeneratingStory = true;
 
   try {
@@ -56,7 +66,7 @@ router.post('/generate', async (req: Request, res: Response) => {
         narration,
         storytext:  storytext  || '',
         storyStyle: storyStyle || 'storybook',
-        images:     images     || [],   // ← pass images with URLs + descriptions
+        images: references,
         storyLength,
       });
       console.log('Story generated successfully');
@@ -72,51 +82,27 @@ router.post('/generate', async (req: Request, res: Response) => {
     // ── Step 2: Generate one image per page from imagePrompt ──
     console.log(`Generating images for ${story.pages.length} pages...`);
 
-// extract all valid user photos once — used as reference for every page
-const allUserPhotos: string[] = (images || [])
-  .filter((img: any) => img?.image && img.image.trim() !== '')
-  .map((img: any) => img.image as string);
-
-const characterList = (images || [])
-  .filter((img: any) => img?.characterName && img.characterName.trim() !== '')
-  .map((c:any, i:any) => `Reference photo ${i + 1} = ${c.name}`)
-  .join('\n');
-
-// console.log(`User photos available: ${allUserPhotos.length}`);
-
-const pagesWithImages = await Promise.all(
+// Wait for every page to settle before releasing the generation lock.
+const pageResults = await Promise.allSettled(
   story.pages.map(async (page: any) => {
-    const prompt = page.imagePrompt || '';
-    let imageUrl: string | null = null;
-
-    try {
-      let response;
-
-      if (allUserPhotos.length  <0) {
-        response = await transformImage(allUserPhotos,characterList, prompt);
-      } else {
-        // no user photos → generate from text prompt only
-        response = await generateImageFromText(prompt);
-      }
-      // response = await generateImageFromText(prompt);
-
-
-      imageUrl = response?.imageUrl || null;
-
-    } catch (err) {
-      console.error(`Image failed for page ${page.page}:`, err);
-      // fallback to Pollinations
-      const encoded = encodeURIComponent(prompt);
-      imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=768&nologo=true`;
+    if (typeof page.imagePrompt !== 'string' || !page.imagePrompt.trim()) {
+      throw new Error(`Missing illustration prompt for page ${page.page}`);
     }
+    const response = await transformImage(references, story.characterContext, page.imagePrompt);
+    if (!response?.success || !response.imageUrl) throw new Error(`Image failed for page ${page.page}`);
 
     return {
       page:     page.page,
       text:     page.text || '',
-      imageUrl,
+      imageUrl: response.imageUrl,
     };
   })
 );
+const failedPages = pageResults.flatMap((result, index) => result.status === 'rejected' ? [story.pages[index].page] : []);
+if (failedPages.length) {
+  throw new ApiError(502, `Illustration generation failed for pages ${failedPages.join(', ')}. Please retry; no substitute images were used.`);
+}
+const pagesWithImages = pageResults.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
 
     // ── Step 3: Send response ──────────────────────────────────
     return res.json(
@@ -130,8 +116,9 @@ const pagesWithImages = await Promise.all(
 
   } catch (error: any) {
     // console.error('Story generation failed:', error);
-    return res.status(500).json(
-      new ApiResponse(500, null, error.message || 'Internal Server Error')
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json(
+      new ApiResponse(status, null, error.message || 'Internal Server Error')
     );
   } finally {
     isGeneratingStory = false;

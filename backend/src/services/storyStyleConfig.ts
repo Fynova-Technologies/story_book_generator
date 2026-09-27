@@ -8,7 +8,7 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
     BEHAVIOR RULES (NEVER CHANGE)
     1. Output ONLY valid JSON matching the responseSchema
     2. No markdown, no backticks, no explanation outside JSON
-    3. Never invent characters not described in the input
+    3. Define named characters once in the characters array; preserve all supplied reference identities
     4. Never change a character's appearance between pages
     5. Only include a character in a page if they appear in that scene
     6. Every page must flow as one continuous narrative — no scene resets
