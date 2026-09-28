@@ -2,18 +2,18 @@ import { useState } from "react";
 import TemplateCard from "../../components/TempleteCard/TemplateCard";
 
 // 👉 Import your template images here
-import Birthday from "../../assets/images/templete/Birthday.png"
-import love from "../../assets/images/templete/LoveRomance.png"
-import apology from "../../assets/images/templete/Apology.png"
-import wedding from "../../assets/images/templete/Weeding.png"
-import longdistance from "../../assets/images/templete/Longdistance.png"
-import pet from "../../assets/images/templete/Petmemorial.png"
-import graduation from "../../assets/images/templete/Graduation.png"
-import family from "../../assets/images/templete/Familyheritage.png"
-import travel from "../../assets/images/templete/Travel.png"
-import retirement from "../../assets/images/templete/Retirement.png"
-import educational from "../../assets/images/templete/Educational.png"
-import gratitude from "../../assets/images/templete/Thankyou.png"
+const Birthday = "/assets/images/templete/Birthday.png";
+const love = "/assets/images/templete/LoveRomance.png";
+const apology = "/assets/images/templete/Apology.png";
+const wedding = "/assets/images/templete/Weeding.png";
+const longdistance = "/assets/images/templete/Longdistance.png";
+const pet = "/assets/images/templete/Petmemorial.png";
+const graduation = "/assets/images/templete/Graduation.png";
+const family = "/assets/images/templete/Familyheritage.png";
+const travel = "/assets/images/templete/Travel.png";
+const retirement = "/assets/images/templete/Retirement.png";
+const educational = "/assets/images/templete/Educational.png";
+const gratitude = "/assets/images/templete/Thankyou.png";
 
 
 

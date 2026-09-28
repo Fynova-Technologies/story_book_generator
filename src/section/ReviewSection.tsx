@@ -1,5 +1,5 @@
 import ReviewCard from "../components/ReviewCard/ReviewCard";
-import sampleAvatar from "../assets/images/sampleavatar.png"
+const sampleAvatar = "/assets/images/sampleavatar.png";
 
 const reviewsData = [
   {

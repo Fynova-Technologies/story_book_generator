@@ -1,4 +1,4 @@
-import HeroImage from "../assets/images/heroImg.png";
+const HeroImage = "/assets/images/heroImg.png";
 import CTAButton from "../components/Button/CTAButton";
 import Navbar from "../components/Navbar/Navbar";
 

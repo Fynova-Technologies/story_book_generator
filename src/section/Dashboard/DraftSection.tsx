@@ -1,7 +1,7 @@
-import storyimg1 from "../../assets/images/storyimg1.png"
-import draft from "../../assets/icons/Dashboard/Draft.png"
+const storyimg1 = "/assets/images/storyimg1.png";
+const draft = "/assets/icons/Dashboard/Draft.png";
 import DraftCard from '../../components/DraftCard/DraftCard';
-import avatar from "../../assets/images/sampleavatar.png"
+const avatar = "/assets/images/sampleavatar.png";
 import { useDraftRestore } from '../../hooks/useDraftRestore';
 import { formatLastSaved } from '../../services/draftService';
 import { useDispatch } from 'react-redux';

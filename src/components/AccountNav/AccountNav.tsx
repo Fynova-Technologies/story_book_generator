@@ -1,9 +1,9 @@
-import ProfileIcon from "../../assets/icons/Account/Profile.png"
-import SecurityIcon from "../../assets/icons/Account/Security.png"
-import NotificationIcon from "../../assets/icons/Account/Notification.png"
-import UsageIcon from "../../assets/icons/Account/Usage.png"
-import SubscriptionIcon from "../../assets/icons/Account/Subscription.png"
-import LogoutIcon from "../../assets/icons/Account/Logout.png"
+const ProfileIcon = "/assets/icons/Account/Profile.png";
+const SecurityIcon = "/assets/icons/Account/Security.png";
+const NotificationIcon = "/assets/icons/Account/Notification.png";
+const UsageIcon = "/assets/icons/Account/Usage.png";
+const SubscriptionIcon = "/assets/icons/Account/Subscription.png";
+const LogoutIcon = "/assets/icons/Account/Logout.png";
 
 type NavItem = {
   id: string;

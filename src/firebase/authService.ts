@@ -13,9 +13,17 @@ import { auth } from "./config";
 import { clearAuth, login,setAuthInitialized } from "../store/slices/authSlice";
 import { store } from "../store/store";
 
+// Local mode (no Firebase config): everyone is signed in as this user.
+const localUser = { uid: "local-dev", email: "local@localhost", displayName: "Local Dev", photoURL: null };
+const localSignIn = () => {
+  store.dispatch(login({ userData: localUser }));
+  return localUser as User;
+};
+
 
 // Function to sign up a user with email and password
 export const signUpWithEmailAndPassword = async (email: string, password: string,rememberMe: boolean) => {
+  if (!auth) return localSignIn();
   try {
     await setPersistence(
     auth,
@@ -35,6 +43,7 @@ export const signUpWithEmailAndPassword = async (email: string, password: string
 
 //function to login a user with email and password
 export const signInWithEmail = async (email: string, password: string, rememberMe: boolean) => {
+  if (!auth) return localSignIn();
   try{
     await setPersistence(
     auth,
@@ -52,6 +61,7 @@ export const signInWithEmail = async (email: string, password: string, rememberM
 
 //function to logout a user
 export const logout = async() => {
+  if (!auth) return store.dispatch(clearAuth());
   try {
     const result = await auth.signOut();
     return result;
@@ -63,6 +73,7 @@ export const logout = async() => {
 
 //function to sign in with google
 export const signInWithGoogle = async (rememberMe: boolean) => {
+  if (!auth) return localSignIn();
   const provider = new GoogleAuthProvider();
   try {
     await setPersistence(
@@ -94,6 +105,11 @@ export const signInWithGoogle = async (rememberMe: boolean) => {
 // }
 
 export const initAuthListener = () => {
+  if (!auth) {
+    localSignIn();
+    store.dispatch(setAuthInitialized());
+    return;
+  }
   onAuthStateChanged(auth, (user: User | null) => {
     if (user) {
       store.dispatch(login({ userData: {

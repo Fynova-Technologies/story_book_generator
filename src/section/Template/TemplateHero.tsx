@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TemplateHeroBg from "../../assets/images/contactbg.png"
+const TemplateHeroBg = "/assets/images/contactbg.png";
 
 
 const TemplateHero = ({ onSearch }: any) => {

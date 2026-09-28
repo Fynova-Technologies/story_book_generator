@@ -1,8 +1,8 @@
-import chat from "../assets/icons/chat.png";
-import laptop from "../assets/icons/laptop.png";
-import paint from "../assets/icons/paint.png";
-import share from "../assets/icons/share.png";
-import template from "../assets/icons/template.png";
+const chat = "/assets/icons/chat.png";
+const laptop = "/assets/icons/laptop.png";
+const paint = "/assets/icons/paint.png";
+const share = "/assets/icons/share.png";
+const template = "/assets/icons/template.png";
 const steps = [
   {
     id: 1,

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import CompletedSection from './CompletedSection'
 import DraftSection from './DraftSection'
-import CTABgImage from "../../assets/images/CTAbg.png";
+const CTABgImage = "/assets/images/CTAbg.png";
 
 function DashboardSection() {
   const navigate = useNavigate();

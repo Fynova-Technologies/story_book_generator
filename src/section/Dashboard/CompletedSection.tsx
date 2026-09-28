@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import StoryCard from '../../components/StoryCard/StoryCard';
-import storyimg1 from "../../assets/images/storyimg1.png"
-import completed from "../../assets/icons/Dashboard/Completed.png"
-import avatar from "../../assets/images/sampleavatar.png"
+const storyimg1 = "/assets/images/storyimg1.png";
+const completed = "/assets/icons/Dashboard/Completed.png";
+const avatar = "/assets/images/sampleavatar.png";
 
 type FilterTab = "All" | "Favorites" | "Shared";
 

@@ -1,4 +1,4 @@
-import GoogleIcon from '../../assets/icons/GoogleIcon'
+import GoogleIcon from '../GoogleIcon'
 
 function GoogleButton({
   loading,

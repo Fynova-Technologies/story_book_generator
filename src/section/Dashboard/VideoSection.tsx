@@ -1,4 +1,4 @@
-import playbutton from "../../assets/icons/Dashboard/PlayButton.png"
+const playbutton = "/assets/icons/Dashboard/PlayButton.png";
 
 const VideoSection= () => {
   return (

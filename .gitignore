@@ -32,3 +32,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Story test harness output
+/test-runs
+/.next
+/next-env.d.ts
+
+# Story test harness output
+/test-runs
+/.next
+/next-env.d.ts

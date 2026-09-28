@@ -1,4 +1,4 @@
-import ContactBgImg from "../assets/images/contactbg.png"
+const ContactBgImg = "/assets/images/contactbg.png";
 import InputField from "../components/InputField/Input";
 import {useForm} from "react-hook-form"
 import Navbar from "../components/Navbar/Navbar";

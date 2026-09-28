@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import CTABgImage from "../assets/images/CTAbg.png"
+const CTABgImage = "/assets/images/CTAbg.png";
 
 const CTASection = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 // Upload base64 image to backend proxy and return the Firebase URL
 export const uploadImage = async (base64Image: string): Promise<string> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/upload`, {
+    const response = await fetch(`/api/upload`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

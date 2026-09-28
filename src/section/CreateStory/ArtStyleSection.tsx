@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import ArtStyleCard from "../../components/ArtStyleCard/ArtStyleCard";
-import watercolorImg from "../../assets/images/artstyle/Watercolor.png"
-import animeImg from "../../assets/images/artstyle/anime.png"
-import clay3dImg from "../../assets/images/artstyle/3D.png"
-import ghibliImg from "../../assets/images/artstyle/Ghibli.png"
-import photorealisticImg from "../../assets/images/artstyle/Realistic.png"
+const watercolorImg = "/assets/images/artstyle/Watercolor.png";
+const animeImg = "/assets/images/artstyle/anime.png";
+const clay3dImg = "/assets/images/artstyle/3D.png";
+const ghibliImg = "/assets/images/artstyle/Ghibli.png";
+const photorealisticImg = "/assets/images/artstyle/Realistic.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setArtStyle } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";

@@ -1,8 +1,8 @@
 import AdventureCard from "../components/AdventureCard/AdventureCard";
 
-import BrowseIcon from "../assets/icons/browseicon.png"
-import CreateIcon from "../assets/icons/createicon.png"
-import EditorIcon from "../assets/icons/editoricon.png"
+const BrowseIcon = "/assets/icons/browseicon.png";
+const CreateIcon = "/assets/icons/createicon.png";
+const EditorIcon = "/assets/icons/editoricon.png";
 
 const adventureData = [
   {

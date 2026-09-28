@@ -1,9 +1,9 @@
 import { useState } from "react";
 import StoryCard from "../components/StoryCard/StoryCard";
-import Story1 from "../assets/images/storyimg1.png";
-import Story2 from "../assets/images/storyimg2.png";
-import Story3 from "../assets/images/storyimg3.png";
-import Story4 from "../assets/images/storyimg4.png";
+const Story1 = "/assets/images/storyimg1.png";
+const Story2 = "/assets/images/storyimg2.png";
+const Story3 = "/assets/images/storyimg3.png";
+const Story4 = "/assets/images/storyimg4.png";
 import { useNavigate } from "react-router-dom";
 
 const storiesData = [

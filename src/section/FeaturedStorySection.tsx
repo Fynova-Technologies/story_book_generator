@@ -1,7 +1,7 @@
 import FeaturedStoryCard from "../components/FeaturedStoryCard/FeaturedStoryCard";
 
 // 👉 Import your story images here
-import story1 from "../assets/images/storyimg1.png"
+const story1 = "/assets/images/storyimg1.png";
 import { useNavigate } from "react-router";
 
 

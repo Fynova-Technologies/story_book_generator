@@ -1,11 +1,11 @@
 import { NavLink,Link, useNavigate } from "react-router-dom";
-import bookImg from "../../assets/icons/Sidebar/book.png"
-import dashboardImg from "../../assets/icons/Sidebar/Dashboard.png"
-import heart from "../../assets/icons/Sidebar/Heart.png"
-import templete from "../../assets/icons/Sidebar/Templete.png"
-import user from "../../assets/icons/Sidebar/User.png"
-import diamond from "../../assets/icons/Sidebar/Diamond.png"
-import setting from "../../assets/icons/Sidebar/Setting.png"
+const bookImg = "/assets/icons/Sidebar/book.png";
+const dashboardImg = "/assets/icons/Sidebar/Dashboard.png";
+const heart = "/assets/icons/Sidebar/Heart.png";
+const templete = "/assets/icons/Sidebar/Templete.png";
+const user = "/assets/icons/Sidebar/User.png";
+const diamond = "/assets/icons/Sidebar/Diamond.png";
+const setting = "/assets/icons/Sidebar/Setting.png";
 
 interface NavItem {
   label: string;

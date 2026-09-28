@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 import './App.css'
-import LandingPage from './pages/LandingPage'
+import LandingPage from './views/LandingPage'
 import { RootState } from "../src/store/store";
 
 

@@ -1,82 +1,41 @@
 # Story Book Generator
 
-The React frontend lives at the repository root; the Express backend lives in
-`backend/`. Use Bun for the frontend and the backend's existing npm lockfile for
-the backend.
+One Next.js app: the React Router UI (`src/app/[[...slug]]`, rendered client-side) and the
+story API (`src/app/api/story/generate/route.ts`, server code in `src/server/`).
 
 ## Local development
 
-Copy `.env.sample` to `.env.local` and fill in the Firebase web-app configuration.
-Create `backend/.env` with `GEMINI_API_KEY`, and optionally `PORT` (default `5000`)
-and `FRONTEND_URL` (the frontend's origin). Keep the Gemini key on the backend.
+Copy `.env.sample` to `.env.local` and set `GEMINI_API_KEY` (and `OPENAI_API_KEY` for the
+test judge). Leave the `NEXT_PUBLIC_FIREBASE_*` keys empty to run fully local: no Firebase
+calls, and you're signed in as a local dev user.
 
 ```sh
 bun install
-bun run dev      # dev server
+bun run dev      # http://localhost:3000
 bun run build    # type-check + production build
+bun run start
 bun run lint
 ```
 
-In another terminal, run the backend:
+Deploy anywhere that runs `next start` as a long-lived Node server. Generation takes 1-2
+minutes and uses an in-process lock, so run a single instance.
 
-```sh
-npm --prefix backend ci
-npm --prefix backend run dev
-```
+## Story pipeline tests
 
-Build and run the backend for production with `npm --prefix backend run build`
-and `npm --prefix backend start`. Run it from `backend/` when invoking Node
-directly so dotenv can load `backend/.env`.
+`bun run test:story test/story/cases/whatsapp-duo.json` runs a case through the same
+`createStory` flow as `/api/story/generate` and saves everything to
+`test-runs/<timestamp>-<case>/`:
 
-Netlify builds the frontend from the repository root. Firebase Hosting serves
-`dist/` with an SPA rewrite. The backend runs separately; set `VITE_BACKEND_URL`
-to its URL before building the frontend. No Firebase Functions source is included.
+- `trace.jsonl`: every model call with prompt, output, latency and token usage
+- `metrics.json`: seconds per stage, tokens and estimated cost per model
+- `pages/`, `story.json`, `judge.json`, `summary.json`
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An OpenAI vision judge (`OPENAI_JUDGE_MODEL`, default `gpt-5.5`) scores likeness to the
+reference photos, cross-page consistency, cast, and text artifacts. Every summary is
+appended to `test-runs/index.jsonl`. Re-score an old run with
+`bun run test:story --judge test-runs/<run-dir>`.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Browse results at http://localhost:3000/test-runs (with `bun run dev`): every run with its
+headline numbers, a page per run (images beside the reference photos, judge notes, cost per
+model, full trace), and a compare view that shows each metric's change against a chosen
+baseline with the pages side by side.

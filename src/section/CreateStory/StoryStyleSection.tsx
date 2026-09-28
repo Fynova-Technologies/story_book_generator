@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import StyleCard from '../../components/StyleCard/StyleCard';
-import storybook from "../../assets/images/storystyle/storybook.png";
-import manga from "../../assets/images/storystyle/manga.png";
-import comic from "../../assets/images/storystyle/comic.png";
+const storybook = "/assets/images/storystyle/storybook.png";
+const manga = "/assets/images/storystyle/manga.png";
+const comic = "/assets/images/storystyle/comic.png";
 import { useDispatch, useSelector } from 'react-redux';
 import { setStoryStyle } from '../../store/slices/storyWizardSlice';
 import { RootState } from '../../store/store';
