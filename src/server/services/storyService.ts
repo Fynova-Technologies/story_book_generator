@@ -654,6 +654,8 @@ JSON FORMAT:
 // };
 
 
+export const stylePreset = (artStyle: string) => STYLE_PRESETS[artStyle.toLowerCase()] || STYLE_PRESETS.photorealistic;
+
 export const generateStory = async (
   data: GenerateStoryInput
 ): Promise<any> => {

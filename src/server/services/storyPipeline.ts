@@ -1,5 +1,5 @@
-import { generateStory } from './storyService';
-import { transformImage } from './imageService';
+import { generateStory, stylePreset } from './storyService';
+import { createCharacterSheet, transformImage } from './imageService';
 import { CharacterReference } from './characterReferences';
 import { ApiError } from '../utils/ApiError';
 
@@ -15,11 +15,20 @@ export interface StoryRequest {
 
 // The full generation flow shared by the API route and the test harness.
 export async function createStory(input: StoryRequest, references: CharacterReference[]) {
-  // ── Step 1: Generate story text + image prompts ────────────
+  // ── Step 1: Story text + image prompts, and one character sheet per person, in parallel ──
   console.log(`Generating ${input.storyStyle} story...`);
-  const story = await generateStory({ ...input, images: references });
+  const names = [...new Set(references.map(reference => reference.characterName))];
+  const [story, sheets] = await Promise.all([
+    generateStory({ ...input, images: references }),
+    Promise.all(names.map(name => createCharacterSheet(
+      name, references.filter(reference => reference.characterName === name), stylePreset(input.artStyle)))),
+  ]);
   console.log('Story generated successfully');
   console.log(story);
+  const pageReferences: CharacterReference[] = [
+    ...references,
+    ...sheets.map((image, i) => ({ image, characterName: names[i], description: '', kind: 'sheet' as const })),
+  ];
 
   // ── Step 2: Generate one image per page from imagePrompt ──
   console.log(`Generating images for ${story.pages.length} pages...`);
@@ -30,7 +39,7 @@ export async function createStory(input: StoryRequest, references: CharacterRefe
       if (typeof page.imagePrompt !== 'string' || !page.imagePrompt.trim()) {
         throw new Error(`Missing illustration prompt for page ${page.page}`);
       }
-      const response = await transformImage(references, story.characterContext, page.imagePrompt, page.page);
+      const response = await transformImage(pageReferences, story.characterContext, page.imagePrompt, page.page);
       if (!response?.success || !response.imageUrl) throw new Error(`Image failed for page ${page.page}`);
 
       return {

@@ -44,6 +44,13 @@ async function generate(casePath: string) {
   const events: { t: number; event: string; [k: string]: unknown }[] = [];
   const started = Date.now();
   const sink = (event: string, data: Record<string, unknown>) => {
+    // Character sheets arrive as data URLs; keep the image as a file, not in the trace.
+    if (typeof data.imageUrl === 'string') {
+      fs.mkdirSync(path.join(dir, 'sheets'), { recursive: true });
+      const file = `sheets/${data.characterName}.png`;
+      fs.writeFileSync(path.join(dir, file), Buffer.from(data.imageUrl.split(',')[1], 'base64'));
+      data = { ...data, imageUrl: undefined, file };
+    }
     const entry = { t: Date.now() - started, event, ...data };
     events.push(entry);
     fs.appendFileSync(path.join(dir, 'trace.jsonl'), JSON.stringify(entry) + '\n');
@@ -108,6 +115,7 @@ function metrics(events: any[], totalMs: number) {
     seconds: {
       total: +(totalMs / 1000).toFixed(1),
       describe: +(stage('character.describe') / 1000).toFixed(1),
+      sheets: +(stage('character.sheet') / 1000).toFixed(1),
       director: +(stage('director') / 1000).toFixed(1),
       images: +(stage('image.attempt') / 1000).toFixed(1),
     },

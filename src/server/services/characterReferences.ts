@@ -5,6 +5,8 @@ export interface CharacterReference {
   image: string;
   characterName: string;
   description: string;
+  // 'sheet' = a stylized portrait generated from the photos, shared by every page.
+  kind?: 'photo' | 'sheet';
 }
 
 export function imagePart(image: string) {
@@ -46,8 +48,9 @@ export function normalizeReferences(value: unknown): CharacterReference[] {
   return references;
 }
 
-const referenceLabel = (reference: CharacterReference, index: number) =>
-  `Reference photo ${index + 1}: character ${JSON.stringify(reference.characterName)}. Multiple photos with this name show the SAME character.`;
+const referenceLabel = (reference: CharacterReference, index: number) => reference.kind === 'sheet'
+  ? `Reference image ${index + 1}: approved character sheet for ${JSON.stringify(reference.characterName)} in the book's art style. Draw them exactly like this on every page; their photos remain the source of truth for the face. Take only the character from it, never its background.`
+  : `Reference photo ${index + 1}: character ${JSON.stringify(reference.characterName)}. Multiple photos with this name show the SAME character.`;
 
 // Labels interleaved with the photos, for vision chat models.
 export function referenceParts(references: CharacterReference[]): ContentPart[] {

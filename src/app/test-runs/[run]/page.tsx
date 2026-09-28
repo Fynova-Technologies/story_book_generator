@@ -22,7 +22,7 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
   const { run: id } = await params;
   const run = loadRun(id);
   if (!run) notFound();
-  const { story, judge, metrics, summary, trace, refs } = run;
+  const { story, judge, metrics, summary, trace, refs, sheets } = run;
   const verdicts = new Map<number, any>((judge?.pages || []).map((p: any) => [p.page, p]));
 
   return (
@@ -56,7 +56,8 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
       {metrics && (
         <Card title="Time, tokens and cost" className="overflow-x-auto">
           <p className="mb-3 text-sm text-light-outline">
-            Stages: photo analysis {metrics.seconds.describe}s · storyboard {metrics.seconds.director}s · illustrations {metrics.seconds.images}s
+            Stages: photo analysis {metrics.seconds.describe}s · storyboard {metrics.seconds.director}s
+            {metrics.seconds.sheets ? ` · character sheets ${metrics.seconds.sheets}s (parallel with storyboard)` : ''} · illustrations {metrics.seconds.images}s
             (illustrations run in parallel). {metrics.imageAttempts} image attempts, {metrics.failedImageAttempts} failed.
           </p>
           <table className="w-full min-w-[640px] text-right text-sm">
@@ -83,12 +84,18 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
         </Card>
       )}
 
-      <Card title="Reference photos">
+      <Card title="Reference photos and character sheets">
         <div className="flex flex-wrap gap-4">
           {refs.map(r => (
             <figure key={r.file}>
               <img src={fileUrl(run.id, r.file)} alt={`Reference photo of ${r.characterName}`} className="h-48 rounded-lg object-cover" />
               <figcaption className="mt-1 text-sm font-semibold">{r.characterName}</figcaption>
+            </figure>
+          ))}
+          {sheets.map(r => (
+            <figure key={r.file}>
+              <img src={fileUrl(run.id, r.file)} alt={`Character sheet for ${r.characterName}`} className="h-48 rounded-lg object-cover" />
+              <figcaption className="mt-1 text-sm font-semibold">{r.characterName} · character sheet</figcaption>
             </figure>
           ))}
         </div>

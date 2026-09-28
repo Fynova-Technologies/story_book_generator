@@ -62,9 +62,13 @@ export function loadRun(id: string) {
       file: `refs/${file}`,
     }))
     : [];
+  const sheets = fs.existsSync(path.join(dir, 'sheets'))
+    ? fs.readdirSync(path.join(dir, 'sheets')).sort().map(file => ({ characterName: file.replace(/\.[^.]+$/, ''), file: `sheets/${file}` }))
+    : [];
   return {
     ...runInfo(id),
     refs,
+    sheets,
     testCase: readJson(dir, 'case.json'),
     story: readJson(dir, 'story.json'),
     judge: readJson(dir, 'judge.json'),
@@ -117,6 +121,7 @@ export function metricRows(runs: RunInfo[]): MetricRow[] {
     { group: 'Time', label: 'Total', better: 'lower', format: secs, value: r => r.metrics?.seconds?.total },
     { group: 'Time', label: 'Photo analysis', better: 'lower', format: secs, value: r => r.metrics?.seconds?.describe },
     { group: 'Time', label: 'Storyboard', better: 'lower', format: secs, value: r => r.metrics?.seconds?.director },
+    { group: 'Time', label: 'Character sheets', better: 'lower', format: secs, value: r => r.metrics?.seconds?.sheets },
     { group: 'Time', label: 'Illustrations', better: 'lower', format: secs, value: r => r.metrics?.seconds?.images },
     { group: 'Cost', label: 'Estimated cost', better: 'lower', format: usd, value: r => r.metrics?.estCostUsd },
     { group: 'Cost', label: 'Total tokens', better: 'lower', format: int, value: r => r.metrics?.totalTokens },
