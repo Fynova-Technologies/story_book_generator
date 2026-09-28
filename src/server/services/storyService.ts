@@ -38,18 +38,14 @@ Analyze these photos of ONE character named ${JSON.stringify(characterName)}.
 All photos show the SAME character, not different people. The subject may be human,
 an animal or a fictional character. Use the notes only to identify the subject.
 Notes: ${JSON.stringify(references.map(reference => reference.description))}
-Output a concise visual description paragraph for an AI image generator
-to recreate this character consistently across multiple illustrations.
+The illustrator also receives these photos, so do not describe the face in general terms.
+Output one short identity note (at most 40 words) with only what must never change:
+1. Species and visible age range; do not infer ethnicity or other hidden traits
+2. The most distinctive features: glasses (shape, frame), facial hair, hairstyle, marks
+3. Clothing: exact garment types and colors from the FIRST photo, even if other photos differ
 
-Include strictly:
-1. Visible age range and species; do not infer ethnicity or other hidden traits
-2. Hair: style, length, texture, color
-3. Face: eye shape, eyebrows, jaw structure, skin tone, distinct features
-4. Body: build and height impression
-5. Clothing: exact garment types and colors from the FIRST photo, even if other photos differ
-
-Rule: Output ONLY the raw description. No markdown, no intro, no bullet points.
-Example output: "A 22-year-old Nepali young man with short silky black hair..."
+Rule: Output ONLY the raw note. No markdown, no intro, no bullet points.
+Example output: "Young adult man; thin rectangular metal glasses; thin mustache and goatee; thick wavy side-swept hair; navy crew-neck T-shirt."
   `;
 
   try {
@@ -695,7 +691,7 @@ export const generateStory = async (
         STORY CONTEXT
         ${details}
 
-        CHARACTER VISUAL FORMULAS (UNCHANGEABLE)
+        CHARACTERS WITH PHOTOS (for you only: never copy these descriptions into imagePrompt)
         ${combinedFormulasString || 'No character photos provided — invent consistent characters.'}
 
         Define the complete named cast ONCE in the characters array (name and appearance).

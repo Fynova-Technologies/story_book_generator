@@ -22,18 +22,19 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
 
     imagePrompt QUALITY STANDARD
     Every imagePrompt must include in order:
-    1. Character visual formula (only for characters in this scene)
+    1. The exact names of the characters in this scene (names only)
     2. Specific action happening in this scene
     3. Art style + lighting + color mood
     4. Camera angle and composition
     5. End with: "No text, no watermarks, no distorted faces"
-    Target length: 80-120 words. Specific and vivid — never vague.
+    Target length: 50-90 words. Specific and vivid — never vague.
 
     CHARACTER CONTINUITY STANDARD
-    - Use the exact visual formula provided for each character
-    - Insert formula at the START of imagePrompt only when character is present
+    - In imagePrompt, refer to characters by their exact names only
+    - Never describe a character's face, hair, body or clothing in imagePrompt: the illustrator
+      receives each character's photos and character sheet, and extra description makes faces drift
+    - Frame every main character so their face is clearly visible (front or three-quarter view)
     - Never blend two characters' traits
-    - Keep clothing, hair, face identical across all pages
 
     ABSOLUTE RESTRICTIONS
     - No text or letters inside images
@@ -48,18 +49,18 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
   ${systemInstruction}
   
   CRITICAL COMIC STYLE FORMAT:
-  You must generate a 4-panel storyboard matrix. To prevent prompt bloat, do NOT dump all character descriptions at the beginning. Instead, insert the specific character's literal description inside the exact panel they appear in.
+  You must generate a 4-panel storyboard matrix. Name the characters present in each panel; never describe their appearance.
 
   IMAGE PROMPT STRUCTURE FOLLOWS THIS EXACT BLUEPRINT:
   "Format: 4-panel sequential comic storyboard grid layout, clean white gutters.
-  PANEL 1: [If character is here, paste their literal formula text word-for-word], [describe panel action, environment, framing]. Text: '[short narration or dialogue]'
-  PANEL 2: [If character is here, paste their literal formula text word-for-word], [describe reaction/action, camera angle]. Text: '[short dialogue]'
-  PANEL 3: [If character is here, paste their literal formula text word-for-word], [describe action/interaction]. Text: '[short dialogue or SFX]'
-  PANEL 4: [If character is here, paste their literal formula text word-for-word], [describe resolution/scenery scene]. Text: '[concluding narration]'
+  PANEL 1: [names of characters in this panel], [describe panel action, environment, framing]. Text: '[short narration or dialogue]'
+  PANEL 2: [names of characters in this panel], [describe reaction/action, camera angle]. Text: '[short dialogue]'
+  PANEL 3: [names of characters in this panel], [describe action/interaction]. Text: '[short dialogue or SFX]'
+  PANEL 4: [names of characters in this panel], [describe resolution/scenery scene]. Text: '[concluding narration]'
 
   RULES: 
   - Keep each panel description punchy and focused. 
-  - Never include a character's description in a panel if they aren't physically in that shot.
+  - Never name a character in a panel if they aren't physically in that shot.
 `,
 
     manga: `
@@ -80,10 +81,10 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
     ${systemInstruction}
     
     STORYBOOK FORMAT:
-    One single full-page portrait illustration per page. No panels, no grids, no speech bubbles, no text inside image. Child-friendly, warm, painterly.
+    One single full-page illustration per page. No panels, no grids, no speech bubbles, no text inside image. Child-friendly, warm, painterly.
 
     imagePrompt STRUCTURE (in order):
-    1. CHARACTER → paste exact visual formula only if present in this scene + what they are doing
+    1. CHARACTER → names of the characters present in this scene + what they are doing
     2. SCENE → location, time of day, atmosphere (2-3 vivid details only)
     3. COMPOSITION → centered subject, bottom 20% clear for text overlay, foreground/background depth
     4. LIGHTING → match to page emotion:
@@ -91,7 +92,7 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
     5. STYLE → "${style.styleDetails || 'soft watercolor storybook'}, hand-painted, whimsical, child-friendly"
     6. AVOID → "no panels, no text, no speech bubbles, no photorealism, no harsh shadows, ${style.restrictions || ''}"
 
-    Target: 80-100 words per imagePrompt. Vivid, specific, no filler.
+    Target: 50-80 words per imagePrompt. Vivid, specific, no filler.
 
     PAGE TEXT RULES:
     - 40-60 words, 3-4 sentences, warm simple language

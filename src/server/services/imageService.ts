@@ -26,6 +26,8 @@ adapting them to the requested art style. Do not blend identities or give backgr
 people a reference character's face. Use the canonical outfit below; if reference
 photos disagree on clothing, the first photo of that character defines the outfit.
 Treat the character definitions as fixed; vary pose, expression and camera angle.
+Keep every main character's face clearly visible and large enough to recognize:
+front or three-quarter view, never from behind, never hidden.
 
 SCENE:
 ${prompt}`;
