@@ -4,13 +4,6 @@ import { Card, Shell, Status, fileUrl, formatDate } from '../ui';
 
 export const dynamic = 'force-dynamic';
 
-const FLAGS: Record<string, string> = {
-  duplicateCharacter: 'Duplicated character',
-  borrowedFace: 'Borrowed face',
-  textInImage: 'Text in image',
-  anatomyIssues: 'Anatomy issues',
-};
-
 const Stat = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="rounded-xl bg-white/70 p-3">
     <div className="text-xs uppercase tracking-wide text-light-outline">{label}</div>
@@ -22,8 +15,7 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
   const { run: id } = await params;
   const run = loadRun(id);
   if (!run) notFound();
-  const { story, judge, metrics, summary, trace, refs, sheets } = run;
-  const verdicts = new Map<number, any>((judge?.pages || []).map((p: any) => [p.page, p]));
+  const { story, faces, metrics, summary, trace, refs, sheets } = run;
 
   return (
     <Shell title={story?.title || run.caseName} back={{ href: '/test-runs', label: 'All runs' }}>
@@ -32,7 +24,6 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
         <span>{run.caseName}</span>
         <span>{formatDate(run.startedAt)}</span>
         <a className="text-light-primary hover:underline" href={fileUrl(run.id, 'trace.jsonl')}>trace.jsonl</a>
-        {judge && <a className="text-light-primary hover:underline" href={fileUrl(run.id, 'judge.json')}>judge.json</a>}
       </div>
       {story?.subtitle && <p className="text-light-outline">{story.subtitle}</p>}
       {run.error && <Card><p className="font-semibold text-red-700">Failed: {run.error}</p></Card>}
@@ -41,16 +32,11 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {Object.entries(summary?.faceBeatsRivals || {}).map(([name, v]) => <Stat key={`f-${name}`} label={`Beats look-alikes · ${name}`} value={v == null ? '—' : `${Math.round(Number(v) * 100)}%`} />)}
           {Object.entries(summary?.faceSimilarity || {}).map(([name, v]) => <Stat key={`s-${name}`} label={`Face similarity · ${name}`} value={v == null ? "—" : String(v)} />)}
-          {Object.entries(summary?.identity || {}).map(([name, v]) => <Stat key={`i-${name}`} label={`Likeness · ${name}`} value={`${v}/10`} />)}
-          {Object.entries(summary?.crossPageConsistency || {}).map(([name, v]) => <Stat key={`c-${name}`} label={`Consistency · ${name}`} value={`${v}/10`} />)}
-          <Stat label="Style consistency" value={summary && `${summary.styleConsistency}/10`} />
-          <Stat label="Cast correct" value={summary && `${summary.castCorrectPages}/${summary.pages}`} />
+          {Object.entries(summary?.faceCrossPage || {}).map(([name, v]) => <Stat key={`x-${name}`} label={`Same face across pages · ${name}`} value={v == null ? '—' : String(v)} />)}
           <Stat label="Missing page text" value={summary?.emptyPageText} />
-          <Stat label="Text in image" value={summary?.textInImagePages} />
           <Stat label="Total time" value={metrics && `${metrics.seconds.total}s`} />
           <Stat label="Est. cost" value={metrics && `$${metrics.estCostUsd.toFixed(3)}`} />
         </div>
-        {judge?.book?.notes && <p className="mt-4 text-sm">{judge.book.notes}</p>}
       </Card>
 
       {metrics && (
@@ -80,7 +66,6 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
               ))}
             </tbody>
           </table>
-          {judge?.usage && <p className="mt-3 text-xs text-light-outline">Judge ({judge.model}, not included above): {judge.usage.calls} calls, {judge.usage.inputTokens.toLocaleString('en-US')} input / {judge.usage.outputTokens.toLocaleString('en-US')} output tokens.</p>}
         </Card>
       )}
 
@@ -102,44 +87,22 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
       </Card>
 
       {(story?.pages || []).map((page: any) => {
-        const v = verdicts.get(page.page);
-        const face = judge?.faces?.pages?.find((f: any) => f.page === page.page);
+        const face = faces?.pages?.find((f: any) => f.page === page.page);
         return (
           <Card key={page.page} className="grid gap-5 md:grid-cols-[minmax(0,420px)_1fr]">
             <img src={fileUrl(run.id, page.image)} alt={`Illustration for page ${page.page}`} className="w-full rounded-xl" />
             <div className="min-w-0 text-sm">
               <h2 className="font-heading text-xl font-bold">Page {page.page}</h2>
               <p className="mt-2">{page.text || <span className="font-semibold text-red-700">No page text</span>}</p>
-              {v && (
-                <>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-xs">Expected: {v.expected.join(', ') || 'none'}</span>
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-xs">Prompt adherence {v.promptAdherence}/10</span>
-                    {Object.entries(FLAGS).filter(([k]) => v[k]).map(([k, label]) => (
-                      <span key={k} className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">{label}</span>
-                    ))}
-                  </div>
-                  <ul className="mt-3 space-y-2">
-                    {v.characters.map((c: any) => (
-                      <li key={c.name}>
-                        <b>{c.name}</b>: {c.present ? `${c.identityScore}/10` : 'absent'}
-                        {c.present && !c.outfitMatches && <span className="ml-1 font-semibold text-red-700">outfit off</span>}
-                        <span className="text-light-outline"> — {c.notes}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {face && (
-                    <p className="mt-3">
-                      <b>Face identity (ArcFace):</b> {face.facesFound} face{face.facesFound === 1 ? '' : 's'} found ·{' '}
-                      {Object.entries(face.matches).map(([name, m]: [string, any], i) => (
-                        <span key={name} className={m.beatsRivals ? 'text-green-700' : 'text-red-700'}>
-                          {i > 0 && ' · '}{name} {m.similarity == null ? 'not found' : `${m.similarity} vs look-alike ${m.bestRival}`}
-                        </span>
-                      ))}
-                    </p>
-                  )}
-                  <p className="mt-3 text-light-outline">{v.notes}</p>
-                </>
+              {face && (
+                <p className="mt-3">
+                  <b>Face identity (ArcFace):</b> {face.facesFound} face{face.facesFound === 1 ? '' : 's'} found ·{' '}
+                  {Object.entries(face.matches).map(([name, m]: [string, any], i) => (
+                    <span key={name} className={m.beatsRivals ? 'text-green-700' : 'text-red-700'}>
+                      {i > 0 && ' · '}{name} {m.similarity == null ? 'not found' : `${m.similarity} vs look-alike ${m.bestRival}`}
+                    </span>
+                  ))}
+                </p>
               )}
               <details className="mt-3">
                 <summary className="cursor-pointer font-semibold text-light-primary">Image prompt</summary>

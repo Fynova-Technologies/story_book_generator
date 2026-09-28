@@ -1,8 +1,9 @@
 // Story pipeline test harness. Runs a case through the production flow, records every
-// stage, saves outputs under test-runs/, and scores consistency with an OpenAI judge.
+// stage and saves outputs under test-runs/ for you to review in /test-runs. The only
+// scoring is local and free (ArcFace face similarity); no model judges the images.
 //
-//   bun run test:story test/story/cases/whatsapp-duo.json   generate + judge
-//   bun run test:story --judge test-runs/<run-dir>          re-judge an existing run
+//   bun run test:story test/story/cases/whatsapp-duo.json   generate + score
+//   bun run test:story --score test-runs/<run-dir>          re-score an existing run (free)
 // Bun loads .env.local, so OPENAI_API_KEY comes from there.
 import fs from 'fs';
 import path from 'path';
@@ -10,10 +11,8 @@ import { spawnSync } from 'child_process';
 import { createStory } from '../../src/server/services/storyPipeline';
 import { normalizeReferences } from '../../src/server/services/characterReferences';
 import { withTrace } from '../../src/server/services/trace';
-import { respond, type ContentPart } from '../../src/server/services/openai';
 
 const RUNS = path.resolve(__dirname, '../../test-runs');
-const JUDGE_MODEL = process.env.OPENAI_JUDGE_MODEL || 'gpt-5.5';
 
 type Ref = { characterName: string; file: string };
 type Page = { page: number; text: string; image: string; imagePrompt: string };
@@ -77,7 +76,7 @@ async function generate(casePath: string) {
     process.exitCode = 1;
     return;
   }
-  await judge(dir);
+  await score(dir);
 }
 
 // ── Metrics: time per stage, tokens and estimated cost per model ──
@@ -127,33 +126,6 @@ function metrics(events: any[], totalMs: number) {
   };
 }
 
-// ── OpenAI judge ─────────────────────────────────────────────
-const judgeUsage = { calls: 0, inputTokens: 0, outputTokens: 0 };
-async function ask(content: ContentPart[], name: string, schema: object) {
-  const { text, usage } = await respond({ model: JUDGE_MODEL, content, schema: { name, schema } });
-  judgeUsage.calls++;
-  judgeUsage.inputTokens += usage.inputTokens;
-  judgeUsage.outputTokens += usage.outputTokens;
-  return JSON.parse(text);
-}
-
-const obj = (properties: Record<string, object>) =>
-  ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
-const PAGE_SCHEMA = obj({
-  characters: { type: 'array', items: obj({
-    name: { type: 'string' },
-    present: { type: 'boolean' },
-    identityScore: { type: 'integer', description: '0-10 likeness to the reference photo; 0 if absent' },
-    outfitMatches: { type: 'boolean' },
-    notes: { type: 'string' },
-  }) },
-  duplicateCharacter: { type: 'boolean', description: 'a reference character appears twice in one scene' },
-  borrowedFace: { type: 'boolean', description: 'a background/extra person has a reference character\'s face' },
-  textInImage: { type: 'boolean' },
-  anatomyIssues: { type: 'boolean' },
-  promptAdherence: { type: 'integer', description: '0-10' },
-  notes: { type: 'string' },
-});
 // Face identity via local ArcFace embeddings (face_score.py). A drawn face "beats rivals" when it is
 // closer to the character's photo than to every look-alike decoy and every other character.
 const CASES = path.resolve(__dirname, 'cases');
@@ -178,55 +150,17 @@ function faceScore(dir: string, story: any, pages: { page: number; image: string
   return JSON.parse(result.stdout);
 }
 
-const BOOK_SCHEMA = obj({
-  characterConsistency: { type: 'array', items: obj({ name: { type: 'string' }, score: { type: 'integer', description: '0-10 same person on every page' }, notes: { type: 'string' } }) },
-  styleConsistency: { type: 'integer', description: '0-10 one art style across all pages' },
-  notes: { type: 'string' },
-});
-
-async function judge(dir: string) {
+async function score(dir: string) {
   const story = read(dir, 'story.json');
-  const refs: Ref[] = story.refs;
-  const names = [...new Set(refs.map(r => r.characterName))];
-  const refParts: ContentPart[] = refs.flatMap(r => [
-    { type: 'input_text', text: `Reference photo of ${r.characterName}:` },
-    { type: 'input_image', image_url: dataUrl(path.join(dir, r.file)) },
-  ]);
-  console.log(`Judging ${story.pages.length} pages with ${JUDGE_MODEL}...`);
-
-  const pages = await Promise.all(story.pages.map(async (p: Page) => {
-    const verdict = await ask([...refParts,
-      { type: 'input_text', text: `Illustration for story page ${p.page}. Its generation prompt was:\n${p.imagePrompt}` },
-      { type: 'input_image', image_url: dataUrl(path.join(dir, p.image)) },
-      { type: 'input_text', text: `You are a strict QA reviewer for a personalized storybook. The illustration is stylized; judge whether each reference character (${names.join(', ')}) is recognizably the same person as their photo (face shape, hair, facial hair, glasses, skin tone, build), adapted to the art style. Report every reference character, even if absent. Be critical: 10 = unmistakable, 5 = generic lookalike, 0 = absent or different person.` },
-    ], 'page_review', PAGE_SCHEMA);
-    // Expected cast = reference characters named in the page prompt.
-    const expected = names.filter(n => new RegExp(`\\b${n}\\b`, 'i').test(p.imagePrompt));
-    return { page: p.page, expected, ...verdict };
-  }));
-
-  const book = await ask([...refParts,
-    ...story.pages.flatMap((p: Page) => [{ type: 'input_text', text: `Page ${p.page}:` }, { type: 'input_image', image_url: dataUrl(path.join(dir, p.image)) }]),
-    { type: 'input_text', text: `Review the whole book. For each of ${names.join(', ')}, is it the same person on every page they appear? Is the art style consistent?` },
-  ], 'book_review', BOOK_SCHEMA);
-
-  console.log('Scoring face identity...');
-  const faces = faceScore(dir, story, story.pages.map((p: Page, i: number) => ({ ...p, expected: pages[i].expected })));
-  const summary = summarize(dir, story, pages, book, names, faces);
-  write(dir, 'judge.json', { model: JUDGE_MODEL, usage: judgeUsage, pages, book, faces });
-  write(dir, 'summary.json', summary);
-  fs.appendFileSync(path.join(RUNS, 'index.jsonl'), JSON.stringify(summary) + '\n');
-  console.log(JSON.stringify(summary, null, 2));
-  console.log(`Results: http://localhost:3000/test-runs/${encodeURIComponent(path.basename(dir))} (with bun run dev)`);
-}
-
-function summarize(dir: string, story: any, pages: any[], book: any, names: string[], faces: any) {
+  const names = [...new Set((story.refs as Ref[]).map(r => r.characterName))];
+  // Expected cast = reference characters named in the page prompt.
+  const pages = story.pages.map((p: Page) => ({ ...p, expected: names.filter(n => new RegExp(`\\b${n}\\b`, 'i').test(p.imagePrompt)) }));
+  console.log('Scoring face identity (local, free)...');
+  const faces = faceScore(dir, story, pages);
+  if (faces) write(dir, 'faces.json', faces);
   const m = fs.existsSync(path.join(dir, 'metrics.json')) ? read(dir, 'metrics.json') : null;
-  const mean = (xs: number[]) => xs.length ? +(xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2) : null;
-  const perChar = (n: string) => pages.map(p => p.characters.find((c: any) => c.name === n)).filter(c => c?.present);
-  return {
+  const summary = {
     run: path.basename(dir),
-    judgeModel: JUDGE_MODEL,
     title: story.title,
     pages: pages.length,
     seconds: m?.seconds,
@@ -234,30 +168,23 @@ function summarize(dir: string, story: any, pages: any[], book: any, names: stri
     estCostUsd: m?.estCostUsd,
     imageRetries: m ? m.imageAttempts - pages.length : null,
     emptyPageText: story.pages.filter((p: Page) => !p.text.trim()).length,
-    identity: Object.fromEntries(names.map(n => [n, mean(perChar(n).map(c => c.identityScore))])),
-    outfitMatchRate: Object.fromEntries(names.map(n => [n, mean(perChar(n).map(c => +c.outfitMatches))])),
-    crossPageConsistency: Object.fromEntries(book.characterConsistency.map((c: any) => [c.name, c.score])),
-    styleConsistency: book.styleConsistency,
-    castCorrectPages: pages.filter(p => names.every(n =>
-      p.expected.includes(n) === !!p.characters.find((c: any) => c.name === n)?.present)).length,
-    duplicateCharacterPages: pages.filter(p => p.duplicateCharacter).length,
-    borrowedFacePages: pages.filter(p => p.borrowedFace).length,
-    textInImagePages: pages.filter(p => p.textInImage).length,
-    promptAdherence: mean(pages.map(p => p.promptAdherence)),
     // ArcFace: similarity to the photo, share of pages where the face beats every look-alike, and drawn-vs-drawn similarity.
     faceSimilarity: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.similarity ?? null])),
     faceBeatsRivals: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.beatsRivals ?? null])),
     faceCrossPage: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.crossPage ?? null])),
-    judgeUsage,
   };
+  write(dir, 'summary.json', summary);
+  fs.appendFileSync(path.join(RUNS, 'index.jsonl'), JSON.stringify(summary) + '\n');
+  console.log(JSON.stringify(summary, null, 2));
+  console.log(`Review: http://localhost:3000/test-runs/${encodeURIComponent(path.basename(dir))} (with bun run dev)`);
 }
 
 const [flag, target] = process.argv.slice(2);
 if (!flag) {
-  console.error('Usage: bun run test:story <case.json> | --judge <run-dir>');
+  console.error('Usage: bun run test:story <case.json> | --score <run-dir>');
   process.exit(1);
 }
-(flag === '--judge' ? judge(path.resolve(target)) : generate(path.resolve(flag))).catch(error => {
+(flag === '--score' ? score(path.resolve(target)) : generate(path.resolve(flag))).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

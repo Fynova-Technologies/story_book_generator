@@ -25,7 +25,7 @@ export function Card({ title, children, className = '' }: { title?: React.ReactN
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  judged: 'bg-green-100 text-green-800',
+  scored: 'bg-green-100 text-green-800',
   generated: 'bg-blue-100 text-blue-800',
   failed: 'bg-red-100 text-red-800',
   running: 'bg-amber-100 text-amber-800',

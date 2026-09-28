@@ -33,7 +33,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     <Shell title="Compare runs" back={back}>
       <p className="text-sm text-light-outline">
         Changes are against the baseline: <span className="font-semibold text-green-700">green</span> is better,{' '}
-        <span className="font-semibold text-red-700">red</span> is worse. Scores come from the judge model, so small moves can be noise.
+        <span className="font-semibold text-red-700">red</span> is worse. Face scores are local ArcFace numbers and vary run to run; the pages are what count.
       </p>
 
       <Card className="overflow-x-auto p-0">
@@ -74,13 +74,12 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                 <div className="grid gap-4" style={columns}>
                   {runs.map(r => {
                     const page = details.get(r.id)?.story?.pages?.[i];
-                    const verdict = details.get(r.id)?.judge?.pages?.find((p: any) => p.page === page?.page);
+                    const face = details.get(r.id)?.faces?.pages?.find((f: any) => f.page === page?.page);
                     return page ? (
                       <figure key={r.id}>
                         <img src={fileUrl(r.id, page.image)} alt={`Page ${page.page} of ${r.summary?.title || r.id}`} className="w-full rounded-lg" />
                         <figcaption className="mt-1 text-xs text-light-outline">
-                          {verdict?.characters?.map((c: any) => `${c.name} ${c.present ? `${c.identityScore}/10` : 'absent'}`).join(' · ')}
-                          {verdict?.textInImage && <span className="ml-1 font-semibold text-red-700">text in image</span>}
+                          {face && Object.entries(face.matches).map(([name, m]: [string, any]) => `${name} ${m.similarity ?? 'no face'}`).join(' · ')}
                         </figcaption>
                       </figure>
                     ) : <div key={r.id} className="text-sm text-light-outline">—</div>;

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { listRuns, type RunInfo } from '@/server/testRuns';
+import { listRuns } from '@/server/testRuns';
 import { Card, Shell, Status, formatDate } from './ui';
 
 export const dynamic = 'force-dynamic';
@@ -7,14 +7,12 @@ export const metadata = { title: 'Story Test Runs' };
 
 const avg = (values: Record<string, number> | undefined) => {
   const xs = Object.values(values || {}).filter(v => typeof v === 'number');
-  return xs.length ? (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1) : '—';
+  return xs.length ? (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2) : '—';
 };
 const pct = (values: Record<string, number | null> | undefined) => {
   const xs = Object.values(values || {}).filter((v): v is number => typeof v === 'number');
   return xs.length ? `${Math.round((xs.reduce((a, b) => a + b, 0) / xs.length) * 100)}%` : '—';
 };
-const defects = (s: RunInfo['summary']) =>
-  s ? s.emptyPageText + s.textInImagePages + s.duplicateCharacterPages + s.borrowedFacePages : '—';
 
 export default function TestRunsPage() {
   const runs = listRuns();
@@ -37,10 +35,9 @@ export default function TestRunsPage() {
                   <th className="p-3">Run</th>
                   <th className="p-3">Status</th>
                   <th className="p-3 text-right">Beats look-alikes</th>
-                  <th className="p-3 text-right">Likeness /10</th>
-                  <th className="p-3 text-right">Consistency /10</th>
-                  <th className="p-3 text-right">Style /10</th>
-                  <th className="p-3 text-right">Defect pages</th>
+                  <th className="p-3 text-right">Face similarity</th>
+                  <th className="p-3 text-right">Same face across pages</th>
+                  <th className="p-3 text-right">Pages without text</th>
                   <th className="p-3 text-right">Time</th>
                   <th className="p-3 text-right">Tokens</th>
                   <th className="p-3 text-right">Est. cost</th>
@@ -59,10 +56,9 @@ export default function TestRunsPage() {
                     </td>
                     <td className="p-3"><Status status={run.status} /></td>
                     <td className="p-3 text-right">{pct(run.summary?.faceBeatsRivals)}</td>
-                    <td className="p-3 text-right">{avg(run.summary?.identity)}</td>
-                    <td className="p-3 text-right">{avg(run.summary?.crossPageConsistency)}</td>
-                    <td className="p-3 text-right">{run.summary?.styleConsistency ?? '—'}</td>
-                    <td className="p-3 text-right">{defects(run.summary)}</td>
+                    <td className="p-3 text-right">{avg(run.summary?.faceSimilarity)}</td>
+                    <td className="p-3 text-right">{avg(run.summary?.faceCrossPage)}</td>
+                    <td className="p-3 text-right">{run.summary?.emptyPageText ?? '—'}</td>
                     <td className="p-3 text-right">{run.metrics ? `${run.metrics.seconds.total}s` : '—'}</td>
                     <td className="p-3 text-right">{run.metrics?.totalTokens?.toLocaleString('en-US') ?? '—'}</td>
                     <td className="p-3 text-right">{run.metrics ? `$${run.metrics.estCostUsd.toFixed(3)}` : '—'}</td>
