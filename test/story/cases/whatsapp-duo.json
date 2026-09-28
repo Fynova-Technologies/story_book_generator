@@ -20,7 +20,21 @@
     }
   },
   "references": [
-    { "characterName": "Arjun", "photo": "../fixtures/arjun.jpg", "description": "young man in brown and white zip jacket" },
-    { "characterName": "Dev", "photo": "../fixtures/dev.jpg", "description": "young man with glasses in navy t-shirt" }
+    {
+      "characterName": "Arjun",
+      "photo": "../fixtures/arjun.jpg",
+      "description": "young man in brown and white zip jacket"
+    },
+    {
+      "characterName": "Dev",
+      "photo": "../fixtures/dev.jpg",
+      "description": "young man with glasses in navy t-shirt"
+    }
+  ],
+  "decoys": [
+    "../fixtures/decoys/lookalike-1.jpg",
+    "../fixtures/decoys/lookalike-2.jpg",
+    "../fixtures/decoys/lookalike-3.jpg",
+    "../fixtures/decoys/lookalike-4.jpg"
   ]
 }

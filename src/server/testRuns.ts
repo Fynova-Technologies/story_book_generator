@@ -96,10 +96,14 @@ const int = (v: number) => v.toLocaleString('en-US');
 
 export function metricRows(runs: RunInfo[]): MetricRow[] {
   const names = [...new Set(runs.flatMap(run => Object.keys(run.summary?.identity || {})))];
+  // Judge scores are 0-10; ArcFace similarities are cosine (-1..1, same-person photos ~0.5+).
   const perCharacter = (group: string, label: string, key: string, format = num): MetricRow[] =>
     names.map(name => ({ group, label: `${label}: ${name}`, better: 'higher', format, value: run => run.summary?.[key]?.[name] }));
   const models = [...new Set(runs.flatMap(run => Object.keys(run.metrics?.models || {})))];
   return [
+    ...perCharacter('Face identity (ArcFace)', 'Beats look-alikes', 'faceBeatsRivals', pct),
+    ...perCharacter('Face identity (ArcFace)', 'Similarity to photo', 'faceSimilarity'),
+    ...perCharacter('Face identity (ArcFace)', 'Same face across pages', 'faceCrossPage'),
     { group: 'Character consistency', label: 'Castings correct (pages)', better: 'higher', format: num, value: r => r.summary?.castCorrectPages },
     ...perCharacter('Character consistency', 'Likeness to photo /10', 'identity'),
     ...perCharacter('Character consistency', 'Same across pages /10', 'crossPageConsistency'),

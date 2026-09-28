@@ -39,6 +39,8 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
 
       <Card title="Summary">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {Object.entries(summary?.faceBeatsRivals || {}).map(([name, v]) => <Stat key={`f-${name}`} label={`Beats look-alikes · ${name}`} value={v == null ? '—' : `${Math.round(Number(v) * 100)}%`} />)}
+          {Object.entries(summary?.faceSimilarity || {}).map(([name, v]) => <Stat key={`s-${name}`} label={`Face similarity · ${name}`} value={v == null ? "—" : String(v)} />)}
           {Object.entries(summary?.identity || {}).map(([name, v]) => <Stat key={`i-${name}`} label={`Likeness · ${name}`} value={`${v}/10`} />)}
           {Object.entries(summary?.crossPageConsistency || {}).map(([name, v]) => <Stat key={`c-${name}`} label={`Consistency · ${name}`} value={`${v}/10`} />)}
           <Stat label="Style consistency" value={summary && `${summary.styleConsistency}/10`} />
@@ -94,6 +96,7 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
 
       {(story?.pages || []).map((page: any) => {
         const v = verdicts.get(page.page);
+        const face = judge?.faces?.pages?.find((f: any) => f.page === page.page);
         return (
           <Card key={page.page} className="grid gap-5 md:grid-cols-[minmax(0,420px)_1fr]">
             <img src={fileUrl(run.id, page.image)} alt={`Illustration for page ${page.page}`} className="w-full rounded-xl" />
@@ -118,6 +121,16 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
                       </li>
                     ))}
                   </ul>
+                  {face && (
+                    <p className="mt-3">
+                      <b>Face identity (ArcFace):</b> {face.facesFound} face{face.facesFound === 1 ? '' : 's'} found ·{' '}
+                      {Object.entries(face.matches).map(([name, m]: [string, any], i) => (
+                        <span key={name} className={m.beatsRivals ? 'text-green-700' : 'text-red-700'}>
+                          {i > 0 && ' · '}{name} {m.similarity == null ? 'not found' : `${m.similarity} vs look-alike ${m.bestRival}`}
+                        </span>
+                      ))}
+                    </p>
+                  )}
                   <p className="mt-3 text-light-outline">{v.notes}</p>
                 </>
               )}

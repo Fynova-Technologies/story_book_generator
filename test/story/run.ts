@@ -6,6 +6,7 @@
 // Bun loads .env.local, so OPENAI_API_KEY comes from there.
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 import { createStory } from '../../src/server/services/storyPipeline';
 import { normalizeReferences } from '../../src/server/services/characterReferences';
 import { withTrace } from '../../src/server/services/trace';
@@ -145,6 +146,30 @@ const PAGE_SCHEMA = obj({
   promptAdherence: { type: 'integer', description: '0-10' },
   notes: { type: 'string' },
 });
+// Face identity via local ArcFace embeddings (face_score.py). A drawn face "beats rivals" when it is
+// closer to the character's photo than to every look-alike decoy and every other character.
+const CASES = path.resolve(__dirname, 'cases');
+function faceScore(dir: string, story: any, pages: { page: number; image: string; expected: string[] }[]) {
+  const file = path.join(CASES, `${read(dir, 'case.json').name}.json`);
+  const decoys = fs.existsSync(file)
+    ? (JSON.parse(fs.readFileSync(file, 'utf8')).decoys || []).map((d: string) => path.resolve(CASES, d))
+    : [];
+  const input = path.join(dir, 'face-input.json');
+  write(dir, 'face-input.json', {
+    refs: story.refs.map((r: Ref) => ({ name: r.characterName, file: path.join(dir, r.file) })),
+    decoys,
+    pages: pages.map(p => ({ page: p.page, file: path.join(dir, p.image), expected: p.expected })),
+  });
+  const result = spawnSync('uv', ['run', '-q', '--python', '3.12', '--with', 'insightface==0.7.3', '--with', 'onnxruntime',
+    '--with', 'opencv-python-headless', 'python', path.join(__dirname, 'face_score.py'), input], { encoding: 'utf8', maxBuffer: 1 << 26 });
+  fs.rmSync(input);
+  if (result.status !== 0) {
+    console.warn(`Face scoring skipped: ${result.error?.message || result.stderr.trim().split('\n').pop()}`);
+    return null;
+  }
+  return JSON.parse(result.stdout);
+}
+
 const BOOK_SCHEMA = obj({
   characterConsistency: { type: 'array', items: obj({ name: { type: 'string' }, score: { type: 'integer', description: '0-10 same person on every page' }, notes: { type: 'string' } }) },
   styleConsistency: { type: 'integer', description: '0-10 one art style across all pages' },
@@ -177,15 +202,17 @@ async function judge(dir: string) {
     { type: 'input_text', text: `Review the whole book. For each of ${names.join(', ')}, is it the same person on every page they appear? Is the art style consistent?` },
   ], 'book_review', BOOK_SCHEMA);
 
-  const summary = summarize(dir, story, pages, book, names);
-  write(dir, 'judge.json', { model: JUDGE_MODEL, usage: judgeUsage, pages, book });
+  console.log('Scoring face identity...');
+  const faces = faceScore(dir, story, story.pages.map((p: Page, i: number) => ({ ...p, expected: pages[i].expected })));
+  const summary = summarize(dir, story, pages, book, names, faces);
+  write(dir, 'judge.json', { model: JUDGE_MODEL, usage: judgeUsage, pages, book, faces });
   write(dir, 'summary.json', summary);
   fs.appendFileSync(path.join(RUNS, 'index.jsonl'), JSON.stringify(summary) + '\n');
   console.log(JSON.stringify(summary, null, 2));
   console.log(`Results: http://localhost:3000/test-runs/${encodeURIComponent(path.basename(dir))} (with bun run dev)`);
 }
 
-function summarize(dir: string, story: any, pages: any[], book: any, names: string[]) {
+function summarize(dir: string, story: any, pages: any[], book: any, names: string[], faces: any) {
   const m = fs.existsSync(path.join(dir, 'metrics.json')) ? read(dir, 'metrics.json') : null;
   const mean = (xs: number[]) => xs.length ? +(xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2) : null;
   const perChar = (n: string) => pages.map(p => p.characters.find((c: any) => c.name === n)).filter(c => c?.present);
@@ -209,6 +236,10 @@ function summarize(dir: string, story: any, pages: any[], book: any, names: stri
     borrowedFacePages: pages.filter(p => p.borrowedFace).length,
     textInImagePages: pages.filter(p => p.textInImage).length,
     promptAdherence: mean(pages.map(p => p.promptAdherence)),
+    // ArcFace: similarity to the photo, share of pages where the face beats every look-alike, and drawn-vs-drawn similarity.
+    faceSimilarity: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.similarity ?? null])),
+    faceBeatsRivals: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.beatsRivals ?? null])),
+    faceCrossPage: faces && Object.fromEntries(names.map(n => [n, faces.summary[n]?.crossPage ?? null])),
     judgeUsage,
   };
 }

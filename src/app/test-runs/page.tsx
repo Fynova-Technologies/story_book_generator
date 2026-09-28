@@ -9,6 +9,10 @@ const avg = (values: Record<string, number> | undefined) => {
   const xs = Object.values(values || {}).filter(v => typeof v === 'number');
   return xs.length ? (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1) : '—';
 };
+const pct = (values: Record<string, number | null> | undefined) => {
+  const xs = Object.values(values || {}).filter((v): v is number => typeof v === 'number');
+  return xs.length ? `${Math.round((xs.reduce((a, b) => a + b, 0) / xs.length) * 100)}%` : '—';
+};
 const defects = (s: RunInfo['summary']) =>
   s ? s.emptyPageText + s.textInImagePages + s.duplicateCharacterPages + s.borrowedFacePages : '—';
 
@@ -32,6 +36,7 @@ export default function TestRunsPage() {
                   <th className="p-3" />
                   <th className="p-3">Run</th>
                   <th className="p-3">Status</th>
+                  <th className="p-3 text-right">Beats look-alikes</th>
                   <th className="p-3 text-right">Likeness /10</th>
                   <th className="p-3 text-right">Consistency /10</th>
                   <th className="p-3 text-right">Style /10</th>
@@ -53,6 +58,7 @@ export default function TestRunsPage() {
                       {run.error && <div className="mt-1 max-w-md truncate text-xs text-red-700" title={run.error}>{run.error}</div>}
                     </td>
                     <td className="p-3"><Status status={run.status} /></td>
+                    <td className="p-3 text-right">{pct(run.summary?.faceBeatsRivals)}</td>
                     <td className="p-3 text-right">{avg(run.summary?.identity)}</td>
                     <td className="p-3 text-right">{avg(run.summary?.crossPageConsistency)}</td>
                     <td className="p-3 text-right">{run.summary?.styleConsistency ?? '—'}</td>
