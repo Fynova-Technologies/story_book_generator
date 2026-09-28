@@ -3,6 +3,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface StoryImage {
   image: string | null;
   description: string;
+  // Who is in the photo. Photos with the same name are treated as one character.
+  characterName: string;
 }
 export interface StoryWizardState {
   template:      string;

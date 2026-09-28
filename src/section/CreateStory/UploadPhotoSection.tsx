@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
 import { useDispatch, useSelector } from "react-redux";
-import { setImages } from "../../store/slices/storyWizardSlice";
+import { setImages, StoryImage } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
 
 const MAX_PHOTOS = 5;
@@ -16,8 +16,8 @@ const UploadPhotoSection = ({
   const dispatch = useDispatch();
   const storedImages = useSelector((state: RootState) => state.story?.images || []);
 
-  const [photos, setPhotos] = useState<{ image: string | null; description: string }[]>(
-    Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "" }))
+  const [photos, setPhotos] = useState<StoryImage[]>(
+    Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "", characterName: "" }))
   );
   const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
   const hasInitializedFromRedux = useRef(false);
@@ -27,7 +27,9 @@ const UploadPhotoSection = ({
     if (!hasInitializedFromRedux.current && storedImages.length > 0) {
       const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
         const stored = storedImages[index];
-        return stored ? { image: stored.image, description: stored.description } : { image: null, description: "" };
+        return stored
+          ? { image: stored.image, description: stored.description, characterName: stored.characterName || "" }
+          : { image: null, description: "", characterName: "" };
       });
       setPhotos(initializedPhotos);
       hasInitializedFromRedux.current = true;
@@ -49,6 +51,15 @@ const UploadPhotoSection = ({
     );
   };
 
+  const handleNameChange = (index: number, characterName: string) => {
+    setPhotos((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, characterName } : p))
+    );
+  };
+
+  // Names typed on other cards, offered as suggestions so several photos of one person match exactly.
+  const knownNames = [...new Set(photos.map((p) => p.characterName.trim()).filter(Boolean))];
+
   const handleFileSizeChange = (index: number, size: number) => {
     setSizes((prev) =>
       prev.map((s, i) => (i === index ? size : s))
@@ -57,8 +68,10 @@ const UploadPhotoSection = ({
 
   // send the data to the store and mark step as valid if minimum photos uploaded
   useEffect(() => {
-    const hasMinPhotos = photos.filter((p) => p.image !== null).length >= MIN_PHOTOS;
-    const isValid = hasMinPhotos && totalSize <= 10;
+    const uploaded = photos.filter((p) => p.image !== null);
+    const hasMinPhotos = uploaded.length >= MIN_PHOTOS;
+    const allNamed = uploaded.every((p) => p.characterName.trim());
+    const isValid = hasMinPhotos && allNamed && totalSize <= 10;
 
     onValidChange(isValid);
 
@@ -80,7 +93,8 @@ const UploadPhotoSection = ({
             Gather Your Heroes
           </h2>
           <p className="font-body text-sm text-light-outline dark:text-dark-text mt-1.5">
-            Upload 5-10 photos of the main character. Add a small description to help our AI create magic.
+            Upload up to 5 photos with one person in each, and say who is in every photo.
+            Use the same name on several photos of one person, and the names you'll use in the story.
           </p>
         </div>
 
@@ -126,6 +140,9 @@ const UploadPhotoSection = ({
             description={photo.description}
             onImageUpload={(image: string) => handleImageUpload(index, image)}
             onDescriptionChange={(desc: string) => handleDescriptionChange(index, desc)}
+            characterName={photo.characterName}
+            onNameChange={(name: string) => handleNameChange(index, name)}
+            nameOptions={knownNames}
             onFileSizeChange={(size: number) => handleFileSizeChange(index, size)}
           />
         ))}
@@ -146,7 +163,7 @@ const UploadPhotoSection = ({
             Pro Tip for Magic Results
           </p>
           <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70 mt-0.5 leading-relaxed">
-            Clear, front-facing photos with good lighting work best. Avoid photos where faces are covered by sunglasses or masks.
+            Clear, front-facing photos of one person with good lighting work best. Crop out other people, and avoid photos where faces are covered by sunglasses or masks.
           </p>
         </div>
       </div>

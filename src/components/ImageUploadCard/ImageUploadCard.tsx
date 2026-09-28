@@ -1,13 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useId } from "react";
 
 const ImageUploadCard = ({ 
     onImageUpload, 
     previewImage, 
     description, 
     onDescriptionChange,
-    onFileSizeChange
+    onFileSizeChange,
+    characterName,
+    onNameChange,
+    nameOptions = [],
 }: any) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameListId = useId();
   const [isDragging, setIsDragging] = useState(false);
   const charLimit = 100;
 
@@ -106,6 +110,26 @@ const ImageUploadCard = ({
       </div>
 
       {/* ── DESCRIPTION AREA ── */}
+      {previewImage && (
+        <div className="px-3 pt-3">
+          <label className="block font-body text-[11px] font-semibold text-light-text dark:text-dark-text">
+            Who is this? <span className="text-red-600">*</span>
+            <input
+              type="text"
+              value={characterName || ""}
+              onChange={(e) => onNameChange?.(e.target.value.slice(0, 80))}
+              list={nameListId}
+              required
+              placeholder="e.g. Arjun"
+              aria-invalid={!characterName?.trim()}
+              className={`mt-1 w-full rounded-md border bg-transparent px-2 py-1.5 font-body text-sm font-normal text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-light-primary ${characterName?.trim() ? "border-light-outline-secondary" : "border-red-400"}`}
+            />
+          </label>
+          <datalist id={nameListId}>
+            {nameOptions.map((name: string) => <option key={name} value={name} />)}
+          </datalist>
+        </div>
+      )}
       {previewImage && (
         <div className="p-3 relative">
           <textarea

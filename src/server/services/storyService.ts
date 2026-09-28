@@ -697,6 +697,9 @@ export const generateStory = async (
         ${combinedFormulasString || 'No character photos provided — invent consistent characters.'}
 
         Define the complete named cast ONCE in the characters array (name and appearance).
+        ${Object.keys(descriptions).length ? `The people in the photos are exactly: ${Object.keys(descriptions).map(n => JSON.stringify(n)).join(', ')}.
+        When the story context mentions them (for example as the main or supporting character), it means these people:
+        use these exact names, never rename them, and never add a second character for the same person.` : ''}
         Use exactly the supplied names and appearances for characters with photos.
         Define a fixed appearance and outfit for any additional story characters.
         Refer to these characters by their exact names in every imagePrompt.
@@ -724,14 +727,15 @@ export const generateStory = async (
       throw new Error('Invalid storyboard returned. Please retry.');
     }
     const cast: Record<string, string> = Object.create(null);
+    const photoNames = new Set(Object.keys(descriptions).map(n => n.toLowerCase()));
     for (const character of story.characters) {
       if (typeof character.name !== 'string' || !character.name.trim() ||
           typeof character.appearance !== 'string' || !character.appearance.trim()) {
         throw new Error('Invalid character definition returned. Please retry.');
       }
-      cast[character.name] = character.appearance;
+      // Photo characters come from the photos below, never the director's paraphrase.
+      if (!photoNames.has(character.name.trim().toLowerCase())) cast[character.name] = character.appearance;
     }
-    // Photo-derived definitions are authoritative, never the director's paraphrase.
     Object.assign(cast, descriptions);
     const characterContext = buildVisualDescriptionSection(cast);
     trace('cast', { directorCast: story.characters, photoDescriptions: descriptions, characterContext });

@@ -29,10 +29,11 @@ export function normalizeReferences(value: unknown): CharacterReference[] {
     if (typeof item.image !== 'string') throw new ApiError(400, 'Invalid reference photo.');
     const part = imagePart(item.image);
     bytes += Buffer.from(part.data, 'base64').length;
-    // The upload UI asks for photos of the main character only, so unnamed photos share one identity.
-    const name = typeof item.characterName === 'string' && item.characterName.trim()
-      ? item.characterName.trim().replace(/\s+/g, ' ')
-      : 'Main Character';
+    // Never guess who is in a photo: merging unnamed photos blends different people into one face.
+    if (typeof item.characterName !== 'string' || !item.characterName.trim()) {
+      throw new ApiError(400, 'Tell us who is in each photo before generating.');
+    }
+    const name = item.characterName.trim().replace(/\s+/g, ' ');
     if (name.length > 80) throw new ApiError(400, 'Character names must be at most 80 characters.');
     if (item.description !== undefined && (typeof item.description !== 'string' || item.description.length > 100)) {
       throw new ApiError(400, 'Photo notes must be text, up to 100 characters.');
