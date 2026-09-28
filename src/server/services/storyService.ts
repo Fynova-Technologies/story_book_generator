@@ -26,7 +26,7 @@ const StrictUserSchema = obj({
   title: { type: 'string' },
   subtitle: { type: 'string' },
   characters: { type: 'array', items: obj({ name: { type: 'string' }, appearance: { type: 'string' } }) },
-  pages: { type: 'array', items: obj({ page: { type: 'integer' }, imagePrompt: { type: 'string' } }) },
+  pages: { type: 'array', items: obj({ page: { type: 'integer' }, text: { type: 'string', description: 'the story text printed on this page' }, imagePrompt: { type: 'string' } }) },
 });
 // ── Extract visual description for ONE image ───────────────
 const extractCharacterDescription = async (
