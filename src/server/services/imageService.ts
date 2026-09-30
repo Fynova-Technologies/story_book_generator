@@ -1,6 +1,18 @@
+import sharp from 'sharp';
 import { editImage } from './openai';
 import { CharacterReference, imagePart, referenceLabels } from './characterReferences';
 import { trace } from './trace';
+
+// Image input tokens grow with pixel area and every reference is sent with every page,
+// so cap each reference's longest side. rotate() applies EXIF orientation before it is stripped.
+export async function shrink(image: string, maxSide: number) {
+  const { mimeType, data } = imagePart(image);
+  const resized = sharp(Buffer.from(data, 'base64')).rotate()
+    .resize(maxSide, maxSide, { fit: 'inside', withoutEnlargement: true });
+  const png = mimeType === 'image/png';
+  const buffer = await (png ? resized.png() : resized.jpeg({ quality: 90 })).toBuffer();
+  return `data:image/${png ? 'png' : 'jpeg'};base64,${buffer.toString('base64')}`;
+}
 
 // Keep one model for the whole book, including retries, to avoid style drift.
 const model = 'gpt-image-2.5-flare';

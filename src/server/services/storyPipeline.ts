@@ -1,5 +1,5 @@
 import { generateStory, stylePreset } from './storyService';
-import { createCharacterSheet, transformImage } from './imageService';
+import { createCharacterSheet, shrink, transformImage } from './imageService';
 import { CharacterReference } from './characterReferences';
 import { ApiError } from '../utils/ApiError';
 
@@ -14,7 +14,9 @@ export interface StoryRequest {
 }
 
 // The full generation flow shared by the API route and the test harness.
-export async function createStory(input: StoryRequest, references: CharacterReference[]) {
+export async function createStory(input: StoryRequest, uploads: CharacterReference[]) {
+  // Tested likeness used photos of ~600x940; phone photos are many times that area, at the same token rate.
+  const references = await Promise.all(uploads.map(async reference => ({ ...reference, image: await shrink(reference.image, 1024) })));
   // ── Step 1: Story text + image prompts, and one character sheet per person, in parallel ──
   console.log(`Generating ${input.storyStyle} story...`);
   const names = [...new Set(references.map(reference => reference.characterName))];
