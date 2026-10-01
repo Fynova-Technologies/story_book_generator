@@ -3,22 +3,22 @@ const FAQItem = ({
     answer, 
     isOpen, 
     onToggle
- }: any) => {
+ }: { question: string; answer: string; isOpen: boolean; onToggle: () => void }) => {
   return (
-    <div className="border-b border-light-outline-secondary dark:border-dark-primary-30">
+    <div className="border-b border-light-outline last:border-b-0">
 
       {/* ── QUESTION ROW ── */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between py-5 text-left gap-4 group"
+        className="w-full flex items-center justify-between px-0 md:px-5 py-4 md:py-[17px] text-left gap-4 group"
       >
         {/* Question Text */}
-        <span className="font-heading font-semibold text-sm md:text-base text-light-text dark:text-dark-text">
+        <span className="font-heading font-bold text-base leading-[26px] text-light-text">
           {question}
         </span>
 
         {/* Icon — X when open, chevron when closed */}
-        <span className="flex-shrink-0 text-light-outline dark:text-dark-text group-hover:text-light-primary dark:group-hover:text-dark-primary transition-colors duration-200">
+        <span className="flex-shrink-0 text-light-text group-hover:text-light-primary transition-colors duration-200">
           {isOpen ? (
             // X icon when open
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,12 +38,12 @@ const FAQItem = ({
       <div
         className={`overflow-hidden transition-all duration-500 ease-in-out
           ${isOpen
-            ? "max-h-96 opacity-100 pb-5"
+            ? "max-h-96 opacity-100 pb-6"
             : "max-h-0 opacity-0 pb-0"
           }
         `}
       >
-        <p className="font-body text-sm text-light-outline dark:text-dark-text leading-relaxed">
+        <p className="font-body text-base leading-[26px] text-light-text md:px-5">
           {answer}
         </p>
       </div>

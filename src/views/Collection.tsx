@@ -1,55 +1,47 @@
 import {useState} from 'react'
 import DraftSection from '../section/Dashboard/DraftSection'
 import CompletedSection from '../section/Dashboard/CompletedSection'
+import { StorySort } from '../services/storyService'
 
-
-type FilterTab = "All" | "Premium" | "Free";
-
-const FILTER_TABS: FilterTab[] = ["All", "Premium", "Free"];
 function Collection() {
-    const[activeTab, setActiveTab]= useState<FilterTab>("All")
+    const [query, setQuery] = useState('')
+    const [sort, setSort] = useState<StorySort>('newest')
   return (
-    <div className='p-6 bg-light-bg'>
-      <div className="flex justify-between items-center gap-4 p-2 mb-2 ">
+    <div className='w-full px-4 sm:px-7 py-6 sm:py-7 space-y-8'>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* searchbox */}
-        <input 
-            type="text" 
-            placeholder="Search..." 
-            className="w-100 border bg-light-on-primary border-gray-300 rounded-3xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <label className="flex items-center gap-3 w-full sm:max-w-[507px] h-11 px-4 rounded-full bg-white focus-within:ring-2 focus-within:ring-light-primary/40">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="shrink-0 text-light-outline" aria-hidden>
+            <circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Search by title..."
+            aria-label="Search stories"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent font-body text-base font-semibold text-light-text placeholder:text-light-outline focus:outline-none"
+          />
+        </label>
 
-        <div className="flex items-center gap-6">
-
-            <div className="flex items-center gap-1 bg-dark-text dark:bg-dark-primary-10 border-light-outline-secondary
-             dark:border-dark-primary-30 rounded-3xl p-1">
-              {FILTER_TABS.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`font-body text-md font-medium px-3 py-1 rounded-2xl transition-all
-                    ${activeTab === tab
-                      ? "bg-light-on-primary dark:bg-dark-bg text-light-primary dark:text-dark-text shadow-sm"
-                      : "text-light-outline dark:text-dark-text hover:text-light-text dark:hover:text-dark-primary"
-                    }
-                  `}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div>
-            <select className="border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Newest First</option>
-                <option>Oldest First</option>
-            </select>
-            </div>
-
-        </div>
-
-        </div>
-        <DraftSection/>
-        <CompletedSection/>
+        <label className="relative flex items-center gap-2 self-start sm:self-auto h-11 pl-4 pr-10 rounded-full bg-white font-body text-xs focus-within:ring-2 focus-within:ring-light-primary/40">
+          <span className="font-semibold text-light-outline">SORT:</span>
+          <select
+            aria-label="Sort stories"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as StorySort)}
+            className="appearance-none bg-transparent font-bold text-light-text focus:outline-none cursor-pointer">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="title">Title (A–Z)</option>
+          </select>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute right-4 text-light-outline" aria-hidden>
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </label>
+      </div>
+      <DraftSection query={query} sort={sort} hideViewAll />
+      <CompletedSection query={query} sort={sort} hideViewAll />
     </div>
   )
 }

@@ -6,7 +6,7 @@ function SampleGallery() {
   return (
     <div>
       <Navbar bglight= {true}/>
-      <div className='bg-light-bg px-5 pt-15'>
+      <div className='pt-16'>
       <FeatureSection/>
       </div>
       <Footer/>

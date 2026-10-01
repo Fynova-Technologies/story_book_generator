@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { setNarration } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
+import StepPanel from "./StepPanel";
 
 const voiceOptions = [
   {
@@ -30,51 +32,46 @@ interface props{
 }
 const VoiceNarrationSection = ({ onValidChange }: props) => {
   const dispatch = useDispatch();
-  
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState("storyteller");
-  dispatch(setNarration(selectedVoice))
-  
+  // The stored narration is the voice id, or '' when narration is off.
+  const selectedVoice = useSelector((state: RootState) => state.story.narration);
+  const isEnabled = selectedVoice !== "";
+
   useEffect(() => {
     onValidChange(true); // Voice narration is optional, so we consider it valid even if not enabled
-  }, [isEnabled]);
+  }, [onValidChange]);
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8 border-light-outline-secondary dark:border-dark-primary-30">
-
-      {/* ── HEADING ── */}
-      <div className="text-center mb-8">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
-          Voice Narration
-        </h2>
-        <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70">
-          Enable audio to have the story read aloud in a generated voice.
-        </p>
-      </div>
+    <StepPanel
+      narrow
+      centered
+      title="Voice Narration"
+      subtitle="Enable audio to have the story read aloud in a generated voice."
+    >
+      <div className="flex flex-col gap-6">
 
       {/* ── ENABLE VOICE NARRATION CARD ── */}
-      <div className="flex items-start justify-between gap-4 p-5 rounded-2xl border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 mb-5">
+      <div className="flex items-center justify-between gap-4 md:gap-16 p-5 md:p-6 rounded-2xl bg-white shadow-sm">
 
         {/* Left — Icon + Text */}
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-4 md:gap-6">
 
           {/* Icon */}
-          <div className="w-10 h-10 rounded-full bg-dark-primary-10 border border-dark-primary-30 flex items-center justify-center flex-shrink-0">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <line x1="8" y1="18" x2="8" y2="6"/>
+          <div className="hidden sm:flex w-16 h-16 rounded-full bg-light-primary/10 items-center justify-center flex-shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary">
+              <line x1="8" y1="17" x2="8" y2="7"/>
               <line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="16" y1="18" x2="16" y2="6"/>
-              <line x1="4" y1="16" x2="4" y2="8"/>
-              <line x1="20" y1="16" x2="20" y2="8"/>
+              <line x1="16" y1="17" x2="16" y2="7"/>
+              <line x1="4" y1="14" x2="4" y2="10"/>
+              <line x1="20" y1="14" x2="20" y2="10"/>
             </svg>
           </div>
 
           {/* Text */}
           <div>
-            <p className="font-body text-sm font-bold text-light-text dark:text-dark-text mb-1">
+            <p className="font-body text-lg font-bold text-light-text mb-1">
               Enable Voice Narration
             </p>
-            <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 leading-relaxed max-w-sm">
+            <p className="font-body text-sm text-light-outline leading-relaxed">
               Turn this on to automatically generate an audio narration for your storybook. Perfect for bedtime listening.
             </p>
           </div>
@@ -83,16 +80,19 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
 
         {/* ── TOGGLE ── */}
         <button
-          onClick={() => setIsEnabled(!isEnabled)}
-          className={`relative w-12 h-6 rounded-full transition-all duration-300 flex-shrink-0 mt-1
+          onClick={() => dispatch(setNarration(isEnabled ? "" : voiceOptions[0].id))}
+          role="switch"
+          aria-checked={isEnabled}
+          aria-label="Enable voice narration"
+          className={`relative w-14 h-7 rounded-full transition-all duration-300 flex-shrink-0
             ${isEnabled
-              ? "bg-light-primary dark:bg-dark-primary"
-              : "bg-light-outline-secondary dark:bg-dark-primary-30"
+              ? "bg-light-primary"
+              : "bg-light-outline-secondary"
             }
           `}
         >
-          <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300
-            ${isEnabled ? "left-6" : "left-0.5"}
+          <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-all duration-300
+            ${isEnabled ? "left-[30px]" : "left-0.5"}
           `} />
         </button>
 
@@ -100,11 +100,11 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
 
       {/* ── VOICE SETTINGS ── */}
       {isEnabled && (
-        <div>
+        <div className="p-5 md:p-6 rounded-2xl bg-white text-left">
 
           {/* Section Label */}
           <div className="flex items-center gap-2 mb-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-outline dark:text-dark-text opacity-60">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-text">
               <line x1="4" y1="21" x2="4" y2="14"/>
               <line x1="4" y1="10" x2="4" y2="3"/>
               <line x1="12" y1="21" x2="12" y2="12"/>
@@ -115,66 +115,56 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
               <line x1="9" y1="8" x2="15" y2="8"/>
               <line x1="17" y1="16" x2="23" y2="16"/>
             </svg>
-            <span className="font-body text-sm font-semibold text-light-text dark:text-dark-text">
+            <span className="font-body text-sm font-semibold text-light-text">
               Voice Settings
             </span>
           </div>
 
           {/* ── VOICE OPTIONS GRID ── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div role="radiogroup" aria-label="Voice" className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {voiceOptions.map((voice) => {
               const isSelected = selectedVoice === voice.id;
 
               return (
                 <button
                   key={voice.id}
-                  onClick={() => setSelectedVoice(voice.id)}
-                  className={`flex items-center justify-between gap-3 p-4 rounded-2xl border text-left transition-all duration-200
+                  role="radio"
+                  aria-checked={isSelected}
+                  onClick={() => dispatch(setNarration(voice.id))}
+                  className={`flex items-center justify-between gap-3 px-4 py-4 rounded-3xl text-left transition-all duration-200
                     ${isSelected
-                      ? "border-light-primary dark:border-dark-primary bg-dark-primary-10 dark:bg-dark-primary-10"
-                      : "border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 hover:border-light-primary dark:hover:border-dark-primary"
+                      ? "border-2 border-light-primary"
+                      : "border border-light-outline-secondary hover:border-light-primary"
                     }
                   `}
                 >
-                  {/* Left — Play icon + Text */}
                   <div className="flex items-center gap-3">
-
-                    {/* Play Button */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200
-                      ${isSelected
-                        ? "bg-light-primary dark:bg-dark-primary"
-                        : "bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30"
-                      }
-                    `}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={isSelected ? "text-white ml-0.5" : "text-light-primary dark:text-dark-primary ml-0.5"}>
-                        <path d="M6 4l14 8-14 8V4z"/>
+                    {/* Voice glyph (no voice previews yet) */}
+                    <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isSelected ? "bg-light-primary text-white" : "bg-dark-primary-30 text-light-text"}`}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>
                       </svg>
-                    </div>
+                    </span>
 
                     {/* Voice Name + Description */}
                     <div>
-                      <p className={`font-body text-sm font-semibold transition-all duration-200
-                        ${isSelected
-                          ? "text-light-primary dark:text-dark-primary"
-                          : "text-light-text dark:text-dark-text"
-                        }
-                      `}>
+                      <p className={`font-body text-sm font-semibold ${isSelected ? "text-light-primary" : "text-light-text"}`}>
                         {voice.name}
                       </p>
-                      <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">
+                      <p className="font-body text-xs text-light-outline">
                         {voice.description}
                       </p>
                     </div>
-
                   </div>
 
                   {/* Right — Selected checkmark */}
                   {isSelected && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary flex-shrink-0">
-                      <polyline points="20 6 9 17 4 12"/>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary flex-shrink-0 self-start">
+                      <circle cx="12" cy="12" r="9"/>
+                      <polyline points="8 12.5 11 15 16 9.5"/>
                     </svg>
                   )}
-
                 </button>
               );
             })}
@@ -183,7 +173,8 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
         </div>
       )}
 
-    </div>
+      </div>
+    </StepPanel>
   );
 };
 

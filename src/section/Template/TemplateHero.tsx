@@ -2,74 +2,70 @@ import { useState } from "react";
 const TemplateHeroBg = "/assets/images/contactbg.png";
 
 
-const TemplateHero = ({ onSearch }: any) => {
+const TemplateHero = ({ onSearch }: { onSearch?: (query: string) => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
     onSearch?.(searchQuery);
-    console.log("Searching for:", searchQuery);
   };
 
-  const handleKeyDown = (e: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSearch();
   };
 
   return (
-    <div className="relative w-full mx-auto pt-40" style={{ minHeight: "340px" }}>
+    <div className="relative w-full min-h-[420px] md:min-h-[464px] mb-12">
 
       {/* ── BACKGROUND IMAGE ── */}
-      👉 Uncomment when image is ready:
       <img
         src={TemplateHeroBg}
-        alt="Template Hero Background"
+        alt=""
+        data-glass-backdrop
+        data-glass-dim="0.7"
         className="absolute inset-0 w-full h-full object-cover"
       />
-     
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/70" />
 
       {/* ── CONTENT ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-0 pb-0 gap-5">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-28 md:pt-[136px] pb-16 gap-6">
 
         {/* Top badge */}
-        <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-accent dark:text-dark-accent">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          <span className="font-body text-xs font-semibold text-white/90 uppercase tracking-wider">
+        <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20">
+          <span className="text-white/75 text-xs" aria-hidden="true">✦</span>
+          <span className="font-body text-xs font-semibold text-white/75 uppercase tracking-wider">
             12 Story Templates
           </span>
         </div>
 
         {/* Heading */}
-        <h1 className="font-heading text-4xl md:text-5xl xl:text-5xl font-bold leading-tight max-w-3xl">
+        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold leading-tight max-w-4xl">
           <span className="text-white">Choose Your </span>
-          <span className="text-light-accent dark:text-dark-accent italic">Story Template</span>
+          <span className="text-light-accent italic">Story Template</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="font-body text-sm md:text-base text-white/70 leading-relaxed max-w-lg">
+        <p className="font-body text-base md:text-2xl md:leading-7 text-white/70 max-w-3xl">
           Every great story starts with the right canvas. Pick a template, add your memories, and let the magic begin.
         </p>
+      </div>
 
-        {/* ── SEARCH BOX ── */}
-        <div className="flex items-center w-full max-w-xl mt-2 -mb-7 relative z-20 bg-white rounded-full p-1 shadow-lg">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e: any) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search for a template...."
-            className="flex-1 px-5 py-3.5 rounded-l-full bg-white dark:bg-dark-bg text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none"
-          />
-          <button
-            onClick={handleSearch}
-            className="px-6 py-3.5 rounded-3xl bg-light-primary dark:bg-dark-primary text-white font-body font-bold text-sm hover:opacity-90 transition-all duration-200"
-          >
-            GO
-          </button>
-        </div>
-
+      {/* ── SEARCH BOX (sits on the hero's bottom edge) ── */}
+      <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-20 w-[calc(100%-2rem)] max-w-[700px] flex items-center gap-2 bg-white rounded-full shadow-lg p-2.5 pl-6 md:pl-8">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); onSearch?.(e.target.value); }}
+          onKeyDown={handleKeyDown}
+          placeholder="Search for a template...."
+          aria-label="Search templates"
+          className="flex-1 min-w-0 bg-transparent text-light-text placeholder:text-[#8A8A8A] placeholder:italic font-heading text-lg md:text-2xl focus:outline-none"
+        />
+        <button
+          onClick={handleSearch}
+          className="px-5 md:px-6 py-2.5 md:py-3 rounded-full bg-light-primary text-white font-heading text-lg hover:opacity-90 transition-all duration-200"
+        >
+          GO
+        </button>
       </div>
     </div>
   );
