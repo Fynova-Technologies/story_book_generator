@@ -70,25 +70,18 @@ const Signup = () => {
       <div className="flex-1 min-w-0 flex flex-col px-2 sm:px-8 xl:px-16 lg:overflow-y-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between gap-4 min-h-[72px]">
-          <Link to='/' className="flex items-center gap-2 text-light-text hover:text-light-primary transition-colors text-base md:text-lg font-medium">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Back home
-          </Link>
+        <div className="flex items-center justify-center min-h-[72px]">
 
           {/* Logo */}
           <Logo className="text-light-text" />
 
-          <div className="hidden sm:block w-[130px]" />
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-[544px] w-full mx-auto py-10">
+        <div className="flex-1 flex flex-col max-w-[544px] w-full mx-auto py-10 lg:py-[100px]">
 
           {/* Heading */}
-          <div className="mb-10 text-center">
+          <div className="mb-12 text-center">
             <h1
               className="font-heading text-4xl md:text-5xl font-bold text-light-text mb-6"
 
@@ -113,7 +106,8 @@ const Signup = () => {
             </div>
           ) : (
           <>
-          <form onSubmit={handleSubmit(handleSignup)} className="space-y-6">
+          <form onSubmit={handleSubmit(handleSignup)} className="flex flex-col gap-12">
+            <div className="flex flex-col gap-8">
              <InputField
                 label="Name"
                 type="text"
@@ -139,7 +133,8 @@ const Signup = () => {
                 })}
               />
 
-              {/* Password */}
+              {/* Password, with Remember me tucked under it */}
+              <div className="flex flex-col gap-2">
               <InputField
                 label="Password"
                 type="password"
@@ -150,8 +145,6 @@ const Signup = () => {
                   minLength: { value: 8, message: "At least 8 characters" },
                 })}
               />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              {/* Remember me */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <div className="relative">
@@ -159,18 +152,23 @@ const Signup = () => {
                             type="checkbox"
                             checked={rememberMe}
                             onChange={() => setRememberMe(prev=>!prev)}
-                            className="w-4 h-4 accent-light-primary"
+                            className="w-5 h-5 accent-light-primary"
                           />
                         </div>
                         <span className="font-body text-base text-light-text">Remember me</span>
                       </label>
                     </div>
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+            </div>
+            <div className="flex flex-col gap-6">
                     <Button
                         type = "submit"
                         name = {`${loading ? "Signing up..." : "Register"}`}
                         disabled={loading||isSubmitting}
                     /> 
                     <GoogleButton />
+            </div>
             </form>
 
           {/* Sign Up Link */}
@@ -180,7 +178,7 @@ const Signup = () => {
               to='/login'
               className="text-light-text underline underline-offset-4 hover:text-light-primary transition-colors"
             >
-              Log in
+              Sign In
             </Link>
           </p>
           </>

@@ -85,8 +85,8 @@ const Login = () => {
       <div className="flex-1 min-w-0 flex flex-col px-2 sm:px-8 xl:px-16 lg:overflow-y-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between gap-4 min-h-[72px]">
-          <Link to='/' className="flex items-center gap-2 text-light-text hover:text-light-primary transition-colors text-base md:text-lg font-medium">
+        <div className="relative flex items-center justify-between sm:justify-center gap-4 min-h-[72px]">
+          <Link to='/' className="sm:absolute sm:left-0 flex items-center gap-2 text-light-text hover:text-light-primary transition-colors text-base md:text-lg font-medium">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -96,14 +96,13 @@ const Login = () => {
           {/* Logo */}
           <Logo className="text-light-text" />
 
-          <div className="hidden sm:block w-[130px]" />
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-[544px] w-full mx-auto py-10">
+        <div className="flex-1 flex flex-col max-w-[544px] w-full mx-auto py-10 lg:py-[100px]">
 
           {/* Heading */}
-          <div className="mb-10 text-center">
+          <div className="mb-12 text-center">
             <h1
               className="font-heading text-4xl md:text-5xl font-bold text-light-text mb-6"
             >
@@ -113,7 +112,8 @@ const Login = () => {
               Enter your email and password to access your account
             </p>
           </div>
-          <form onSubmit={handleSubmit(handleLogin)} className="space-y-6">
+          <form onSubmit={handleSubmit(handleLogin)} className="flex flex-col gap-12">
+            <div className="flex flex-col gap-8">
              <InputField
                 label="Email"
                 type="email"
@@ -129,7 +129,8 @@ const Login = () => {
                 })}
               />
 
-              {/* Password */}
+              {/* Password, with Remember me + Forgot password tucked under it */}
+              <div className="flex flex-col gap-2">
               <InputField
                 label="Password"
                 type="password"
@@ -140,8 +141,6 @@ const Login = () => {
                   minLength: { value: 8, message: "At least 8 characters" },
                 })}
               />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              {/* Remember me + Forgot password */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <div className="relative">
@@ -149,7 +148,7 @@ const Login = () => {
                             type="checkbox"
                             checked={rememberMe}
                             onChange={() => setRememberMe(prev=>!prev)}
-                            className="w-4 h-4 accent-light-primary"
+                            className="w-5 h-5 accent-light-primary"
                           />
                         </div>
                         <span className="font-body text-base text-light-text">Remember me</span>
@@ -165,6 +164,10 @@ const Login = () => {
                       </button>
                     </div>
                     {resetMessage && <p className="text-sm text-light-text">{resetMessage}</p>}
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+            </div>
+            <div className="flex flex-col gap-6">
                     <Button
                         type = "submit"
                         name = {`${loading ? "Logging in..." : "Log in"}`}
@@ -172,6 +175,7 @@ const Login = () => {
                     /> 
                    
                   <GoogleButton />
+            </div>
             </form>
 
             {/* Sign Up Link */}
@@ -188,7 +192,7 @@ const Login = () => {
 
           {/* Footer */}
           <div className="py-6">
-            <p className="font-body text-sm text-light-text">
+            <p className="font-body text-base text-light-text">
               © 2026 Storybook AI
             </p>
           </div>

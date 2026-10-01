@@ -20,6 +20,8 @@ const TemplateHero = ({ onSearch }: { onSearch?: (query: string) => void }) => {
       <img
         src={TemplateHeroBg}
         alt=""
+        data-glass-backdrop
+        data-glass-dim="0.7"
         className="absolute inset-0 w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-black/70" />

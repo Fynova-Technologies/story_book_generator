@@ -12,6 +12,7 @@ const HeroSection = () => {
         <img
           src={HeroImage}
           alt="Magical forest background"
+          data-glass-backdrop
           className="w-full h-full object-cover object-top-right"
         />
       </div>
