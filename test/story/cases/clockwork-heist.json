@@ -1,0 +1,32 @@
+{
+  "name": "clockwork-heist",
+  "request": {
+    "template": "templete",
+    "artStyle": "Watercolor",
+    "narration": "witty, suspenseful and heartfelt, with a twist ending",
+    "storyStyle": "storybook",
+    "storyLength": 6,
+    "questionnaire": {
+      "What is the main character's name?": "Arjun",
+      "How old is the main character?": "20 years old",
+      "Where does the story take place?": "a monsoon-soaked old city where a century-old clock tower stops every night at 3:17 and the streets briefly rearrange themselves",
+      "What is the story's main theme?": "trust, and the stories we tell about the people closest to us",
+      "Who is the supporting character?": "Dev, Arjun's sharp, bespectacled best friend who secretly repairs the clock tower at night and has been keeping it from Arjun",
+      "What challenge does the hero face?": "Arjun finds Dev's notebook full of maps of the shifting streets and suspects Dev is behind a string of vanishing landmarks; he has one night to follow him through the rearranging city before the tower stops for good",
+      "How does the hero overcome the challenge?": "Arjun tails Dev, gets lost when the streets shift, and has to trust Dev's notebook to survive; they meet at the top of the tower, where Arjun learns Dev has been keeping the city from folding in on itself, and together they rewind the great gear before dawn",
+      "What lesson does the story teach?": "suspicion writes a story about someone; trust lets them tell their own",
+      "What is the story's mood?": "rain-lit mystery that turns warm and triumphant",
+      "Any special details to include?": "Arjun's brown-and-white zip jacket, Dev's navy t-shirt and glasses, the brass notebook, puddles reflecting streets that are not there, the clock face glowing amber at 3:17"
+    }
+  },
+  "references": [
+    { "characterName": "Arjun", "photo": "../fixtures/arjun.jpg", "description": "young man in brown and white zip jacket" },
+    { "characterName": "Dev", "photo": "../fixtures/dev.jpg", "description": "young man with glasses in navy t-shirt" }
+  ],
+  "decoys": [
+    "../fixtures/decoys/lookalike-1.jpg",
+    "../fixtures/decoys/lookalike-2.jpg",
+    "../fixtures/decoys/lookalike-3.jpg",
+    "../fixtures/decoys/lookalike-4.jpg"
+  ]
+}

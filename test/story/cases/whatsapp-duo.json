@@ -1,0 +1,40 @@
+{
+  "name": "whatsapp-duo",
+  "request": {
+    "template": "templete",
+    "artStyle": "Ghibli",
+    "narration": "warm, funny and adventurous",
+    "storyStyle": "storybook",
+    "storyLength": 6,
+    "questionnaire": {
+      "What is the main character's name?": "Arjun",
+      "How old is the main character?": "20 years old",
+      "Where does the story take place?": "a busy college campus that hides a secret rooftop garden",
+      "What is the story's main theme?": "friendship",
+      "Who is the supporting character?": "Dev, Arjun's best friend who wears glasses",
+      "What challenge does the hero face?": "They must finish their big college project overnight after their laptop dies",
+      "How does the hero overcome the challenge?": "By working together, borrowing an old library computer and helping each other stay awake",
+      "What lesson does the story teach?": "good friends turn disasters into adventures",
+      "What is the story's mood?": "warm and adventurous",
+      "Any special details to include?": "Arjun's brown-and-white zip jacket and Dev's navy t-shirt and glasses"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Arjun",
+      "photo": "../fixtures/arjun.jpg",
+      "description": "young man in brown and white zip jacket"
+    },
+    {
+      "characterName": "Dev",
+      "photo": "../fixtures/dev.jpg",
+      "description": "young man with glasses in navy t-shirt"
+    }
+  ],
+  "decoys": [
+    "../fixtures/decoys/lookalike-1.jpg",
+    "../fixtures/decoys/lookalike-2.jpg",
+    "../fixtures/decoys/lookalike-3.jpg",
+    "../fixtures/decoys/lookalike-4.jpg"
+  ]
+}

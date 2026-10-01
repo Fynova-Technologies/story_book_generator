@@ -1,0 +1,44 @@
+*.env
+env.*
+# Logs
+.env
+.env.*
+!.env.sample
+!.env.example
+*.tsbuildinfo
+
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+.vite
+.firebase
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Story test harness output
+/test-runs
+/.next
+/next-env.d.ts
+
+# Story test harness output
+/test-runs
+/.next
+/next-env.d.ts
