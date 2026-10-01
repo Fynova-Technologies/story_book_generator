@@ -10,7 +10,7 @@ const TemplatesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+    <div className="min-h-screen overflow-x-hidden">
 
       
       <Navbar />

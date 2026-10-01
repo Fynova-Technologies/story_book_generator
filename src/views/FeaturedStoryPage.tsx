@@ -13,56 +13,49 @@ const FeaturedStoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+    <div className="min-h-screen overflow-x-hidden">
 
       
       <Navbar />
 
       {/* ── HERO SECTION ── */}
-      <div >
-       <div className="relative w-full mx-auto pt-20" style={{ minHeight: "340px" }}>
+      <div className="relative w-full min-h-[400px] md:min-h-[464px] mb-12">
 
-      {/* ── BACKGROUND IMAGE ── */}
-      <img
-        src={TemplateHeroBg}
-        alt="Template Hero Background"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-     
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
+        {/* ── BACKGROUND IMAGE ── */}
+        <img
+          src={TemplateHeroBg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/70" />
 
-      {/* ── CONTENT ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-40 pb-0 gap-5">
+        {/* ── CONTENT ── */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-32 md:pt-[200px] pb-16 gap-2 drop-shadow-[0_4px_14px_rgba(0,0,0,0.5)]">
+          <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-tight text-dark-text max-w-4xl">
+            Welcome to the Story Gallery
+          </h1>
+          <p className="font-heading text-xl sm:text-3xl md:text-[40px] font-bold leading-tight text-dark-text max-w-4xl">
+            Enjoy stories created by kids around the world!
+          </p>
+        </div>
 
-        {/* Heading */}
-        <h1 className="font-heading text-4xl md:text-5xl xl:text-5xl font-bold leading-tight max-w-3xl">
-          <span className="text-white">Welcome to the Story Gallery</span>
-        </h1>
-        <h1 className="font-heading text-3xl md:text-4xl xl:text-4xl font-bold leading-tight max-w-4xl">
-          <span className="text-white">Enjoy stories created by kids around the world</span>
-        </h1>
-
-
-        {/* ── SEARCH BOX ── */}
-        <div className="flex items-center w-full max-w-xl mt-2 -mb-7 bg-white dark:bg-dark-bg/90 rounded-full shadow-lg p-1">
+        {/* ── SEARCH BOX (sits on the hero's bottom edge) ── */}
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 z-20 w-[calc(100%-2rem)] max-w-[700px] flex items-center gap-2 bg-light-on-primary rounded-full shadow-lg p-2.5 pl-6 md:pl-8">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for stories about...."
-            className="flex-1 px-5 py-3.5 rounded-l-full bg-white dark:bg-dark-bg text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none"
+            placeholder="Search for stories about..."
+            aria-label="Search stories"
+            className="flex-1 min-w-0 bg-transparent text-light-text placeholder:text-[#8A8A8A] placeholder:italic font-heading text-lg md:text-2xl focus:outline-none"
           />
           <button
             type="button"
-            className="px-6 py-3.5 rounded-3xl bg-light-primary dark:bg-dark-primary text-white font-body font-bold text-sm hover:opacity-90 transition-all duration-200"
+            className="px-5 md:px-6 py-2.5 md:py-3 rounded-full bg-light-primary text-white font-heading text-lg hover:opacity-90 transition-all duration-200"
           >
             GO
           </button>
         </div>
-
-      </div>
-    </div>
       </div>
 
       {/* ── FEATURED TEMPLATES ── */}

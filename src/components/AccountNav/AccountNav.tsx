@@ -1,3 +1,4 @@
+import MaskIcon from "../Sidebar/MaskIcon";
 const ProfileIcon = "/assets/icons/Account/Profile.png";
 const SecurityIcon = "/assets/icons/Account/Security.png";
 const NotificationIcon = "/assets/icons/Account/Notification.png";
@@ -53,43 +54,40 @@ const AccountNav = ({
   onSectionChange 
 }: { activeSection: Section; onSectionChange: (id: Section) => void }) => {
   return (
-    <aside className="w-full  lg:w-80 flex-shrink-0">
-      <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-4  border-light-outline-secondary
-       dark:border-dark-primary-30">
+    <aside className="w-full lg:w-[316px] flex-shrink-0">
+      <div className="bg-white rounded-3xl border border-[#F2F0F4] shadow-sm overflow-hidden">
 
         {/* Title */}
-        <div className="mb-4 px-2">
-          <h2 className="font-heading font-bold text-xl text-light-text dark:text-dark-text">
+        <div className="px-6 py-6 border-b border-[#F2F0F4]">
+          <h2 className="font-heading font-bold text-xl text-light-text">
             Settings
           </h2>
-          <p className="font-body text-xs text-light-text dark:text-dark-text opacity-60 mt-0.5">
+          <p className="font-body text-sm text-light-outline mt-1">
             Manage your personal account
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="w-full h-px bg-light-outline-secondary dark:bg-dark-primary-30 opacity-40 my-8" />
-
         {/* Nav Items */}
-        <nav className="flex flex-col gap-5">
+        <nav className="flex flex-col gap-3 p-2">
           {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 w-full
-                ${item.danger
-                  ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                  : activeSection === item.id
-                    ? "bg-dark-primary-10 dark:bg-dark-primary-10 text-light-primary dark:text-dark-primary font-semibold"
-                    : "text-light-outline dark:text-dark-text hover:bg-light-bg dark:hover:bg-dark-primary-10 hover:text-light-text dark:hover:text-dark-text"
-                }
-              `}
-            >
-              <span className="shrink-0">
-                <img src={item.icon} alt="" className="w-4 h-4"/>
-              </span>
-              <span className="font-body text-sm">{item.label}</span>
-            </button>
+            <div key={item.id} className="contents">
+              {item.danger && <div className="h-px bg-[#F2F0F4]" />}
+              <button
+                onClick={() => onSectionChange(item.id)}
+                aria-current={activeSection === item.id ? "page" : undefined}
+                className={`flex items-center gap-3 h-12 px-4 rounded-lg text-left font-body text-sm transition-colors w-full
+                  ${item.danger
+                    ? "text-red-500 font-medium hover:bg-red-50"
+                    : activeSection === item.id
+                      ? "bg-dark-primary-10 text-dark-primary font-semibold"
+                      : "text-light-outline hover:bg-light-panel hover:text-light-text"
+                  }
+                `}
+              >
+                <MaskIcon src={item.icon} className="w-[18px] h-[18px]" />
+                {item.label}
+              </button>
+            </div>
           ))}
         </nav>
 

@@ -19,11 +19,10 @@ const DraftCard = ({
   onDelete
 }: DraftCardProps) => {
   return (
-    <div className="flex flex-col bg-light-on-primary dark:bg-dark-bg rounded-2xl overflow-hidden 
-    shadow-2xl hover:shadow-md transition-all duration-300 p-3">
+    <div className="flex flex-col gap-2.5 bg-white rounded-[17px] p-2.5 shadow-sm hover:shadow-md transition-shadow duration-300">
 
       {/* ── IMAGE SECTION ── */}
-      <div className="relative w-full h-48 overflow-hidden rounded-2xl">
+      <div className="relative w-full aspect-[230/186] overflow-hidden rounded-[13px]">
 
         <img
           src={image}
@@ -35,6 +34,7 @@ const DraftCard = ({
         {onDelete && (
           <button
             onClick={onDelete}
+            aria-label="Delete draft"
             className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-600 flex items-center justify-center transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -45,64 +45,39 @@ const DraftCard = ({
 
       </div>
 
-      {/* ── CONTENT SECTION ── */}
-      <div className="flex flex-col flex-1 p-4 gap-2">
+      {/* Title */}
+      <h3 className="px-1.5 font-body font-bold text-[13px] leading-5 text-light-text truncate">
+        {title}
+      </h3>
 
-        {/* Title */}
-        <h3 className="font-display font-bold text-base text-light-text dark:text-dark-text leading-snug">
-          {title}
-        </h3>
+      {/* ── FOOTER — Author + Button ── */}
+      <div className="flex items-center justify-between gap-2 px-1.5 py-3 border-t border-[#DFD4C3]/50">
 
-        {/* ── FOOTER — Author + Button ── */}
-        <div className="flex items-center justify-between mt-2 pt-3 border-t border-light-outline-secondary dark:border-dark-primary-30">
-
-          {/* Author */}
-          <div className="flex items-center gap-2">
-            {/* Avatar */}
-            <div className="w-6 h-6 rounded-full bg-dark-primary-30 overflow-hidden flex items-center justify-center">
-              {authorAvatar ? (
-                <img
-                  src={authorAvatar}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : authorInitial ? (
-                <span className="text-[10px] font-semibold text-light-primary dark:text-dark-primary">{authorInitial}</span>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-light-primary dark:text-dark-primary">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-              )}
-            </div>
-            <span className="font-body text-xs text-light-outline dark:text-dark-text">
-              {editedAt}
-            </span>
+        {/* Author */}
+        <div className="flex items-center gap-1 min-w-0">
+          <div className="w-4 h-4 shrink-0 rounded-full bg-dark-primary-10 overflow-hidden flex items-center justify-center">
+            {authorAvatar ? (
+              <img src={authorAvatar} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-[8px] font-bold text-light-primary">{authorInitial}</span>
+            )}
           </div>
-
-          {/* View Story Button */}
-          <button
-            onClick={onContinue}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-light-bg dark:bg-dark-primary-10
-             border-light-outline-secondary dark:border-dark-primary-30 text-xs font-body font-medium text-light-text
-              dark:text-dark-text hover:bg-light-primary hover:text-light-on-primary dark:hover:bg-dark-primary dark:hover:text-dark-text transition-all duration-200"
-          >
-            Continue
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-
+          <span className="font-body text-[10px] text-light-outline truncate">
+            {editedAt}
+          </span>
         </div>
+
+        <button
+          onClick={onContinue}
+          className="shrink-0 flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-dark-primary-10 font-body text-[11px] text-light-text
+ hover:bg-light-primary hover:text-white transition-colors duration-200"
+        >
+          Continue
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+
       </div>
     </div>
   );

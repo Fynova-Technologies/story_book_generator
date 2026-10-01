@@ -13,8 +13,8 @@ function GoogleButton({
         type="button"
         disabled
         title="Google sign-in coming soon"
-        className="w-full py-2.5 rounded-lg bg-transparent border border-light-outline dark:border-dark-primary-30
-         text-light-text dark:text-dark-text font-medium text-sm flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
+        className="w-full py-2.5 rounded-xl bg-transparent border border-[#050B0A]/15 border-b-[3px]
+         text-light-text font-body text-base md:text-lg leading-7 flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
       >
               <GoogleIcon/>
               {label}

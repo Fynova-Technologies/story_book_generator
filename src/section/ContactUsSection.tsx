@@ -23,33 +23,31 @@ const ContactUsSection = () => {
 
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+    <div>
       {/* ── MAIN CONTENT ── */}
       <section
-        className="w-full pt-24 pb-12 px-6 md:px-12 xl:px-20"
+        className="w-full pt-24 md:pt-28 pb-10 px-4 sm:px-10 lg:px-20"
       >
         <Navbar bglight ={true}/>
         <div className="max-w-7xl mx-auto">
 
           {/* ── TOP BADGE ── */}
-          <div className="flex justify-center mb-5">
-            <span className="font-body px-5 py-2 rounded-full border-light-outline-secondary dark:border-dark-primary-30 text-sm 
-            font-medium text-light-text dark:text-dark-text bg-light-on-primary dark:bg-dark-primary-10">
+          <div className="flex justify-center mb-6">
+            <span className="font-body px-8 py-2 rounded-full text-base font-semibold text-black bg-white">
               Contact Us
             </span>
           </div>
 
           {/* ── HEADING ── */}
-          <h1 className="font-heading text-4xl md:text-4xl font-bold text-center text-light-text dark:text-dark-text mb-10">
+          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-center text-light-text mb-10">
             Have questions? Ready to help!
           </h1>
 
           {/* ── MAIN CARD ── */}
-          <div className="flex p-5 flex-col lg:flex-row rounded-3xl overflow-hidden border-light-outline-secondary
-           dark:border-dark-primary-30 shadow-lg bg-light-on-primary dark:bg-dark-bg">
+          <div className="flex p-4 md:p-10 gap-8 lg:gap-20 flex-col lg:flex-row rounded-[36px] overflow-hidden bg-light-panel">
 
             {/* ── LEFT — Contact Info with Background Image ── */}
-            <div className="lg:w-[52%] relative overflow-hidden rounded-2xl m-3">
+            <div className="lg:w-[53%] relative overflow-hidden rounded-2xl">
                 {/* Background Image */}
               <img
                 src={ContactBgImg}
@@ -58,17 +56,17 @@ const ContactUsSection = () => {
               />
 
               {/* Dark overlay on image */}
-              <div className="absolute inset-0 bg-black/50 rounded-2xl" />
+              <div className="absolute inset-0 bg-black/70 rounded-2xl" />
 
               {/* Content above image */}
-              <div className="relative z-10 flex flex-col justify-between h-full p-8 min-h-[400px]">
+              <div className="relative z-10 flex flex-col justify-between gap-10 h-full p-6 md:p-8 min-h-[400px] lg:min-h-[574px]">
 
                 {/* Top — Title + Description */}
                 <div>
-                  <h2 className="font-heading text-3xl font-bold text-white mb-4">
+                  <h2 className="font-heading text-3xl md:text-[44px] md:leading-[70px] font-bold text-dark-text mb-2">
                     Contact Information
                   </h2>
-                  <p className="font-body text-sm text-white/80 leading-relaxed max-w-xs">
+                  <p className="font-body text-base md:text-xl md:leading-8 text-dark-text">
                     Have a question, feedback, or just want to say hi? We'd love to hear from you!
                   </p>
                 </div>
@@ -78,11 +76,11 @@ const ContactUsSection = () => {
 
                   {/* Email */}
                   <div className="flex items-center gap-3">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-dark-text flex-shrink-0">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                       <polyline points="22,6 12,13 2,6"/>
                     </svg>
-                    <span className="font-body text-sm text-white">
+                    <span className="font-body text-base md:text-xl text-dark-text break-all">
                       {CONTACT_EMAIL}
                     </span>
                   </div>
@@ -92,8 +90,8 @@ const ContactUsSection = () => {
             </div>
 
             {/* ── RIGHT — Contact Form ── */}
-            <div className="flex-1 p-8 flex flex-col justify-center">
-              <form onSubmit={handleSubmit(handleSend)} className="flex flex-col gap-5">
+            <div className="flex-1 flex flex-col justify-center">
+              <form onSubmit={handleSubmit(handleSend)} className="flex flex-col gap-6">
 
                  {/* Using reusable InputField for Name */}
                 <InputField
@@ -122,17 +120,17 @@ const ContactUsSection = () => {
                 />
 
                 {/* Message */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-body text-sm font-medium text-light-text dark:text-dark-text">
+                <div className="flex flex-col gap-2">
+                  <label className="font-body text-base md:text-lg text-light-text">
                     Message
                   </label>
                   <textarea
                     placeholder="Type your message..."
                     rows={6}
-                    className="w-full px-4 py-3 rounded-lg bg-light-bg dark:bg-dark-primary-10 border
-                     border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text
+                    className="w-full px-3 py-3 rounded-xl bg-[#050B0A]/5 border
+                     border-[#050B0A]/15 text-light-text
                       placeholder:text-light-outline-secondary focus:outline-none focus:border-light-primary
-                       dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all text-sm resize-none"
+ focus:ring-2 focus:ring-dark-primary-10 transition-all text-base resize-y min-h-[200px]"
                     {...register("message", { 
                       required: "Message is required"
                     })}
@@ -145,12 +143,12 @@ const ContactUsSection = () => {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-fit px-8 py-3 rounded-xl bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+                  className="w-fit px-6 py-2.5 rounded-xl bg-light-primary text-white font-body font-medium text-base md:text-lg hover:opacity-90 active:scale-[0.99] transition-all duration-200"
                 >
                   Submit
                 </button>
                 {sent && (
-                  <p className="font-body text-sm text-light-text dark:text-dark-text">
+                  <p className="font-body text-sm text-light-text">
                     Thanks! Your email app should open with your message. If it didn't, email us at {CONTACT_EMAIL}.
                   </p>
                 )}

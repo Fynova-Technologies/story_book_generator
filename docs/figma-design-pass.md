@@ -77,8 +77,21 @@ matching of the right-hand column needs one of:
   - Avatar upload and Delete Account are hidden; both need storage or a server function.
   - Notification preferences are saved on the device only.
   - Production needs `https://<domain>/reset-password` added to the redirect URLs in the Supabase dashboard.
-- **Phase 3 waits for read access to the duplicated Figma file** (`K7bzSNWR3QW7tNPXRIzyuN`) through
-  a personal access token in `FIGMA_TOKEN`.
+- **Phase 3: done** (2026-10-01, uncommitted). Compared against PNG renders and node data from the
+  duplicated file (`K7bzSNWR3QW7tNPXRIzyuN`), fetched through the REST API.
+  - **Foundations:** paper background, Georgia headings, `bg-light-panel`, dead `dark:` classes removed (D4).
+  - **Checked in a browser:** the public pages at 1440 and 375px wide, with no horizontal scroll. The
+    logged-in screens still need a check with real Supabase keys.
+  - **Not built:** Sample_preview (a story details page), the Purchase token screen (needs RevenueCat
+    products; its content is summarised below), the explainer video, and avatar upload.
+
+### Purchase token screen (1406:1517), for later
+Four packs: Starter 500/$5, Popular 1000/$9 (highlighted), Creator 2500/$20, Pro 5000/$35. Then "How
+tokens are used", "Why buy tokens?" (bulk discounts, never expire, use across projects, instant) and a
+6-question FAQ. When building it:
+- rename tokens to credits
+- reword the usage numbers (a story costs 5 credits)
+- map each pack to a RevenueCat product that grants `CRED`
 
 ## Phase 1: broken flows and dead buttons (no design questions, highest value)
 

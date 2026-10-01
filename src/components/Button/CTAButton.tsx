@@ -10,14 +10,13 @@ function CTAButton({
     <div>
       <button
           onClick={() => navigate("/signup")}
-          className={`${className} flex items-center gap-3 px-6 py-3.5 rounded-xl font-semibold text-sm text-white w-fit 
+          className={`${className ?? ""} flex items-center gap-2.5 px-5 py-2 rounded-[10px] border border-[#2050A3] bg-dark-primary font-body font-medium text-[15px] text-white w-fit
           transition-all duration-200 hover:opacity-90 hover:shadow-lg hover:shadow-dark-primary/30 active:scale-[0.99] `}
-          style={{ background: "#2E73EA" }}
         >
          {name}
           <svg
-            width="18"
-            height="18"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

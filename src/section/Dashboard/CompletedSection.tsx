@@ -43,18 +43,19 @@ function CompletedSection({ query = '', sort = 'newest', hideViewAll = false }: 
     }, []);
   return (
      <section className="pb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <img src={completed} alt="completed" className="w-4 h-4" />
-              <h2 className="font-display text-base font-bold text-light-text dark:text-dark-text">
+          <div className="flex items-center justify-between gap-4 mb-3.5">
+            <div className="flex items-center gap-2.5">
+              <img src={completed} alt="completed" className="w-5 h-5 object-contain" />
+              <h2 className="font-body text-xl font-bold text-light-text">
                 Completed Stories
               </h2>
             </div>
 
             {!hideViewAll && <button
               onClick={() => navigate('/dashboard/collection')}
-              className="font-body flex items-center gap-1 text-sm text-light-primary dark:text-dark-primary font-medium hover:underline underline-offset-2 transition-all">
-              View all →
+              className="font-body flex items-center gap-1 text-xs text-light-primary font-bold hover:underline underline-offset-2 transition-all">
+              View all
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>}
           </div>
 
@@ -70,15 +71,15 @@ function CompletedSection({ query = '', sort = 'newest', hideViewAll = false }: 
                 <p className="font-body text-sm text-light-outline">No stories yet.</p>
                 <button
                   onClick={() => { dispatch(resetWizard()); navigate('/create-story'); }}
-                  className="font-body text-sm font-semibold text-light-on-primary px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary hover:opacity-90 transition-all">
+                  className="font-body text-sm font-semibold text-light-on-primary px-4 py-2 rounded-lg bg-light-primary hover:opacity-90 transition-all">
                   Create a story
                 </button>
               </div>
             )
           )}
 
-          {/* ✅ Same width as draft cards using same grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+          
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
             {shown.map((story) => (
               <StoryCard
                 key={story.id}

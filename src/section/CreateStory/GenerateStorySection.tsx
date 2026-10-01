@@ -6,6 +6,7 @@ import { generateStory, saveDraft, UserFacingError } from "../../services/storyS
 import { STORY_COST, useCredits } from "../../services/credits";
 import { setCurrentDraftId, setImages } from "../../store/slices/storyWizardSlice";
 import { STEPS } from "../../components/StoryStepperNav/StoryStepperNav";
+import StepPanel from "./StepPanel";
 
 const GENERATE_STEP = STEPS.length - 1;
 
@@ -59,25 +60,32 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
     setErrorMessage(null);
   };
 
+  const detailCls = "p-3 rounded-2xl bg-dark-primary-10";
+  const labelCls = "font-body text-xs font-bold text-light-text uppercase tracking-wide mb-2";
+  const valueCls = "font-body text-base text-light-outline";
+
   return (
-    <div className={`relative bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8 border-light-outline-secondary dark:border-dark-primary-30 ${loading ? 'pointer-events-none' : ''}`}> 
+    <StepPanel
+      centered
+      small
+      title="Ready to weave your magic?"
+      subtitle="Review your story details and credit balance below to bring your adventure to life."
+      className={loading ? "pointer-events-none" : ""}
+    >
 
       {errorMessage && (
-        <div role="alert" aria-live="assertive" className="absolute inset-x-6 top-6 z-10 mx-auto w-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-950/40 px-4 py-3 text-sm text-red-900 dark:text-red-200 shadow-lg shadow-red-200/50 transition-all duration-300 ease-out transform opacity-100 translate-y-0">
+        <div role="alert" aria-live="assertive" className="mb-6 mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 shadow-sm">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 text-red-600 dark:text-red-300">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 dark:text-red-300">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </span>
-            <div className="flex-1 leading-relaxed">
-              <p className="font-semibold">Alert</p>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-red-600">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div className="flex-1 font-body leading-relaxed">
+              <p className="font-bold">We couldn't start your story</p>
               <p>{errorMessage}</p>
             </div>
-            <button onClick={clearErrorMessage} className="ml-2 rounded-full p-1 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors">
-              <span className="sr-only">Close alert</span>
+            <button onClick={clearErrorMessage} aria-label="Close alert" className="rounded-full w-7 h-7 shrink-0 text-red-600 hover:bg-red-100 transition-colors">
               ×
             </button>
           </div>
@@ -86,240 +94,204 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
 
       {/* Loading Overlay */}
       {loading && (
-        <div className="absolute inset-0 z-20 bg-white/80 dark:bg-black/60 backdrop-blur-sm rounded-3xl flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-light-primary dark:border-dark-primary border-t-transparent mb-4"></div>
-            <p className="font-body text-lg font-semibold text-light-text dark:text-dark-text">Weaving your magical story...</p>
-            <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70 mt-2">This usually takes 1-2 minutes</p>
+        <div className="absolute inset-0 z-20 bg-white/80 backdrop-blur-sm rounded-[32px] flex items-center justify-center p-6">
+          <div className="text-center" role="status">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-light-primary border-t-transparent mb-4"></div>
+            <p className="font-heading text-2xl font-bold text-light-text">Weaving your magical story...</p>
+            <p className="font-body text-sm text-light-outline mt-2">This usually takes 1-2 minutes</p>
           </div>
         </div>
       )}
 
-      {/* ── HEADING ── */}
-      <div className="text-center mb-8">
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-3">
-          Ready to weave your magic?
-        </h2>
-        <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70 max-w-sm mx-auto leading-relaxed">
-          Review your story details and credit balance below to bring your adventure to life.
-        </p>
-      </div>
-
       {/* ── MAIN GRID — Story Preview + Payment Summary ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-6">
 
         {/* ── LEFT — Story Preview ── */}
-        <div className="flex-1 flex flex-col gap-4 p-5 rounded-2xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10">
+        <div className="flex-1 flex flex-col gap-6 min-w-0">
+          <div className="flex flex-col gap-6 p-6 rounded-3xl bg-white shadow-sm">
 
-          {/* Preview Header */}
-          <div className="flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <span className="font-body text-sm font-bold text-light-text dark:text-dark-text">
-              Story Preview
-            </span>
+            {/* Preview Header */}
+            <div className="flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <span className="font-body text-lg font-bold text-light-text">
+                Story Preview
+              </span>
+            </div>
+
+            {/* Story Title + Author */}
+            <div>
+              <h3 className="font-body text-2xl font-bold text-light-text">
+                {wizard.template || "Your own story"}
+              </h3>
+              {user?.displayName && (
+                <p className="font-body text-base text-light-outline mt-1">
+                  Created by {user.displayName}
+                </p>
+              )}
+            </div>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={detailCls}>
+                <p className={labelCls}>Story Style</p>
+                <p className={valueCls}>{wizard.storyStyle || "—"}</p>
+              </div>
+              <div className={detailCls}>
+                <p className={labelCls}>{characters.length === 1 ? "Hero" : "Characters"}</p>
+                <p className={valueCls}>{characters.join(", ") || "—"}</p>
+              </div>
+              <div className={detailCls}>
+                <label htmlFor="story-length" className={`block ${labelCls}`}>Length (in pages)</label>
+                <input
+                  id="story-length"
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={storyLength}
+                  onChange={(e) => setStoryLength(Math.min(20, Math.max(1, Number(e.target.value) || 1)))}
+                  className={`w-full bg-white/70 rounded-lg px-2 py-0.5 -mx-0.5 focus:outline-none focus:ring-2 focus:ring-light-primary/40 ${valueCls}`}
+                />
+              </div>
+              <div className={detailCls}>
+                <p className={labelCls}>Art Style</p>
+                <p className={valueCls}>{wizard.artStyle || "—"}</p>
+              </div>
+            </div>
+
+            {/* Edit Details Link */}
+            <button
+              onClick={onEditDetails}
+              className="flex items-center gap-1 font-body text-sm font-semibold text-light-primary hover:opacity-80 transition-all w-fit"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/>
+              </svg>
+              Edit Details
+            </button>
           </div>
-
-          {/* Story Title + Author */}
-          <div>
-            <h3 className="font-display text-2xl font-bold text-light-text dark:text-dark-text">
-              {wizard.template || "Your own story"}
-            </h3>
-            {user?.displayName && (
-              <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 mt-1">
-                Created by {user.displayName}
-              </p>
-            )}
-          </div>
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-3">
-
-            {/* Story Style */}
-            <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
-              <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Story Style
-              </p>
-              <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {wizard.storyStyle || "—"}
-              </p>
-            </div>
-
-            {/* Characters */}
-            <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
-              <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                {characters.length === 1 ? "Hero" : "Characters"}
-              </p>
-              <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {characters.join(", ") || "—"}
-              </p>
-            </div>
-
-            {/* Length */}
-            <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
-              <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Length (in pages)
-              </p>
-              <input 
-                type="number" 
-                min={1}
-                max={20}
-                value={storyLength}
-                onChange={(e) => setStoryLength(Math.min(20, Math.max(1, Number(e.target.value) || 1)))}
-                className="w-full font-body text-sm font-medium text-light-text dark:text-dark-text"/>
-             
-            </div>
-
-            {/* Art Style */}
-            <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
-              <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Art Style
-              </p>
-              <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {wizard.artStyle || "—"}
-              </p>
-            </div>
-
-          </div>
-
-          {/* Edit Details Link */}
-          <button
-            onClick={onEditDetails}
-            className="flex items-center gap-1.5 font-body text-sm font-semibold text-light-primary dark:text-dark-primary hover:opacity-80 transition-all w-fit"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            Edit Details
-          </button>
 
           {/* Info Note */}
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary flex-shrink-0 mt-0.5">
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#EFF6FF]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary flex-shrink-0">
               <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <p className="font-body text-xs text-light-primary dark:text-dark-primary leading-relaxed">
+            <p className="font-body text-sm text-light-primary leading-5">
               Generating a story typically takes about 1-2 minutes. We'll notify you once the magic is complete! Your draft has been auto-saved.
             </p>
           </div>
-
         </div>
 
         {/* ── RIGHT — Payment Summary ── */}
-        <div className="lg:w-72 flex flex-col gap-4 p-5 rounded-2xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10">
+        <div className="lg:w-[355px] flex flex-col gap-6">
+          <div className="rounded-3xl bg-white shadow-md overflow-hidden">
 
-          {/* Payment Header */}
-          <div className="flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-              <line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-            <span className="font-body text-sm font-bold text-light-text dark:text-dark-text">
-              Payment Summary
-            </span>
-          </div>
-
-          {/* Divider */}
-          <div className="w-full h-px bg-light-outline-secondary dark:bg-dark-primary-30 opacity-40" />
-
-          {/* Balance Row */}
-          <div className="flex items-center justify-between">
-            <span className="font-body text-sm text-light-outline dark:text-dark-text opacity-70">
-              Your Balance
-            </span>
-            <span className="font-body text-sm font-bold text-light-text dark:text-dark-text">
-              {credits ?? "…"} Credits
-            </span>
-          </div>
-
-          {/* Story Cost Row */}
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70">
-                Story Cost
-              </p>
-              <p className="font-body text-[10px] text-light-outline dark:text-dark-text opacity-40 mt-0.5">
-                Includes {plural(storyLength, "illustrated page")}
-              </p>
+            {/* Payment Header */}
+            <div className="flex items-center gap-2 p-5 bg-dark-primary-10">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="12" cy="12" r="2.5"/>
+                <path d="M6 12h.01M18 12h.01"/>
+              </svg>
+              <span className="font-body text-lg font-bold text-light-text">
+                Payment Summary
+              </span>
             </div>
-            <span className="font-body text-sm font-bold text-light-accent dark:text-dark-accent shrink-0">
-              - {plural(storyCost, "Credit")}
-            </span>
+
+            <div className="px-6 pt-6 pb-6 flex flex-col gap-6">
+              {/* Balance Row */}
+              <div className="flex items-center justify-between">
+                <span className="font-body text-base text-light-outline">Your Balance</span>
+                <span className="font-body text-base font-bold text-light-text">
+                  {credits ?? "…"} Credits
+                </span>
+              </div>
+
+              {/* Story Cost Row */}
+              <div className="flex items-center justify-between gap-2 py-4 border-y border-dashed border-[#E5E5E5]">
+                <div>
+                  <p className="font-body text-base font-bold text-light-text">Story Cost</p>
+                  <p className="font-body text-xs text-light-outline">
+                    Includes {plural(storyLength, "illustrated page")}
+                  </p>
+                </div>
+                <span className="font-body text-base font-bold text-light-accent shrink-0">
+                  - {plural(storyCost, "Credit")}
+                </span>
+              </div>
+
+              {/* Remaining Row */}
+              <div className="flex items-center justify-between">
+                <span className="font-body text-base text-light-outline">Remaining</span>
+                <span className={`font-body text-base font-bold ${notEnoughCredits ? "text-red-600" : "text-green-600"}`}>
+                  {remaining === null ? "…" : notEnoughCredits ? "Not enough" : plural(remaining, "Credit")}
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                {/* Generate Button */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={loading || notEnoughCredits}
+                  className={`w-full flex items-center justify-center gap-3 h-14 rounded-2xl bg-light-primary text-white font-body font-bold text-base transition-all duration-200 ${
+                    loading
+                      ? "opacity-80 cursor-not-allowed animate-pulse"
+                      : notEnoughCredits
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:opacity-90 active:scale-[0.99]"
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Weaving your story...
+                    </>
+                  ) : (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10 3l1.9 5.1L17 10l-5.1 1.9L10 17l-1.9-5.1L3 10l5.1-1.9z"/>
+                        <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>
+                      </svg>
+                      Generate Story
+                    </>
+                  )}
+                </button>
+
+                {notEnoughCredits && (
+                  <p className="font-body text-xs font-semibold text-red-600 text-center">
+                    You need {plural(storyCost, "credit")} to generate a story.
+                  </p>
+                )}
+
+                {/* Disclaimer */}
+                <p className="font-body text-xs text-light-outline text-center leading-4">
+                  By clicking Generate, {plural(storyCost, "credit")} will be deducted from your account.
+                </p>
+              </div>
+            </div>
           </div>
-
-          {/* Divider */}
-          <div className="w-full h-px bg-light-outline-secondary dark:bg-dark-primary-30 opacity-40" />
-
-          {/* Remaining Row */}
-          <div className="flex items-center justify-between">
-            <span className="font-body text-sm text-light-outline dark:text-dark-text opacity-70">
-              Remaining
-            </span>
-            <span className={`font-body text-sm font-bold ${notEnoughCredits ? "text-red-600 dark:text-red-400" : "text-green-500"}`}>
-              {remaining === null ? "…" : notEnoughCredits ? "Not enough" : plural(remaining, "Credit")}
-            </span>
-          </div>
-
-          {/* Generate Button */}
-          <button
-            onClick={handleGenerate}
-            disabled={loading || notEnoughCredits}
-            className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-body font-semibold text-sm transition-all duration-200 ${
-              loading 
-                ? 'bg-light-primary/80 dark:bg-dark-primary/80 cursor-not-allowed animate-pulse' 
-                : notEnoughCredits
-                  ? 'bg-light-primary dark:bg-dark-primary text-light-on-primary opacity-50 cursor-not-allowed'
-                  : 'bg-light-primary dark:bg-dark-primary text-light-on-primary hover:opacity-90 active:scale-[0.99]'
-            }`}
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Weaving your story...
-              </>
-            ) : (
-              <>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                Generate Story
-              </>
-            )}
-          </button>
-
-          {notEnoughCredits && (
-            <p className="font-body text-xs font-medium text-red-600 dark:text-red-400 text-center">
-              You need {plural(storyCost, "credit")} to generate a story.
-            </p>
-          )}
-
-          {/* Disclaimer */}
-          <p className="font-body text-[10px] text-light-outline dark:text-dark-text opacity-40 text-center leading-relaxed">
-            By clicking Generate, {plural(storyCost, "credit")} will be deducted from your account.
-          </p>
 
           {/* Get More Credits */}
           <button
             onClick={handleGetMoreCredits}
-            className="flex items-center justify-center gap-1 font-body text-xs font-medium text-light-outline dark:text-dark-text opacity-60 hover:opacity-100 hover:text-light-primary dark:hover:text-dark-primary transition-all duration-200"
+            className={`flex items-center justify-center gap-2 font-body text-sm transition-all duration-200 hover:text-light-primary ${notEnoughCredits ? "font-bold text-light-primary" : "text-light-outline"}`}
           >
             {notEnoughCredits ? "Get more credits" : "Running low? Get more credits"}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </button>
-
         </div>
       </div>
-    </div>
+    </StepPanel>
   );
 };
 

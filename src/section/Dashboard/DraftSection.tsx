@@ -48,17 +48,18 @@ function DraftSection({ query = '', sort = 'newest', hideViewAll = false }: Draf
 
   return (
     <section>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <img src={draft} alt="drafts" className="w-4 h-4" />
-              <h2 className="font-display text-base font-bold text-light-text dark:text-dark-text">
+          <div className="flex items-center justify-between gap-4 mb-3.5">
+            <div className="flex items-center gap-2.5">
+              <img src={draft} alt="drafts" className="w-5 h-5 object-contain" />
+              <h2 className="font-body text-xl font-bold text-light-text">
                 Your Drafts
               </h2>
             </div>
             {!hideViewAll && <button
               onClick={() => navigate('/dashboard/collection')}
-              className="font-body flex items-center gap-1 text-sm text-light-primary dark:text-dark-primary font-medium hover:underline underline-offset-2 transition-all">
-              View all →
+              className="font-body flex items-center gap-1 text-xs text-light-primary font-bold hover:underline underline-offset-2 transition-all">
+              View all
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>}
           </div>
 
@@ -72,8 +73,8 @@ function DraftSection({ query = '', sort = 'newest', hideViewAll = false }: Draf
             </p>
           )}
 
-          {/* ✅ Same width cards using grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+          
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5">
 
             {/* Draft Cards */}
             {shown.map((draft) => (
@@ -94,23 +95,22 @@ function DraftSection({ query = '', sort = 'newest', hideViewAll = false }: Draf
               />
             ))}
 
-            {/* New Draft Card — same size as DraftCard */}
-            <div 
-            className="rounded-xl border-2 border-dashed border-light-outline-secondary dark:border-dark-primary-30
-             bg-light-on-primary/50 dark:bg-dark-primary-10 flex flex-col items-center justify-center
-              gap-2 cursor-pointer hover:border-light-primary dark:hover:border-dark-primary
-            hover:bg-dark-primary-10 transition-all group aspect-3/4" 
-            onClick={handleNewDraft}>
-              <div className="w-10 h-10 rounded-full bg-dark-primary-10 flex items-center justify-center group-hover:bg-light-primary/20 transition-colors">
-                <span className="text-light-primary dark:text-dark-primary text-2xl font-light leading-none">+</span>
-              </div>
-              <p className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
+            {/* New Draft Card */}
+            <button
+              type="button"
+              onClick={handleNewDraft}
+              className="min-h-[240px] rounded-[13px] border-2 border-dashed border-light-primary/30 bg-[#FDFBF7]
+                flex flex-col items-center justify-center gap-2 p-5 hover:border-light-primary transition-colors group">
+              <span className="w-[53px] h-[53px] mb-2 rounded-full bg-dark-primary-10 flex items-center justify-center group-hover:bg-light-primary/20 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-light-primary"><path d="M12 5v14M5 12h14"/></svg>
+              </span>
+              <span className="font-body text-[15px] font-bold text-light-primary">
                 New Draft
-              </p>
-              <p className="font-body text-[11px] text-light-outline dark:text-dark-text text-center px-3 leading-snug">
+              </span>
+              <span className="font-body text-[10px] text-light-outline text-center leading-snug">
                 Start a fresh adventure from scratch
-              </p>
-            </div>
+              </span>
+            </button>
 
           </div>
         </section>

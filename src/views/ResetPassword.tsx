@@ -31,33 +31,33 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-light-bg dark:bg-dark-bg px-8">
-      <div className="max-w-[480px] w-full">
-        <div className="mb-8 text-center">
-          <h1 className="font-heading text-4xl font-bold text-light-text dark:text-dark-text mb-2">
+    <div className="flex min-h-screen w-full items-center justify-center px-4 sm:px-8">
+      <div className="max-w-[544px] w-full">
+        <div className="mb-10 text-center">
+          <h1 className="font-heading text-4xl md:text-5xl font-bold text-light-text mb-6">
             Set a new password
           </h1>
-          <p className="text-light-outline dark:text-dark-text text-sm">
+          <p className="font-body text-light-text text-base md:text-xl">
             Choose a new password for your account
           </p>
         </div>
 
         {!authInitialized ? (
-          <p className="text-center text-light-text dark:text-dark-text">Loading...</p>
+          <p className="text-center text-light-text">Loading...</p>
         ) : !status ? (
           <div className="text-center space-y-4">
-            <p className="text-light-text dark:text-dark-text">
+            <p className="text-light-text">
               This reset link is invalid or has expired. Request a new one from the login page.
             </p>
             <Link
               to="/login"
-              className="inline-block text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+              className="inline-block text-light-text font-semibold underline underline-offset-2 hover:text-light-primary transition-colors"
             >
               Go to log in
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(handleReset)} className="space-y-5">
+          <form onSubmit={handleSubmit(handleReset)} className="space-y-6">
             <InputField
               label="New password"
               type="password"

@@ -101,7 +101,7 @@ const router = createBrowserRouter([
           },
           {
             path:'/dashboard/templates',
-            element:<TemplateSection/>
+            element:<TemplateSection inDashboard/>
           },
           {
             path:'/dashboard/how-it-works',

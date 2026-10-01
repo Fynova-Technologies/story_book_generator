@@ -37,67 +37,62 @@ const steps = [
 const HowItWorksSection = () => {
   return (
     <section
-        className="max-h-full px-5 pt-3 pb-10 md:px-12 xl:px-20 bg-dark-primary-10 dark:bg-dark-bg overflow-hidden rounded-3xl"
+        className="max-w-7xl mx-auto px-5 py-8 md:p-10 bg-light-panel overflow-hidden rounded-[36px]"
     >
-      <div className="max-w-7xl mx-auto">
-
         {/* ── TOP BADGE ── */}
-        <div className="flex justify-center mb-6">
-          <span className="font-body px-5 py-2 rounded-full border-b-light-bg dark:border-dark-primary-30 text-sm font-medium text-light-text dark:text-dark-text bg-light-on-primary dark:bg-dark-primary-10">
+        <div className="flex justify-center mb-4">
+          <span className="font-body px-8 py-2 rounded-full text-base font-semibold text-black bg-white">
             How it works
           </span>
         </div>
 
         {/* ── HEADING ── */}
         <h2
-          className="font-heading text-4xl md:text-5xl font-bold text-center text-light-text dark:text-dark-text mb-16 leading-tight font-display"
+          className="font-heading text-3xl sm:text-4xl md:text-[50px] font-bold text-center text-light-text mb-12 md:mb-20 leading-tight md:leading-[60px]"
         >
           How Our Story <br /> Generator Works
         </h2>
 
-        {/* ── MAIN CONTENT — Steps + Laptop ── */}
         {/* ── MAIN CONTENT ── */}
-            <div className="flex flex-col lg:flex-row items-start gap-12 mb-5">
+        <div className="flex flex-col lg:flex-row items-stretch gap-10 lg:gap-14">
 
             {/* ── LEFT — 4 Steps in 2x2 Grid ── */}
-            <div className="w-full lg:w-[45%] grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+            <div className="w-full lg:w-[45%] grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-10 content-start">
                 {steps.map((step) => (
                 <div key={step.id} className="flex flex-col gap-4">
 
                     {/* Icon Box */}
-                    <div className="w-14 h-14 rounded-2xl bg-dark-primary-10 border border-dark-primary-30 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-[11px] bg-dark-primary-10 flex items-center justify-center">
                     <img
                         src={step.icon}
-                        alt={`${step.title} icon`}
-                        className="w-6 h-6 object-contain"
+                        alt=""
+                        className="w-8 h-8 object-contain"
                     />
                     </div>
 
+                    <div className="flex flex-col gap-2">
                     {/* Title */}
-                    <h3 className="font-body text-lg font-bold text-light-text dark:text-dark-text font-display">
+                    <h3 className="font-body text-base font-semibold text-light-text">
                     {step.title}
                     </h3>
 
                     {/* Description */}
-                    <p className="font-body text-md text-light-outline dark:text-dark-text leading-relaxed">
+                    <p className="font-body text-sm text-light-outline leading-5">
                     {step.description}
                     </p>
+                    </div>
 
                 </div>
                 ))}
             </div>
 
             {/* ── RIGHT — Laptop Mockup ── */}
-            <div className="w-full lg:w-[55%] flex items-center justify-center">
-                <div className="w-full p-4 rounded-3xl overflow-hidden bg-dark-primary-30 dark:bg-dark-primary-10 shadow-xl">
+            <div className="w-full lg:w-[55%] flex items-center justify-center rounded-[15px] bg-black/10 p-6 md:p-16">
                 <img
                     src={laptop}
                     alt="Story Generator App"
-                    className="w-full h-auto object-cover rounded-2xl"
+                    className="w-full max-w-[505px] h-auto object-contain"
                 />
-                </div>
-            </div>
-
             </div>
 
         </div>

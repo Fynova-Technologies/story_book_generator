@@ -1,69 +1,41 @@
 const playbutton = "/assets/icons/Dashboard/PlayButton.png";
+const bokeh = "/assets/images/CTAbg.png";
 
 const VideoSection= () => {
   return (
-    <section
-      data-bg="light"
-      className="w-full py-5 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg"
-    >
-      <div className="max-w-5xl mx-auto">
+    <section data-bg="light" className="w-full px-4 sm:px-7 py-6 sm:py-7">
 
-        {/* ── TOP BADGE ── */}
-        <div className="flex justify-center mb-4">
-          <span className="font-body text-xs font-bold tracking-[0.2em] uppercase text-light-primary dark:text-dark-primary">
-            The Secret Recipe
-          </span>
-        </div>
-
-        {/* ── HEADING ── */}
-        <div className="text-center mb-4">
-          <h2 className="font-heading text-4xl md:text-4xl font-bold text-light-text dark:text-dark-text leading-tight">
-            Making Magic is
-          </h2>
-          <h2 className="font-heading text-4xl md:text-4xl font-bold italic text-light-primary dark:text-dark-primary leading-tight">
-            Easier Than You Think
-          </h2>
-        </div>
-
-        {/* ── SUBTITLE ── */}
-        <p className="font-body text-sm md:text-base text-light-outline dark:text-dark-text text-center leading-relaxed max-w-lg mx-auto mb-10">
+      {/* ── HEADING ── */}
+      <div className="max-w-[654px] mx-auto text-center mb-8">
+        <p className="font-body text-sm font-bold tracking-[0.1em] uppercase text-light-primary mb-4">
+          The Secret Recipe
+        </p>
+        <h2 className="font-heading text-4xl sm:text-5xl font-bold leading-tight text-light-text">
+          Making Magic is{" "}
+          <span className="block italic text-light-primary">Easier Than You Think</span>
+        </h2>
+        <p className="font-body text-base sm:text-lg leading-relaxed text-light-outline mt-4">
           Ever wondered how your personal memories turn into enchanted tales? Step into
           our workshop and see the magic behind the scenes.
         </p>
+      </div>
 
-        {/* ── VIDEO / IMAGE CARD ── */}
-        <div className="relative w-full rounded-3xl overflow-hidden shadow-xl aspect-video">
+      {/* ── VIDEO / IMAGE CARD ── */}
+      {/* ponytail: placeholder until the explainer video exists (D7) */}
+      <div className="relative w-full rounded-3xl overflow-hidden border-4 sm:border-8 border-white shadow-xl aspect-video bg-gray-200">
+        <img src={bokeh} alt="" className="absolute inset-0 w-full h-full object-cover" />
 
-
-          {/* Gradient placeholder — remove when image is ready */}
-          <div
-            className="absolute inset-0 w-full h-full"
-            style={{
-              background: "linear-gradient(135deg, #C4B5FD, #DDA0DD, #FFB6A3)",
-            }}
-          />
-
-          {/* ── PLAY BUTTON PLACEHOLDER ── */}
-          {/* 👉 Replace this with your actual play button / video logic */}
-          <div className="absolute inset-0 flex items-center justify-center">
-           
-              {/* Play icon */}
-              <img src={playbutton} alt="" className="w-20 h-20"/>
-    
-          </div>
-
-          {/* ── WATCH VIDEO BUTTON (bottom left) ── */}
-          <div className="absolute bottom-5 left-5">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-white/40 text-light-text font-body text-xs font-semibold hover:bg-white transition-all duration-200 shadow-sm">
-              {/* Sparkle icon */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              Watch the explainer video
-            </button>
-          </div>
-
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img src={playbutton} alt="" className="w-16 h-16 sm:w-24 sm:h-24 drop-shadow-xl"/>
         </div>
+
+        <span className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur border border-white/30 text-white font-body text-xs sm:text-sm font-bold">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="M10 4l1.6 4.4L16 10l-4.4 1.6L10 16l-1.6-4.4L4 10l4.4-1.6z" />
+            <path d="M18 2l.8 2.2L21 5l-2.2.8L18 8l-.8-2.2L15 5l2.2-.8z" />
+          </svg>
+          Watch the explainer video
+        </span>
       </div>
     </section>
   );

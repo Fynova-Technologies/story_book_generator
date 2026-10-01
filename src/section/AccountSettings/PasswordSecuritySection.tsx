@@ -39,37 +39,37 @@ const PasswordSecuritySection = () => {
   };
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-2xl p-6  border-light-outline-secondary dark:border-dark-primary-30">
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F2F0F4] shadow-sm">
 
       {/* Header */}
       <div className="mb-6">
-        <h3 className="font-heading font-bold text-lg text-light-text dark:text-dark-text">
+        <h3 className="font-heading font-bold text-xl text-light-text">
           Password & Security
         </h3>
-        <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 mt-1">
+        <p className="font-body text-sm text-light-outline mt-1">
           Change the password you use to log in.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
 
         {/* Current Password */}
-        <div className="space-y-1.5">
-          <label className="font-body text-sm font-medium text-light-text dark:text-dark-text">
+        <div className="space-y-2">
+          <label className="font-body text-sm font-semibold text-light-text">
             Current Password
           </label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
+            className="w-full h-[42px] px-4 rounded-lg bg-gray-50 border border-gray-200 text-light-text placeholder:text-gray-400 font-body text-sm focus:outline-none focus:border-light-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
           />
         </div>
 
         {/* New + Confirm Password */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="font-body text-sm font-medium text-light-text dark:text-dark-text">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="font-body text-sm font-semibold text-light-text">
               New Password
             </label>
             <input
@@ -77,11 +77,11 @@ const PasswordSecuritySection = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="New password"
-              className="w-full px-4 py-2.5 rounded-lg bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
+              className="w-full h-[42px] px-4 rounded-lg bg-gray-50 border border-gray-200 text-light-text placeholder:text-gray-400 font-body text-sm focus:outline-none focus:border-light-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
             />
           </div>
-          <div className="space-y-1.5">
-            <label className="font-body text-sm font-medium text-light-text dark:text-dark-text">
+          <div className="space-y-2">
+            <label className="font-body text-sm font-semibold text-light-text">
               Confirm New Password
             </label>
             <input
@@ -89,7 +89,7 @@ const PasswordSecuritySection = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm password"
-              className="w-full px-4 py-2.5 rounded-lg bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
+              className="w-full h-[42px] px-4 rounded-lg bg-gray-50 border border-gray-200 text-light-text placeholder:text-gray-400 font-body text-sm focus:outline-none focus:border-light-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
             />
           </div>
         </div>
@@ -97,14 +97,14 @@ const PasswordSecuritySection = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-light-outline-secondary dark:border-dark-primary-30 opacity-100">
+      <div className="flex items-center justify-end gap-3 mt-8 pt-4 border-t border-[#F2F0F4]">
         {message && (
           <p className={`font-body text-sm mr-auto ${message.ok ? "text-green-600" : "text-red-500"}`}>{message.text}</p>
         )}
         <button
           onClick={handleUpdate}
           disabled={saving}
-          className="font-body text-sm font-semibold text-light-on-primary px-5 py-2 rounded-lg bg-light-primary dark:bg-dark-primary hover:opacity-90 transition-all disabled:opacity-60"
+          className="h-[42px] px-5 rounded-lg bg-light-primary text-white font-body text-sm font-bold shadow-md hover:opacity-90 transition-all disabled:opacity-60"
         >
           {saving ? "Updating…" : "Update Password"}
         </button>

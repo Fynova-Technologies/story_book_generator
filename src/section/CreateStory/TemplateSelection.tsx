@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TemplateCard from "../../components/TempleteCard/TemplateCard";
+import StepPanel, { SelectedPill } from "./StepPanel";
 
 // 👉 Import your template images here
 const Birthday = "/assets/images/templete/Birthday.png";
@@ -153,56 +154,41 @@ const TemplateSelection = ({
   }, [selectedTemplate, customStory, onValidChange]);
 
   return (
-    <section className="w-full py-10 px-6 md:px-10 xl:px-10 bg-light-on-primary dark:bg-dark-bg rounded-3xl">
-      <div className="max-w-7xl mx-auto">
-
-        
-
-        {/* ── SECTION HEADING ── */}
-        <div className="mb-6">
-          <h2 className="font-heading text-2xl font-bold text-light-text dark:text-dark-text">
-            Select Template
-          </h2>
-          <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-50 mt-1">
-            Choose a story theme to begin your personalized storybook.
-          </p>
-        </div>
-
-         {/* ✅ Selected template display */}
-          {(selectedTemplate || customStory) && (
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-                  {selectedTemplate ?? "Your own story"} selected
-                </span>
-              </div>
-            </div>
-          )}
+    <StepPanel
+      title="Select Template"
+      subtitle="Choose a story theme to begin your personalized storybook."
+      aside={(selectedTemplate || customStory) && <SelectedPill label={selectedTemplate ?? "Your own story"} />}
+    >
 
         {/* ── WRITE MY OWN STORY ── */}
         <button
           onClick={() => dispatch(chooseCustomStory())}
           aria-pressed={customStory}
-          className={`w-full mb-5 flex items-center justify-between gap-4 p-5 rounded-3xl border-2 text-left transition-all duration-200 bg-light-bg dark:bg-dark-primary-10
+          className={`w-full mb-6 flex items-center justify-between gap-4 p-5 rounded-[18px] border-2 text-left transition-all duration-200 bg-white
             ${customStory
-              ? "border-light-primary dark:border-dark-primary"
-              : "border-transparent hover:border-light-primary/40 dark:hover:border-dark-primary/40"
+              ? "border-light-primary"
+              : "border-transparent hover:shadow-[0_4px_13px_rgba(0,0,0,0.25)]"
             }
           `}
         >
-          <div>
-            <h4 className="font-heading font-bold text-sm text-light-text dark:text-dark-text">
-              Write my own story
-            </h4>
-            <p className="font-body text-xs text-light-outline dark:text-dark-text leading-relaxed mt-1">
-              Skip the templates and describe your story in your own words.
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-light-primary/10 flex items-center justify-center shrink-0 text-light-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-body font-bold text-base text-light-text">
+                Write my own story
+              </h4>
+              <p className="font-body text-sm text-[#7A7A8C] leading-snug mt-1">
+                Skip the templates and describe your story in your own words.
+              </p>
+            </div>
           </div>
           {customStory && (
-            <div className="w-7 h-7 rounded-full bg-light-primary dark:bg-dark-primary flex items-center justify-center shadow-md flex-shrink-0">
+            <div className="w-7 h-7 rounded-full bg-light-primary flex items-center justify-center shadow-md flex-shrink-0">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
@@ -227,24 +213,23 @@ const TemplateSelection = ({
         ) : (
           // Empty state
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-light-outline-secondary dark:text-dark-primary-30">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-light-outline-secondary">
               <circle cx="11" cy="11" r="8"/>
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-50">
+            <p className="font-body text-sm text-light-outline opacity-50">
               No templates found for "{activeFilter}"
             </p>
             <button
               onClick={() => setActiveFilter("All Templates")}
-              className="font-body text-sm font-medium text-light-primary dark:text-dark-primary hover:underline underline-offset-2"
+              className="font-body text-sm font-medium text-light-primary hover:underline underline-offset-2"
             >
               View all templates
             </button>
           </div>
         )}
 
-      </div>
-    </section>
+    </StepPanel>
   );
 };
 

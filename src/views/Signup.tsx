@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 const LoginImage = "/assets/images/ImageinLoginPage.png";
+import Logo from "../components/Navbar/Logo";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
@@ -54,70 +55,65 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
+    <div className="flex min-h-screen lg:h-screen w-full p-3 md:p-4 gap-4">
 
       {/* ── LEFT SIDE — Illustration ── */}
-        <div className="hidden lg:block lg:w-[40%] xl:w-[40%] relative rounded-3xl m-3 overflow-hidden">
+        <div className="hidden lg:block lg:w-[48%] shrink-0 relative overflow-hidden rounded-3xl">
         <img
             src={LoginImage}
             alt="Storybook illustration"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
         />
         </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
+      <div className="flex-1 min-w-0 flex flex-col px-2 sm:px-8 xl:px-16 lg:overflow-y-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between pt-2 pb-6">
-          <Link to='/' className="flex items-center gap-2 text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors text-sm font-medium">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center justify-between gap-4 min-h-[72px]">
+          <Link to='/' className="flex items-center gap-2 text-light-text hover:text-light-primary transition-colors text-base md:text-lg font-medium">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Back home
           </Link>
 
           {/* Logo */}
-          <span
-            className="text-2xl text-light-text dark:text-dark-text items-center"
-            style={{ fontFamily: "'Pacifico', cursive" }}
-          >
-            Logo
-          </span>
+          <Logo className="text-light-text" />
 
-          <div></div>
+          <div className="hidden sm:block w-[130px]" />
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-120 w-full mx-auto">
+        <div className="flex-1 flex flex-col justify-center max-w-[544px] w-full mx-auto py-10">
 
           {/* Heading */}
-          <div className="items-center mb-8 mx-auto">
+          <div className="mb-10 text-center">
             <h1
-              className="font-heading text-4xl font-bold text-light-text dark:text-dark-text mb-2"
+              className="font-heading text-4xl md:text-5xl font-bold text-light-text mb-6"
 
             >
               Create an Account
             </h1>
-            <p className="text-light-outline dark:text-dark-text text-sm">
+            <p className="font-body text-light-text text-base md:text-xl">
               Sign up with your name, email and a password to start creating storybooks
             </p>
           </div>
           {needsConfirmation ? (
             <div className="text-center space-y-4">
-              <p className="text-light-text dark:text-dark-text">
+              <p className="text-light-text">
                 Check your email to confirm your account, then log in.
               </p>
               <Link
                 to='/login'
-                className="inline-block text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+                className="inline-block text-light-text font-semibold underline underline-offset-2 hover:text-light-primary transition-colors"
               >
                 Go to log in
               </Link>
             </div>
           ) : (
           <>
-          <form onSubmit={handleSubmit(handleSignup)} className="space-y-5">
+          <form onSubmit={handleSubmit(handleSignup)} className="space-y-6">
              <InputField
                 label="Name"
                 type="text"
@@ -163,10 +159,10 @@ const Signup = () => {
                             type="checkbox"
                             checked={rememberMe}
                             onChange={() => setRememberMe(prev=>!prev)}
-                            className="w-4 h-3 border-4 rounded-2xl"
+                            className="w-4 h-4 accent-light-primary"
                           />
                         </div>
-                        <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
+                        <span className="font-body text-base text-light-text">Remember me</span>
                       </label>
                     </div>
                     <Button
@@ -178,11 +174,11 @@ const Signup = () => {
             </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-sm text-light-outline dark:text-dark-text mt-6">
+          <p className="text-center font-body text-base md:text-lg text-light-text mt-8">
            Already have an account?{" "}
             <Link
               to='/login'
-              className="text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+              className="text-light-text underline underline-offset-4 hover:text-light-primary transition-colors"
             >
               Log in
             </Link>
@@ -193,8 +189,8 @@ const Signup = () => {
 
         {/* Footer */}
         <div className="py-6">
-          <p className="font-body text-sm text-light-text dark:text-dark-text">
-            © 2025 Storyboard
+          <p className="font-body text-base text-light-text">
+            © 2026 Storybook AI
           </p>
         </div>
 

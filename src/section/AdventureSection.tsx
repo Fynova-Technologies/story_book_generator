@@ -56,22 +56,22 @@ const StartAdventure = () => {
   return (
     <section
       data-bg="light"
-      className="w-full py-16 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg"
+      className="w-full py-10 md:py-20 px-4 sm:px-10 lg:px-[100px]"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         {/* ── HEADING ── */}
-        <div className="text-center mb-12">
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-light-text dark:text-dark-text leading-tight mb-4">
+        <div className="text-center mb-10">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-[50px] font-bold text-light-text leading-tight mb-3">
             Start Your Adventure
           </h2>
-          <p className="font-body text-sm text-light-outline dark:text-dark-text font-bold">
+          <p className="font-body text-base md:text-[17px] text-light-outline font-semibold">
             Choose how you want to create your magical storybook
           </p>
         </div>
 
         {/* ── CARDS GRID ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-7 items-stretch">
           {adventureData.map((card) => (
             <AdventureCard
               key={card.id}

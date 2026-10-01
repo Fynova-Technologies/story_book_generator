@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 const LoginImage = "/assets/images/ImageinLoginPage.png";
+import Logo from "../components/Navbar/Logo";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
 import GoogleButton from "../components/Button/GoogleButton";
@@ -69,57 +70,50 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-light-bg dark:bg-dark-bg">
+    <div className="flex min-h-screen lg:h-screen w-full p-3 md:p-4 gap-4">
 
       {/* ── LEFT SIDE — Illustration ── */}
-      <div className="hidden lg:flex lg:w-[40%] xl:w-[40%] relative overflow-hidden rounded-3xl m-3">
+      <div className="hidden lg:block lg:w-[48%] shrink-0 relative overflow-hidden rounded-3xl">
         <img
           src={LoginImage}
           alt="Storybook illustration"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
 
       {/* ── RIGHT SIDE — Form ── */}
-      <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3">
+      <div className="flex-1 min-w-0 flex flex-col px-2 sm:px-8 xl:px-16 lg:overflow-y-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between pt-2 pb-6">
-          <Link to='/'>
-          <button className="flex items-center gap-2 text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors text-sm font-medium">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center justify-between gap-4 min-h-[72px]">
+          <Link to='/' className="flex items-center gap-2 text-light-text hover:text-light-primary transition-colors text-base md:text-lg font-medium">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Back home
-          </button>
           </Link>
 
           {/* Logo */}
-          <span
-            className="text-2xl text-light-text dark:text-dark-text items-center"
-            style={{ fontFamily: "'Pacifico', cursive" }}
-          >
-            Logo
-          </span>
+          <Logo className="text-light-text" />
 
-          <div></div>
+          <div className="hidden sm:block w-[130px]" />
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-[480px] w-full mx-auto">
+        <div className="flex-1 flex flex-col justify-center max-w-[544px] w-full mx-auto py-10">
 
           {/* Heading */}
-          <div className="items-center mb-8 mx-auto text-center">
+          <div className="mb-10 text-center">
             <h1
-              className="font-heading text-4xl font-bold text-light-text dark:text-dark-text mb-2"
+              className="font-heading text-4xl md:text-5xl font-bold text-light-text mb-6"
             >
               Welcome Back
             </h1>
-            <p className="text-light-outline dark:text-dark-text text-sm">
+            <p className="font-body text-light-text text-base md:text-xl">
               Enter your email and password to access your account
             </p>
           </div>
-          <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
+          <form onSubmit={handleSubmit(handleLogin)} className="space-y-6">
              <InputField
                 label="Email"
                 type="email"
@@ -155,22 +149,22 @@ const Login = () => {
                             type="checkbox"
                             checked={rememberMe}
                             onChange={() => setRememberMe(prev=>!prev)}
-                            className="w-4 h-3 border-4 rounded-2xl"
+                            className="w-4 h-4 accent-light-primary"
                           />
                         </div>
-                        <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
+                        <span className="font-body text-base text-light-text">Remember me</span>
                       </label>
 
                       <button
                         type="button"
                         onClick={handleForgotPassword}
                         disabled={sendingReset}
-                        className="text-sm text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+                        className="font-body text-base text-light-text hover:text-light-primary transition-colors"
                       >
                         {sendingReset ? "Sending..." : "Forgot password?"}
                       </button>
                     </div>
-                    {resetMessage && <p className="text-sm text-light-text dark:text-dark-text">{resetMessage}</p>}
+                    {resetMessage && <p className="text-sm text-light-text">{resetMessage}</p>}
                     <Button
                         type = "submit"
                         name = {`${loading ? "Logging in..." : "Log in"}`}
@@ -181,11 +175,11 @@ const Login = () => {
             </form>
 
             {/* Sign Up Link */}
-            <p className="text-center text-sm text-light-outline dark:text-dark-text mt-6">
+            <p className="text-center font-body text-base md:text-lg text-light-text mt-8">
               Don't have an account?{" "}
               <Link
                 to='/signup'
-                className="text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+                className="text-light-text underline underline-offset-4 hover:text-light-primary transition-colors"
               >
                 Sign Up
               </Link>
@@ -193,9 +187,9 @@ const Login = () => {
           </div>
 
           {/* Footer */}
-          <div className=" py-6">
-            <p className="font-body text-sm text-light-text dark:text-dark-text">
-              © 2025 Storyboard
+          <div className="py-6">
+            <p className="font-body text-sm text-light-text">
+              © 2026 Storybook AI
             </p>
           </div>
 

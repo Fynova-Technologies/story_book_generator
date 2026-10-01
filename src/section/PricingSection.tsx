@@ -119,36 +119,35 @@ const PricingSection = () => {
   return (
     <section
       data-bg="light"
-      className="w-full py-16 px-6 md:px-12 xl:px-20 bg-dark-primary-10 dark:bg-dark-bg rounded-3xl"
+      className="max-w-7xl mx-auto py-8 px-4 sm:px-8 bg-light-panel rounded-[36px]"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1066px] mx-auto">
 
         {/* ── TOP BADGE ── */}
-        <div className="flex justify-center mb-6">
-          <span className="font-body px-5 py-2 rounded-full  border-light-outline-secondary dark:border-dark-primary-30 text-sm 
-          font-medium text-light-text dark:text-dark-text bg-light-on-primary dark:bg-dark-primary-10">
+        <div className="flex justify-center mb-4">
+          <span className="font-body px-8 py-2 rounded-full text-base font-semibold text-black bg-white">
             Pricing
           </span>
         </div>
 
         {/* ── HEADING ── */}
         <div className="text-center mb-8">
-          <h2 className="font-heading text-4xl md:text-4xl font-bold text-light-text dark:text-dark-text leading-tight">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-[50px] font-bold text-black leading-tight md:leading-[60px]">
             Simple Plans <br /> For Serious Work
           </h2>
         </div>
 
         {/* ── TOGGLE — Annually / Monthly ── */}
         <div className="flex justify-center mb-12">
-          <div className="flex items-center p-1 rounded-full bg-light-on-primary dark:bg-dark-primary-10 border-light-outline-secondary dark:border-dark-primary-30">
+          <div className="flex items-center gap-3 p-1 rounded-[26px] bg-light-bg">
 
             {/* Annually */}
             <button
               onClick={() => setBilling("annually")}
-              className={`px-6 py-2 rounded-full text-sm font-body font-medium transition-all duration-200
+              className={`w-[129px] py-1.5 rounded-full text-[15px] font-body font-medium transition-all duration-200
                 ${billing === "annually"
-                  ? "bg-light-primary dark:bg-dark-primary text-light-on-primary shadow-sm"
-                  : "text-light-outline dark:text-dark-text hover:text-light-text"
+                  ? "bg-light-primary text-light-on-primary shadow-sm"
+                  : "text-black hover:text-light-primary"
                 }
               `}
             >
@@ -158,10 +157,10 @@ const PricingSection = () => {
             {/* Monthly */}
             <button
               onClick={() => setBilling("monthly")}
-              className={`px-6 py-2 rounded-full text-sm font-body font-medium transition-all duration-200
+              className={`w-[129px] py-1.5 rounded-full text-[15px] font-body font-medium transition-all duration-200
                 ${billing === "monthly"
-                  ? "bg-light-primary dark:bg-dark-primary text-light-on-primary shadow-sm"
-                  : "text-light-outline dark:text-dark-text hover:text-light-text"
+                  ? "bg-light-primary text-light-on-primary shadow-sm"
+                  : "text-black hover:text-light-primary"
                 }
               `}
             >
@@ -172,7 +171,7 @@ const PricingSection = () => {
         </div>
 
         {/* ── PRICING CARDS ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 items-center">
           {pricingData[billing].map((plan) => (
             <PricingCard
               key={plan.id}
