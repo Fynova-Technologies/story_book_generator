@@ -25,7 +25,7 @@ import { store } from '../../store/store'
 import AuthLayout from '../../components/AuthLayout/AuthLayout'
 import FeaturedStoryPage from '../../views/FeaturedStoryPage'
 import FlipBookPage from '../../views/FlipBookPage'
-import { initAuthListener } from '../../firebase/authService'
+import { initAuthListener } from '../../services/authService'
 // import { setLoading } from '../../store/slices/authSlice';
 
 
@@ -162,7 +162,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path:'/flipbook',
+        path:'/flipbook/:id',
         element:(
           <AuthLayout authentication={true}>
             <FlipBookPage/>

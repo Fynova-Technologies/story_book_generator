@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm,SubmitHandler } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setError, setLoading } from "../store/slices/authSlice";
-import { signInWithEmail,signInWithGoogle } from "../firebase/authService";
+import { signInWithEmail,signInWithGoogle } from "../services/authService";
 import { RootState } from "../store/store";
 
 

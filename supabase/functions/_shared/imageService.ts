@@ -1,18 +1,6 @@
-import sharp from 'sharp';
-import { editImage } from './openai';
-import { CharacterReference, imagePart, referenceLabels } from './characterReferences';
-import { trace } from './trace';
-
-// Image input tokens grow with pixel area and every reference is sent with every page,
-// so cap each reference's longest side. rotate() applies EXIF orientation before it is stripped.
-export async function shrink(image: string, maxSide: number) {
-  const { mimeType, data } = imagePart(image);
-  const resized = sharp(Buffer.from(data, 'base64')).rotate()
-    .resize(maxSide, maxSide, { fit: 'inside', withoutEnlargement: true });
-  const png = mimeType === 'image/png';
-  const buffer = await (png ? resized.png() : resized.jpeg({ quality: 90 })).toBuffer();
-  return `data:image/${png ? 'png' : 'jpeg'};base64,${buffer.toString('base64')}`;
-}
+import { editImage } from './openai.ts';
+import { CharacterReference, imagePart, referenceLabels } from './characterReferences.ts';
+import { trace } from './trace.ts';
 
 // Keep one model for the whole book, including retries, to avoid style drift.
 const model = 'gpt-image-2.5-flare';
@@ -66,21 +54,18 @@ Only this one person. No text, no labels.`;
   return imageUrl;
 }
 
+// One attempt only: retries are the user's call (a "Retry page" button), so we never spend
+// on OpenAI without them asking, and one invocation stays well inside the 150s limit.
 async function generate(prompt: string, references: CharacterReference[], event: string, info: Record<string, unknown>) {
   const images = references.map(reference => imagePart(reference.image));
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const started = Date.now();
-    try {
-      const { b64, usage } = await editImage({ model, prompt, images, size: '1024x1024' });
-      const imageUrl = `data:image/png;base64,${b64}`;
-      trace(event, { ...info, attempt: attempt + 1, model, ok: true, ms: Date.now() - started, fullPrompt: prompt, usage, ...(event === 'character.sheet' && { imageUrl }) });
-      return { success: true, imageUrl };
-    } catch (error) {
-      trace(event, { ...info, attempt: attempt + 1, model, ok: false, ms: Date.now() - started, error: String(error) });
-      console.error(`Image generation attempt ${attempt + 1} failed:`, error);
-    }
-    if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 1000 * 2 ** attempt));
+  const started = Date.now();
+  try {
+    const { b64, usage } = await editImage({ model, prompt, images, size: '1024x1024' });
+    const imageUrl = `data:image/webp;base64,${b64}`;
+    trace(event, { ...info, model, ok: true, ms: Date.now() - started, fullPrompt: prompt, usage, ...(event === 'character.sheet' && { imageUrl }) });
+    return { success: true, imageUrl };
+  } catch (error) {
+    trace(event, { ...info, model, ok: false, ms: Date.now() - started, error: String(error) });
+    throw error;
   }
-  throw new Error('Unable to generate an illustration with its character references. Please retry.');
 }

@@ -3,7 +3,7 @@ const draft = "/assets/icons/Dashboard/Draft.png";
 import DraftCard from '../../components/DraftCard/DraftCard';
 const avatar = "/assets/images/sampleavatar.png";
 import { useDraftRestore } from '../../hooks/useDraftRestore';
-import { formatLastSaved } from '../../services/draftService';
+import { formatLastSaved } from '../../services/storyService';
 import { useDispatch } from 'react-redux';
 import { resetWizard, setCurrentDraftId } from '../../store/slices/storyWizardSlice';
 import { useNavigate } from 'react-router-dom';
@@ -44,13 +44,13 @@ function DraftSection() {
                 image={storyimg1} // Placeholder, maybe use a default or generate based on draft
                 title={draft.template || 'Untitled Draft'}
                 authorAvatar={avatar}
-                editedAt={formatLastSaved(draft.lastSavedAt)}
-                onContinue={() => {
-                  restoreDraftById(draft.id);
+                editedAt={formatLastSaved(draft.updated_at)}
+                onContinue={async () => {
+                  await restoreDraftById(draft.id);
                   navigate('/create-story');
                 }}
                 onDelete={() => {
-                  deleteDraftById(draft.id);
+                  deleteDraftById(draft.id).catch(error => console.error('Could not delete draft:', error));
                 }}
               />
             ))}
