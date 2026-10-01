@@ -27,17 +27,35 @@ const notifications = [
   },
 ];
 
+// ponytail: no backend for notification settings yet, so they live in this browser only.
+const PREFS_KEY = "storybook_notification_prefs";
+
+const loadPrefs = (): Record<string, boolean> => {
+  const defaults = Object.fromEntries(notifications.map((n) => [n.id, n.defaultChecked]));
+  try {
+    return { ...defaults, ...JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") };
+  } catch {
+    return defaults;
+  }
+};
+
 const NotificationSection = () => {
-  const [prefs, setPrefs] = useState<Record<string, boolean>>(
-    Object.fromEntries(notifications.map((n) => [n.id, n.defaultChecked]))
-  );
+  const [prefs, setPrefs] = useState<Record<string, boolean>>(loadPrefs);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const handleToggle = (id: string) => {
     setPrefs((prev) => ({ ...prev, [id]: !prev[id] }));
+    setMessage(null);
   };
 
   const handleSave = () => {
-    console.log("Notification prefs saved:", prefs);
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+      setMessage({ ok: true, text: "Saved on this device." });
+    } catch (error) {
+      console.error("Could not save notification preferences:", error);
+      setMessage({ ok: false, text: "We couldn't save your preferences on this device." });
+    }
   };
 
   return (
@@ -95,7 +113,10 @@ const NotificationSection = () => {
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end mt-6 pt-4 border-t border-light-outline-secondary dark:border-dark-primary-30 opacity-100">
+      <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-light-outline-secondary dark:border-dark-primary-30 opacity-100">
+        {message && (
+          <p className={`font-body text-sm mr-auto ${message.ok ? "text-green-600" : "text-red-500"}`}>{message.text}</p>
+        )}
         <button
           onClick={handleSave}
           className="font-body text-sm font-semibold text-light-on-primary px-5 py-2 rounded-lg bg-light-primary dark:bg-dark-primary hover:opacity-90 transition-all"

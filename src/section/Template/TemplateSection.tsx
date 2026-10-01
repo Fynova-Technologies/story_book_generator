@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { resetWizard, setTemplate } from "../../store/slices/storyWizardSlice";
 import TemplateCard from "../../components/TempleteCard/TemplateCard";
 
 // 👉 Import your template images here
@@ -140,14 +143,22 @@ const templatesData = [
   },
 ];
 
-const TemplateSection = () => {
+const TemplateSection = ({ searchQuery = "" }: { searchQuery?: string }) => {
   const [activeFilter, setActiveFilter] = useState("All Templates");
-  const [searchQuery] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const startWithTemplate = (title: string) => {
+    dispatch(resetWizard());
+    dispatch(setTemplate(title));
+    navigate("/create-story");
+  };
 
   // ✅ Filter templates by category
+  const query = searchQuery.trim().toLowerCase();
   const filteredTemplates = templatesData.filter((template) => {
     const matchesFilter = activeFilter === "All Templates" || template.category === activeFilter;
-    const matchesSearch = template.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = template.title.toLowerCase().includes(query);
     return matchesFilter && matchesSearch;
   });
 
@@ -194,8 +205,7 @@ const TemplateSection = () => {
                 description={template.description}
                 likes={template.likes}
                 views={template.views}
-                onUseTemplate={() => console.log("Using template:", template.title)}
-                onLike={() => console.log("Liked:", template.title)}
+                onUseTemplate={() => startWithTemplate(template.title)}
               />
             ))}
           </div>
@@ -207,7 +217,7 @@ const TemplateSection = () => {
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-50">
-              No templates found for "{activeFilter}"
+              No templates found{query ? ` for "${searchQuery.trim()}"` : ""} in "{activeFilter}"
             </p>
             <button
               onClick={() => setActiveFilter("All Templates")}

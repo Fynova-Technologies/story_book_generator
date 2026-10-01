@@ -15,7 +15,7 @@ function Page404() {
             <h1
                 className='font-heading text-4xl font-bold text-center mb-4'
             >Lost in the Pages? Let's guide you <br/>back to the story.</h1>
-            <p className='text-center font-body'>Don't worrry every great journey has a small detour.</p>
+            <p className='text-center font-body'>Don't worry every great journey has a small detour.</p>
         </div>
         <div>
             {/* Fix width and height of div */}

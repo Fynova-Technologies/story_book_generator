@@ -81,8 +81,6 @@ const UploadPhotoSection = ({
     }
   }, [photos, totalSize, dispatch, onValidChange]);
 
-  // console.log(photos);
-  
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-2 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
@@ -97,14 +95,6 @@ const UploadPhotoSection = ({
             Upload up to 5 photos with one person in each, and say who is in every photo.
             Use the same name on several photos of one person, and the names you'll use in the story.
           </p>
-        </div>
-
-        {/* Draft saved badge */}
-        <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 flex-shrink-0">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="font-body text-xs text-light-primary dark:text-dark-text">
-            Draft saved automatically
-          </span>
         </div>
       </div>
 

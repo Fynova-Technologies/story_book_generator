@@ -1,4 +1,8 @@
 import { NavLink,Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { STORY_COST, useCredits } from "../../services/credits";
+import { userInitial, userName } from "./user";
 const bookImg = "/assets/icons/Sidebar/book.png";
 const dashboardImg = "/assets/icons/Sidebar/Dashboard.png";
 const heart = "/assets/icons/Sidebar/Heart.png";
@@ -10,7 +14,7 @@ const setting = "/assets/icons/Sidebar/Setting.png";
 interface NavItem {
   label: string;
   path: string;
-  icon:any
+  icon: string
 }
 
 const navItems: NavItem[] = [
@@ -36,13 +40,15 @@ const navItems: NavItem[] = [
   },
   {
     label: "How it Works",
-    path: "/dashboard/videosection",
+    path: "/dashboard/how-it-works",
     icon:user
   },
 ];
 
 const Sidebar = () => {
   const navigate = useNavigate()
+  const user = useSelector((state: RootState) => state.auth.userData);
+  const { credits } = useCredits();
   return (
     <aside className="fixed top-0 left-0 h-screen w-[300px] bg-light-bg border-r border-[#E2DDD5] flex flex-col z-50">
 
@@ -52,10 +58,7 @@ const Sidebar = () => {
         <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold">
           <img src={bookImg} alt="" />
         </div>
-        <div>
-          <p className="font-heading text-sm font-semibold text-light-primary leading-tight">Story book AI</p>
-          <p className="font-body text-[10px] text-light-text uppercase tracking-widest">Free Plan</p>
-        </div>
+        <p className="font-heading text-sm font-semibold text-light-primary leading-tight">Story book AI</p>
       </div>
 
       {/* Navigation */}
@@ -92,6 +95,15 @@ const Sidebar = () => {
         ))}
       </nav>
 
+      {/* Credits Card */}
+      <div className="mx-3 mb-3 rounded-xl bg-light-on-primary border border-[#E2DDD5] p-4">
+        <p className="font-body text-[10px] text-light-text uppercase tracking-widest mb-1">Credits</p>
+        <p className="font-heading text-2xl font-bold text-light-primary leading-tight">{credits ?? "…"}</p>
+        {credits !== null && (
+          <p className="font-body text-xs text-light-text">≈ {Math.floor(credits / STORY_COST)} stories</p>
+        )}
+      </div>
+
       {/* Premium Upgrade Card */}
       <div className="mx-3 mb-3 rounded-xl bg-gradient-to-br from-[#E8F3FF] to-[#7C3AED] p-4">
         <div className="flex items-center gap-2 mb-1">
@@ -101,7 +113,7 @@ const Sidebar = () => {
           <p className="text-md text-light-primary font-heading font-semibold">Premium Plan</p>
         </div>
         <p className="font-body text-sm text-light-text mb-3 leading-snug">
-          Unlock unlimited stories and magical AI voices.
+          Get more credits to make more stories.
         </p>
         <button 
           onClick={()=>navigate("/pricing")}
@@ -112,17 +124,16 @@ const Sidebar = () => {
 
       {/* User Profile Row */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-t border-[#E2DDD5]">
-        {/* Avatar — replace inner div with <img src={avatarUrl} alt="avatar" /> */}
-        <div className="w-8 h-8 rounded-full bg-[#D4C5A9] flex-shrink-0 overflow-hidden" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-[#1A1A2E] truncate">Sarah Storyteller</p>
-          <p className="text-[10px] text-[#9E9587] truncate">sarah@example.com</p>
+        <div className="w-8 h-8 rounded-full bg-[#D4C5A9] flex-shrink-0 flex items-center justify-center text-xs font-semibold text-[#1A1A2E]">
+          {userInitial(user)}
         </div>
-        <button className="text-[#9E9587] hover:text-[#5C5449] transition-colors flex-shrink-0">
-          <Link to="/account" className="w-4 h-4 rounded-full">
-            <img src={setting} alt="S" className="w-4 h-4"/>
-          </Link>
-        </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-[#1A1A2E] truncate">{userName(user)}</p>
+          <p className="text-[10px] text-[#9E9587] truncate">{user?.email}</p>
+        </div>
+        <Link to="/account" aria-label="Account settings" className="flex-shrink-0 hover:opacity-80 transition-opacity">
+          <img src={setting} alt="" className="w-4 h-4"/>
+        </Link>
       </div>
     </aside>
   );

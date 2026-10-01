@@ -8,10 +8,15 @@ export const useDraftRestore = () => {
   const dispatch = useDispatch();
   const user     = useSelector((state: RootState) => state.auth.userData);
   const [drafts, setDrafts] = useState<StoryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
-    listStories(['draft']).then(setDrafts).catch(error => console.error('Could not load drafts:', error));
+    listStories(['draft'])
+      .then(setDrafts)
+      .catch(error => { console.error('Could not load drafts:', error); setError(true); })
+      .finally(() => setLoading(false));
   }, [user?.uid]);
 
   // Loads the draft, photos included, into the wizard.
@@ -36,5 +41,5 @@ export const useDraftRestore = () => {
     setDrafts(prev => prev.filter(draft => draft.id !== draftId));
   };
 
-  return { drafts, draftsExist: drafts.length > 0, restoreDraftById, deleteDraftById };
+  return { drafts, loading, error, draftsExist: drafts.length > 0, restoreDraftById, deleteDraftById };
 };

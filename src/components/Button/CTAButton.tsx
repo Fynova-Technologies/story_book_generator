@@ -3,13 +3,13 @@ import { useNavigate } from "react-router"
 function CTAButton({
     name="Create",
     className
-}:any) {
+}: { name?: string; className?: string }) {
 
    const navigate = useNavigate()
   return (
     <div>
       <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/signup")}
           className={`${className} flex items-center gap-3 px-6 py-3.5 rounded-xl font-semibold text-sm text-white w-fit 
           transition-all duration-200 hover:opacity-90 hover:shadow-lg hover:shadow-dark-primary/30 active:scale-[0.99] `}
           style={{ background: "#2E73EA" }}

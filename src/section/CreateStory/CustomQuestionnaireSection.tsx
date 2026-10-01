@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCustomStory } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
 
 
 const CHAR_LIMIT = 500;
+const MIN_CHARS = 100; // the story needs more than this many characters
 
 interface props{
   onValidChange:(valid:boolean)=>void;
@@ -12,54 +13,17 @@ interface props{
 const CustomQuestionnaireSection = ({
   onValidChange,
 }:props) => {
-  // const selectedTemplate = useSelector((state: RootState) => state.story.template);
-  // console.log(selectedTemplate);
   const dispatch = useDispatch();
-  const storedCustomStory = useSelector((state: RootState) => state.story?.story || "");
-  const [story, setStory] = useState("");
+  // Redux is the source of truth, so Next always saves what is on screen.
+  const story = useSelector((state: RootState) => state.story.story);
 
-  // Initialize from Redux on mount
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    dispatch(setCustomStory(e.target.value.slice(0, CHAR_LIMIT)));
+  };
+
   useEffect(() => {
-    if (storedCustomStory) {
-      setStory(storedCustomStory);
-    }
-  }, [storedCustomStory]);
-
-  // Debounce ref for the dispatch function
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleChange = (e: any) => {
-    const value = e.target.value;
-    if (value.length <= CHAR_LIMIT) {
-      setStory(value);
-    }
-    onValidChange(value.length > 0);
-  };
-
-  // Debounced dispatch function
-  const debouncedDispatch = useCallback(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = setTimeout(() => {
-      if(story.length > 100){
-        dispatch(setCustomStory(story));
-        onValidChange(true);
-      }else{
-        onValidChange(false);
-      }
-    }, 500); // 500ms debounce delay
-  }, [story, dispatch, onValidChange]);
-
- useEffect(() => {
-  debouncedDispatch();
-  return () => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-  };
-},[story, debouncedDispatch, onValidChange]);
-  
+    onValidChange(story.trim().length > MIN_CHARS);
+  }, [story, onValidChange]);
 
   const handleInspireMe = () => {
     const inspirations = [
@@ -68,7 +32,7 @@ const CustomQuestionnaireSection = ({
       "Twin siblings stumble upon a mysterious lighthouse that grants wishes, but they must learn that true magic comes from the heart.",
     ];
     const random = inspirations[Math.floor(Math.random() * inspirations.length)];
-    setStory(random.slice(0, CHAR_LIMIT));
+    dispatch(setCustomStory(random.slice(0, CHAR_LIMIT)));
   };
 
   const progressPercent = (story.length / CHAR_LIMIT) * 100;
@@ -185,6 +149,13 @@ const CustomQuestionnaireSection = ({
             </div>
           </div>
         </div>
+
+        {/* Minimum length hint */}
+        <p className={`font-body text-xs mt-2 px-1 ${story.trim().length > MIN_CHARS ? "text-light-outline dark:text-dark-text opacity-60" : "text-light-accent dark:text-dark-accent"}`}>
+          {story.trim().length > MIN_CHARS
+            ? "Great, that's enough to work with."
+            : `Write at least ${MIN_CHARS + 1} characters (${Math.max(0, MIN_CHARS + 1 - story.trim().length)} to go).`}
+        </p>
 
       </div>
 

@@ -30,7 +30,7 @@ const storystyles = [
 ];
 
 // ── Section Component ──────────────────────────────────────
-const StoryStyleSection = ({ onValidChange }: any) => {
+const StoryStyleSection = ({ onValidChange }: { onValidChange: (valid: boolean) => void }) => {
   const dispatch = useDispatch();
   const storedStoryStyle = useSelector((state: RootState) => state.story?.storyStyle || "");
   
@@ -55,8 +55,6 @@ const StoryStyleSection = ({ onValidChange }: any) => {
       
       // ✅ Dispatch to Redux
       dispatch(setStoryStyle(style.name));
-      
-      console.log("Selected story style:", style.name);
     }
   };
 

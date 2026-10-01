@@ -2,34 +2,19 @@ const CTABgImage = "/assets/images/CTAbg.png";
 import DraftSection from "../section/Dashboard/DraftSection";
 import CompletedSection from "../section/Dashboard/CompletedSection";
 import { useNavigate } from "react-router";
-// import { useState } from "react";
-// import Collection from "./Collection";
-// import TemplateSection from "../section/Template/TemplateSection";
-// import FeatureSection from "../section/FeatureSection";
-// import VideoSection from "../section/Dashboard/VideoSection";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { resetWizard } from "../store/slices/storyWizardSlice";
+import { STORY_COST, useCredits } from "../services/credits";
+import { userName } from "../components/Sidebar/user";
 
-
-// type Section = "Dashboard" | "My Collection" | "Templates" | "Sample Gallery" | "How it Works";
 const Dashboard = () => {
   const navigate = useNavigate();
-  // const [activeSection, setActiveSection] = useState<Section>("Dashboard");
-
-  // const renderSection = () => {
-  //   switch (activeSection) {
-  //     case "Dashboard":
-  //       return <Dashboard />;
-  //     case "My Collection":
-  //       return <Collection/>;
-  //     case "Templates":
-  //       return <TemplateSection/>;
-  //     case "Sample Gallery":
-  //       return <FeatureSection/>;
-  //     case "How it Works":
-  //       return <VideoSection/>;
-  //     default:
-  //       return <Dashboard />;
-  //   }
-  // };
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.userData);
+  const { credits } = useCredits();
+  const storiesLeft = credits === null ? null : Math.floor(credits / STORY_COST);
+  const name = userName(user);
 
   return (
    <div className=" min-h-screen bg-light-bg dark:bg-dark-bg overflow-y-auto">
@@ -60,54 +45,45 @@ const Dashboard = () => {
               </div>
 
               <h1 className="font-heading text-white text-2xl md:text-3xl font-bold leading-tight mb-2">
-                Ready to weave a new tale, Sarah?
+                Ready to weave a new tale{name && `, ${name}`}?
               </h1>
               <p className="font-body text-white/75 text-sm">
-                You have{" "}
-                <span className="text-white font-semibold underline underline-offset-2">
-                  3 free stories
-                </span>{" "}
-                left this month. Let's make some magic!
+                {storiesLeft === null ? "Checking your credits…" : storiesLeft > 0 ? (
+                  <>
+                    You have enough credits for{" "}
+                    <span className="text-white font-semibold underline underline-offset-2">
+                      {storiesLeft} {storiesLeft === 1 ? "story" : "stories"}
+                    </span>
+                    . Let's make some magic!
+                  </>
+                ) : "You're out of credits. Get more to create your next story."}
               </p>
             </div>
 
             {/* Right — Usage Card */}
             <div className="w-full lg:w-[320px] flex-shrink-0 bg-dark-bg/50 backdrop-blur-sm border border-white/10 rounded-xl p-4 space-y-3">
 
-              {/* Plan label */}
-              <div className="flex items-center justify-between">
-                <span className="font-body text-white/60 text-[11px] uppercase tracking-widest font-medium">
-                  Free Plan Usage
-                </span>
-                <span className="bg-white/10 border border-white/20 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                  FREE
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: "40%",
-                    background: "linear-gradient(to right, #FCD34D, #F59E0B)",
-                  }}
-                />
-              </div>
-
               {/* Credits */}
               <div className="flex items-center justify-between">
+                <span className="font-body text-white/60 text-[11px] uppercase tracking-widest font-medium">
+                  Credits
+                </span>
+                <span className="font-body text-white text-sm font-semibold">
+                  {credits ?? "…"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="font-body text-white/50 text-[11px] uppercase tracking-widest">
-                  Monthly Credits
+                  {STORY_COST} credits per story
                 </span>
                 <span className="font-body text-white/70 text-[11px] font-medium">
-                  2/5 Used
+                  {storiesLeft === null ? "…" : `≈ ${storiesLeft} ${storiesLeft === 1 ? "story" : "stories"}`}
                 </span>
               </div>
 
               {/* CTA Button */}
               <button 
-                onClick={()=>navigate("/create-story")}
+                onClick={() => { dispatch(resetWizard()); navigate("/create-story"); }}
                 className="w-full flex items-center justify-center gap-2 bg-light-on-primary text-light-primary font-body text-sm font-semibold py-2.5 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all">
                 ✦ Create New Story
               </button>

@@ -3,6 +3,7 @@ interface DraftCardProps {
   image: string;
   title: string;
   authorAvatar?: string;
+  authorInitial?: string;
   editedAt:string;
   onContinue?: () => void;
   onDelete?: () => void;
@@ -12,6 +13,7 @@ const DraftCard = ({
   image,
   title,
   authorAvatar,
+  authorInitial,
   editedAt,
   onContinue,
   onDelete
@@ -64,6 +66,8 @@ const DraftCard = ({
                   alt=""
                   className="w-full h-full object-cover"
                 />
+              ) : authorInitial ? (
+                <span className="text-[10px] font-semibold text-light-primary dark:text-dark-primary">{authorInitial}</span>
               ) : (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-light-primary dark:text-dark-primary">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

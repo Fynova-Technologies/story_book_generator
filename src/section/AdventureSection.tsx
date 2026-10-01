@@ -1,3 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { chooseCustomStory, resetWizard } from "../store/slices/storyWizardSlice";
 import AdventureCard from "../components/AdventureCard/AdventureCard";
 
 const BrowseIcon = "/assets/icons/browseicon.png";
@@ -13,7 +16,7 @@ const adventureData = [
       "Start with a pre-made theme like Sci-Fi, Fantasy, or Bedtime. Perfect for quick inspiration.",
     buttonLabel: "Explore themes",
     isPopular: false,
-    onButtonClick: () => console.log("Explore themes clicked"),
+    path: "/templates",
   },
   {
     id: 2,
@@ -23,7 +26,8 @@ const adventureData = [
       "Start from scratch with your own unique idea. Full creative control with AI magic.",
     buttonLabel: "Start Creation",
     isPopular: true,   // ← shows "MOST POPULAR" badge
-    onButtonClick: () => console.log("Start Creation clicked"),
+    path: "/create-story",
+    custom: true,      // skips the template: "Write my own story"
   },
   {
     id: 3,
@@ -33,11 +37,22 @@ const adventureData = [
       "Build your story page by page with our visual editor. Drag, drop, and design freely.",
     buttonLabel: "Open Editor",
     isPopular: false,
-    onButtonClick: () => console.log("Open Editor clicked"),
+    path: "/create-story",
   },
 ];
 
 const StartAdventure = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Starting a story always starts a fresh wizard.
+  const open = (card: (typeof adventureData)[number]) => {
+    if (card.path === "/create-story") {
+      dispatch(resetWizard());
+      if ("custom" in card) dispatch(chooseCustomStory());
+    }
+    navigate(card.path);
+  };
   return (
     <section
       data-bg="light"
@@ -65,7 +80,7 @@ const StartAdventure = () => {
               description={card.description}
               buttonLabel={card.buttonLabel}
               isPopular={card.isPopular}
-              onButtonClick={card.onButtonClick}
+              onButtonClick={() => open(card)}
             />
           ))}
         </div>

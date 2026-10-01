@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const navLinks = [
   { name: "Templates", path: "/templates" },
@@ -11,8 +13,9 @@ const navLinks = [
 
 const Navbar = ({
   bglight = false,
-}:any) => {
+}: { bglight?: boolean }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const loggedIn = useSelector((state: RootState) => state.auth.status);
 
   return (
     <nav
@@ -23,7 +26,7 @@ const Navbar = ({
 
           {/* ── LOGO ── */}
           <div
-            className="font-hading flex items-center gap-2 text-white font-bold text-lg tracking-tight"
+            className="font-heading flex items-center gap-2 text-white font-bold text-lg tracking-tight"
           >
             Logo
           </div>
@@ -44,6 +47,16 @@ const Navbar = ({
 
           {/* ── RIGHT BUTTONS (Desktop) ── */}
           <div className="hidden md:flex items-center gap-3">
+            {loggedIn ? (
+            <Link
+              to="/dashboard"
+              className={`font-body font-bold text-sm ${bglight?"hover:bg-gray-600 transition-all ease-in":""} text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg`}
+              style={{ background: "#FFFFFF" }}
+            >
+              Dashboard
+            </Link>
+            ) : (
+            <>
             <Link
               to="/signup"
               className={`font-body font-bold text-sm ${bglight?"text-black hover:bg-gray-400 rounded transition-colors duration-200":"text-white"} hover:text-white transition-colors duration-200 px-3 py-1.5`}
@@ -52,12 +65,14 @@ const Navbar = ({
             </Link>
 
             <Link
-              to="/login"
+              to="/signup"
               className={`font-body font-bold text-sm ${bglight?"hover:bg-gray-600 transition-all ease-in":""} text-dark-bg px-4 py-1.5 rounded-lg transition-all duration-200 hover:opacity-90 hover:shadow-lg`}
               style={{ background: "#FFFFFF" }}
             >
               Start now
             </Link>
+            </>
+            )}
           </div>
 
           {/* ── HAMBURGER (Mobile) ── */}
@@ -103,18 +118,29 @@ const Navbar = ({
           ))}
 
           <div className="flex gap-3 mt-3 pt-3 border-t border-white/10">
+            {loggedIn ? (
+            <Link
+              to="/dashboard"
+              className="flex-1 font-body text-center text-sm font-semibold text-dark-bg bg-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
+            >
+              Dashboard
+            </Link>
+            ) : (
+            <>
             <Link
               to="/signup"
-              className="flex-1 font-body font-bold text-center text-sm text-red-500 border-white/20 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="flex-1 font-body font-bold text-center text-sm text-white border-white/20 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
             >
               Sign up
             </Link>
             <Link
-              to="/start"
+              to="/signup"
               className="flex-1 font-body text-center text-sm font-semibold text-dark-bg bg-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
             >
               Start now
             </Link>
+            </>
+            )}
           </div>
         </div>
       )}

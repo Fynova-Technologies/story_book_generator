@@ -3,6 +3,8 @@ import FeaturedStoryCard from "../components/FeaturedStoryCard/FeaturedStoryCard
 // 👉 Import your story images here
 const story1 = "/assets/images/storyimg1.png";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 
 
@@ -89,8 +91,13 @@ const storiesData = [
   },
 ];
 
-const FeaturedStoriesSection = () => {
+const FeaturedStoriesSection = ({ searchQuery = "" }: { searchQuery?: string }) => {
   const navigate = useNavigate();
+  const loggedIn = useSelector((state: RootState) => state.auth.status);
+  // ponytail: these are static samples with no real book behind them, so "Read" sends people to make their own.
+  const readStory = () => navigate(loggedIn ? "/create-story" : "/signup");
+  const query = searchQuery.trim().toLowerCase();
+  const stories = storiesData.filter((story) => story.title.toLowerCase().includes(query));
   return (
     <section
       data-bg="light"
@@ -113,7 +120,7 @@ const FeaturedStoriesSection = () => {
 
           {/* Right — Create your own button */}
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/create-story")}
             className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200 flex-shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -126,7 +133,7 @@ const FeaturedStoriesSection = () => {
 
         {/* ── STORY CARDS GRID ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-8">
-          {storiesData.map((story) => (
+          {stories.map((story) => (
             <FeaturedStoryCard
               key={story.id}
               image={story.image}
@@ -136,15 +143,20 @@ const FeaturedStoriesSection = () => {
               authorAvatar={story.authorAvatar}
               likes={story.likes}
               views={story.views}
-              onReadStory={() => console.log("Read story:", story.id)}
-              onLike={() => console.log("Liked story:", story.id)}
+              onReadStory={readStory}
             />
           ))}
         </div>
 
+        {stories.length === 0 && (
+          <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-60 text-center py-12">
+            No stories found for "{searchQuery.trim()}"
+          </p>
+        )}
+
         {/* ── Create your own (Mobile) ── */}
         <div className="flex justify-center mt-8 md:hidden">
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 transition-all duration-200">
+          <button onClick={() => navigate("/create-story")} className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 transition-all duration-200">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>

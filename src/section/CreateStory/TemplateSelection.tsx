@@ -15,7 +15,7 @@ const retirement = "/assets/images/templete/Retirement.png";
 const educational = "/assets/images/templete/Educational.png";
 const gratitude = "/assets/images/templete/Thankyou.png";
 import { useDispatch, useSelector } from "react-redux";
-import { setTemplate } from "../../store/slices/storyWizardSlice";
+import { chooseCustomStory, setTemplate } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
 
 
@@ -140,36 +140,17 @@ const TemplateSelection = ({
 }:props) => {
   const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("All Templates");
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const storedTemplate = useSelector((state:RootState)=>state.story?.template ||null);
-  
+  const selectedTemplate = useSelector((state: RootState) => state.story.template || null);
+  const customStory = useSelector((state: RootState) => state.story.customStory);
 
-  // Initialize from Redux on mount
-  useEffect(() => {
-    if (storedTemplate) {
-      setSelectedTemplate(storedTemplate);
-    }
-  ;
-    
-  }, [storedTemplate]);
-
-  const handleSelect = ( templateTitle: string) => {
-    setSelectedTemplate(templateTitle);
+  const handleSelect = (templateTitle: string) => {
     dispatch(setTemplate(templateTitle));
-    // console.log(selectedTemplate);
-    
   };
+
+  // Valid once a template or "Write my own story" is chosen
   useEffect(() => {
-    // Mark this step as valid when a template is selected
-    
-      onValidChange(selectedTemplate !== null);
-    
-
-},[selectedTemplate, onValidChange]);
-  // console.log(selectedTemplate);
-  
-
-
+    onValidChange(selectedTemplate !== null || customStory);
+  }, [selectedTemplate, customStory, onValidChange]);
 
   return (
     <section className="w-full py-10 px-6 md:px-10 xl:px-10 bg-light-on-primary dark:bg-dark-bg rounded-3xl">
@@ -183,23 +164,51 @@ const TemplateSelection = ({
             Select Template
           </h2>
           <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-50 mt-1">
-            Choose a story them to begin your personalized storybook.
+            Choose a story theme to begin your personalized storybook.
           </p>
         </div>
 
-         {/* ✅ Selected art style display */}
-          {selectedTemplate && (
+         {/* ✅ Selected template display */}
+          {(selectedTemplate || customStory) && (
             <div className="flex items-center justify-center gap-2 mb-6">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
                 <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-                  {templatesData.find((s) => s.title === selectedTemplate)?.title} selected
+                  {selectedTemplate ?? "Your own story"} selected
                 </span>
               </div>
             </div>
           )}
+
+        {/* ── WRITE MY OWN STORY ── */}
+        <button
+          onClick={() => dispatch(chooseCustomStory())}
+          aria-pressed={customStory}
+          className={`w-full mb-5 flex items-center justify-between gap-4 p-5 rounded-3xl border-2 text-left transition-all duration-200 bg-light-bg dark:bg-dark-primary-10
+            ${customStory
+              ? "border-light-primary dark:border-dark-primary"
+              : "border-transparent hover:border-light-primary/40 dark:hover:border-dark-primary/40"
+            }
+          `}
+        >
+          <div>
+            <h4 className="font-heading font-bold text-sm text-light-text dark:text-dark-text">
+              Write my own story
+            </h4>
+            <p className="font-body text-xs text-light-outline dark:text-dark-text leading-relaxed mt-1">
+              Skip the templates and describe your story in your own words.
+            </p>
+          </div>
+          {customStory && (
+            <div className="w-7 h-7 rounded-full bg-light-primary dark:bg-dark-primary flex items-center justify-center shadow-md flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+          )}
+        </button>
 
         {/* ── TEMPLATE CARDS GRID ── */}
         {templatesData.length > 0 ? (

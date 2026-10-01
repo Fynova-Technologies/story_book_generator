@@ -156,3 +156,14 @@ export const formatLastSaved = (isoString: string): string => {
   if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
   return `${Math.floor(diff / 86400)} days ago`;
 };
+
+// Search (case-insensitive, on title and template) and sort for the collection page.
+export type StorySort = 'newest' | 'oldest' | 'title';
+
+export const searchAndSort = (rows: StoryRow[], query: string, sort: StorySort, titleOf: (row: StoryRow) => string) => {
+  const q = query.trim().toLowerCase();
+  const found = rows.filter(row => !q || `${titleOf(row)} ${row.template}`.toLowerCase().includes(q));
+  if (sort === 'title') return found.sort((a, b) => titleOf(a).localeCompare(titleOf(b)));
+  // listStories already returns newest first.
+  return sort === 'oldest' ? found.reverse() : found;
+};

@@ -1,4 +1,6 @@
+import { useState } from "react";
 const ContactBgImg = "/assets/images/contactbg.png";
+const CONTACT_EMAIL = "contact@fynovatech.com";
 import InputField from "../components/InputField/Input";
 import {useForm} from "react-hook-form"
 import Navbar from "../components/Navbar/Navbar";
@@ -10,9 +12,13 @@ const ContactUsSection = () => {
       message:string;
     };
   const {register,handleSubmit,formState:{errors}}= useForm<FormData>();
-  const handleChange = (e: any) => {
-    console.log(e);
-    
+  const [sent, setSent] = useState(false);
+  // ponytail: no backend for messages yet, so open the visitor's mail app; a `contact` Edge Function can replace this.
+  const handleSend = (data: FormData) => {
+    const subject = encodeURIComponent(`Message from ${data.name}`);
+    const body = encodeURIComponent(`${data.message}\n\nFrom: ${data.name} <${data.email}>`);
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    setSent(true);
   };
 
 
@@ -70,16 +76,6 @@ const ContactUsSection = () => {
                 {/* Bottom — Contact Details */}
                 <div className="flex flex-col gap-4">
 
-                  {/* Phone */}
-                  <div className="flex items-center gap-3">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    <span className="font-body text-sm text-white">
-                      +977 9800000000
-                    </span>
-                  </div>
-
                   {/* Email */}
                   <div className="flex items-center gap-3">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0">
@@ -87,18 +83,7 @@ const ContactUsSection = () => {
                       <polyline points="22,6 12,13 2,6"/>
                     </svg>
                     <span className="font-body text-sm text-white">
-                      support@fynova.com
-                    </span>
-                  </div>
-
-                  {/* Location */}
-                  <div className="flex items-center gap-3">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                      <circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    <span className="font-body text-sm text-white">
-                      Kathmandu, Nepal
+                      {CONTACT_EMAIL}
                     </span>
                   </div>
 
@@ -108,12 +93,13 @@ const ContactUsSection = () => {
 
             {/* ── RIGHT — Contact Form ── */}
             <div className="flex-1 p-8 flex flex-col justify-center">
-              <form onSubmit={handleSubmit(handleChange)} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit(handleSend)} className="flex flex-col gap-5">
 
                  {/* Using reusable InputField for Name */}
                 <InputField
                   label="Name"
                   type="text"
+                  placeholder="Enter your name"
                   error={errors.name?.message}
                   {...register("name", { 
                     required: "Name is required"
@@ -124,7 +110,7 @@ const ContactUsSection = () => {
                 <InputField
                   label="Email"
                   type="email"
-                  placeholder=" "
+                  placeholder="Enter your email"
                   error={errors.email?.message}
                   {...register("email", { 
                     required: "Email is required", 
@@ -163,6 +149,11 @@ const ContactUsSection = () => {
                 >
                   Submit
                 </button>
+                {sent && (
+                  <p className="font-body text-sm text-light-text dark:text-dark-text">
+                    Thanks! Your email app should open with your message. If it didn't, email us at {CONTACT_EMAIL}.
+                  </p>
+                )}
 
               </form>
             </div>

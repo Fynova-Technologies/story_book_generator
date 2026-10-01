@@ -1,23 +1,25 @@
 import { useState } from "react";
-import AccountNav from "../components/AccountNav/AccountNav";
+import AccountNav, { Section } from "../components/AccountNav/AccountNav";
 import ProfileInfoSection from "../section/AccountSettings/ProfileInfoSection";
 import PasswordSecuritySection from "../section/AccountSettings/PasswordSecuritySection";
 import NotificationSection from "../section/AccountSettings/NotificationSection";
 import UsageSection from "../section/AccountSettings/UsageSection";
 import SubscriptionSection from "../section/AccountSettings/SubscriptionSection";
-const userAvatar = "/assets/images/sampleavatar.png";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { clearAuth } from "../store/slices/authSlice";
+import { resetWizard } from "../store/slices/storyWizardSlice";
+import { RootState } from "../store/store";
+import { userInitial } from "../components/Sidebar/user";
 import { logout } from "../services/authService";
 
 
-type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";
 
 const AccountSettings = () => {
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.userData);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -44,7 +46,7 @@ const AccountSettings = () => {
         {/* ── LEFT — Logo ── */}
         <div className="flex items-center gap-2">
           {/* Logo Text */}
-          <div className="relative">
+          <Link to="/dashboard" className="relative">
             <span
               className="text-xl font-bold text-light-text dark:text-dark-text"
               style={{ fontFamily: "'Pacifico', cursive" }}
@@ -52,56 +54,24 @@ const AccountSettings = () => {
               Logo
             </span>
 
-          </div>
+          </Link>
         </div>
  
         {/* ── RIGHT — Create Story + Avatar ── */}
         <div className="flex items-center gap-3">
  
           {/* Create Story Button */}
-          <button className="px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200">
+          <button
+            onClick={() => { dispatch(resetWizard()); navigate("/create-story"); }}
+            className="px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary text-light-on-primary font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200">
             Create Story
           </button>
  
-          {/* Avatar + Dropdown Arrow */}
-          <button className="flex items-center gap-1.5 hover:opacity-80 transition-all duration-200">
- 
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-light-outline-secondary dark:border-dark-primary-30">
-              {userAvatar ? (
-                <img
-                  src={userAvatar}
-                  alt="User avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                // Placeholder avatar
-                <div className="w-full h-full bg-dark-primary-10 flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-light-primary dark:text-dark-primary">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </div>
-              )}
-            </div>
- 
-            {/* Dropdown chevron */}
-            {/* <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-light-outline dark:text-dark-text"
-            >
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-  */}
-          </button>
- 
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full border-2 border-light-outline-secondary dark:border-dark-primary-30 bg-dark-primary-10 flex items-center justify-center font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
+            {userInitial(user)}
+          </div>
+
         </div>
       </div>
     </header>
@@ -113,7 +83,11 @@ const AccountSettings = () => {
             activeSection={activeSection}
             onSectionChange={async (id: Section) => {
               if (id === "logout") {
-                await logout();
+                try {
+                  await logout();
+                } catch (error) {
+                  console.error("Logout failed:", error);
+                }
                 navigate("/")
                 dispatch(clearAuth());
                 return

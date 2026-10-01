@@ -10,8 +10,17 @@ const TemplateCard = ({
   onLike,
   isSelected,
   onClick,
-
-}: any) => {
+}: {
+  image?: string;
+  title: string;
+  description: string;
+  likes?: string;
+  views?: string;
+  onUseTemplate?: () => void;
+  onLike?: () => void;
+  isSelected?: boolean;
+  onClick?: () => void;
+}) => {
   const [isLiked, setIsLiked] = useState(false);
 
   const handleLike = () => {
@@ -82,11 +91,11 @@ const TemplateCard = ({
           {description}
         </p>
 
-        {/* ── Footer — Stats + Button ── */}
+        {/* ── Footer — Stats + Button (Templates page only; the wizard card has no likes) ── */}
+        {likes && (
         <div className="flex items-center justify-between mt-2 pt-3 border-t border-light-outline-secondary dark:border-dark-primary-30">
 
           {/* Stats */}
-          {likes && (
           <div className="flex items-center gap-3">
             {/* Likes */}
             <div className="flex items-center gap-1">
@@ -105,10 +114,8 @@ const TemplateCard = ({
               <span className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">{views}</span>
             </div>
           </div>
-          )}
 
           {/* Use Template Button */}
-          {likes && (
           <button
             onClick={onUseTemplate}
             className="flex items-center gap-1.5 px-1 py-1.5 rounded-full border border-light-primary
@@ -121,8 +128,8 @@ const TemplateCard = ({
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </button>
-      )}
         </div>
+        )}
       </div>
     </div>
   );

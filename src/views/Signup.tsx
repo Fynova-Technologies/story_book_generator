@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const LoginImage = "/assets/images/ImageinLoginPage.png";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
@@ -7,7 +7,7 @@ import { useForm,SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setError, setLoading } from "../store/slices/authSlice";
-import { signInWithGoogle, signUpWithEmailAndPassword } from "../services/authService";
+import { signUpWithEmailAndPassword } from "../services/authService";
 import { RootState } from "../store/store";
 
 
@@ -19,13 +19,17 @@ const Signup = () => {
     };
   const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
   const [rememberMe, setRememberMe] = useState(true)
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const loading = useSelector((state:RootState)=>state.auth.loading);
   const error = useSelector((state:RootState)=>state.auth.error);
  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const handleAuthSuccess=(user:any) => {
+
+  // Don't carry an error over from Login or a previous visit.
+  useEffect(() => { dispatch(setError(null)); }, [dispatch]);
+
+  const handleAuthSuccess=(user: Parameters<typeof login>[0]["userData"]) => {
     dispatch(login({ userData: {
       uid:         user.uid,
       email:       user.email,
@@ -38,24 +42,12 @@ const Signup = () => {
   const handleSignup: SubmitHandler<FormData> = async(data) => {
      dispatch(setLoading(true));
       try {
-        const user= await signUpWithEmailAndPassword(data.email,data.password,rememberMe,data.name);
-        handleAuthSuccess(user);
-        // console.log(user);
-        
-      } catch (error:any) {
-        dispatch(setError(error.message));
-      } finally{
-        dispatch(setLoading(false));
-      }
-  };
-
-  const handleGoogleSignup = async() => {
-      dispatch(setLoading(true));
-      try{
-        const user = await signInWithGoogle(rememberMe);
-        handleAuthSuccess(user);
-      }catch(error:any){
-        dispatch(setError(error.message));
+        const result = await signUpWithEmailAndPassword(data.email,data.password,rememberMe,data.name);
+        if (result.needsConfirmation) setNeedsConfirmation(true);
+        else handleAuthSuccess(result.user);
+      } catch (error) {
+        console.error("Signup failed", error);
+        dispatch(setError(error instanceof Error && error.message ? error.message : "Couldn't create your account. Please try again."));
       } finally{
         dispatch(setLoading(false));
       }
@@ -77,7 +69,14 @@ const Signup = () => {
       <div className="flex-1 flex flex-col bg-light-bg dark:bg-dark-bg px-8 md:px-10 xl:px-10 rounded-3xl my-3 mx-0">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-center pt-3 pb-6">
+        <div className="flex items-center justify-between pt-2 pb-6">
+          <Link to='/' className="flex items-center gap-2 text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors text-sm font-medium">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back home
+          </Link>
+
           {/* Logo */}
           <span
             className="text-2xl text-light-text dark:text-dark-text items-center"
@@ -85,6 +84,8 @@ const Signup = () => {
           >
             Logo
           </span>
+
+          <div></div>
         </div>
 
         {/* Form Container */}
@@ -98,10 +99,24 @@ const Signup = () => {
             >
               Create an Account
             </h1>
-            <p className="text-bodytext-light-outline dark:text-dark-text text-sm">
-              Enter your email and password to access your account
+            <p className="text-light-outline dark:text-dark-text text-sm">
+              Sign up with your name, email and a password to start creating storybooks
             </p>
           </div>
+          {needsConfirmation ? (
+            <div className="text-center space-y-4">
+              <p className="text-light-text dark:text-dark-text">
+                Check your email to confirm your account, then log in.
+              </p>
+              <Link
+                to='/login'
+                className="inline-block text-light-text dark:text-dark-text font-semibold underline underline-offset-2 hover:text-light-primary dark:hover:text-dark-primary transition-colors"
+              >
+                Go to log in
+              </Link>
+            </div>
+          ) : (
+          <>
           <form onSubmit={handleSubmit(handleSignup)} className="space-y-5">
              <InputField
                 label="Name"
@@ -140,7 +155,7 @@ const Signup = () => {
                 })}
               />
               {error && <p className="text-red-500 text-sm">{error}</p>}
-              {/* Remember me + Forgot password */}
+              {/* Remember me */}
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <div className="relative">
@@ -153,22 +168,13 @@ const Signup = () => {
                         </div>
                         <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
                       </label>
-
-                      <div
-                        className="text-sm text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors"
-                      >
-                        Forgot password?
-                      </div>
                     </div>
                     <Button
                         type = "submit"
                         name = {`${loading ? "Signing up..." : "Register"}`}
                         disabled={loading||isSubmitting}
                     /> 
-                    <GoogleButton
-                    loading={loading}
-                    onClick={handleGoogleSignup}
-                    />
+                    <GoogleButton />
             </form>
 
           {/* Sign Up Link */}
@@ -181,6 +187,8 @@ const Signup = () => {
               Log in
             </Link>
           </p>
+          </>
+          )}
         </div>
 
         {/* Footer */}

@@ -1,5 +1,8 @@
 import { useState } from "react";
 import PricingCard from "../components/PricingCard/PricingCard";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 const pricingData = {
   annually: [
@@ -110,6 +113,8 @@ const pricingData = {
 
 const PricingSection = () => {
   const [billing, setBilling] = useState<"annually" | "monthly">("annually");
+  const navigate = useNavigate();
+  const loggedIn = useSelector((state: RootState) => state.auth.status);
 
   return (
     <section
@@ -178,7 +183,7 @@ const PricingSection = () => {
               buttonLabel={plan.buttonLabel}
               isPopular={plan.isPopular}
               isFree={plan.isFree}
-              onButtonClick={() => console.log(`${plan.planName} clicked`)}
+              onButtonClick={() => navigate(loggedIn ? "/dashboard" : "/signup")}
             />
           ))}
         </div>

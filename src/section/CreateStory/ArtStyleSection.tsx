@@ -21,25 +21,25 @@ const artStyles = [
   {
     id: "clay3d",
     name: "3D",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Rounded, sculpted characters with soft lighting, like a modern animated film.",
     image: clay3dImg, 
   },
   {
     id: "anime",
     name: "Anime",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Clean lines, big expressive eyes and bold colors in Japanese animation style.",
     image: animeImg, 
   },
   {
     id: "ghibli",
     name: "Ghibli",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Hand-painted, warm and whimsical scenes with lush, detailed backgrounds.",
    image: ghibliImg, 
   },
   {
     id: "photorealistic",
     name: "Photorealistic",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Lifelike images with natural light and detail, like real photographs.",
     image: photorealisticImg,
   },
 ];
@@ -71,9 +71,6 @@ const ArtStyleSection = ( { onValidChange }: props) => {
 
     // ✅ Dispatch to Redux
     dispatch(setArtStyle(styleName));
-
-    console.log("Selected art style:", styleName);
-    
   };
   useEffect(() => {
     onValidChange(selectedArtStyle !== null);

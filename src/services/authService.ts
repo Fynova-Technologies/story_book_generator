@@ -16,8 +16,8 @@ export const signUpWithEmailAndPassword = async (email: string, password: string
   const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName } } });
   if (error) throw error;
   // With email confirmation on, sign-up returns no session until the link is clicked.
-  if (!data.session || !data.user) throw new Error('Check your email to confirm your account, then log in.');
-  return toUserData(data.user);
+  if (!data.session || !data.user) return { needsConfirmation: true as const };
+  return { needsConfirmation: false as const, user: toUserData(data.user) };
 };
 
 export const signInWithEmail = async (email: string, password: string, rememberMe: boolean) => {
@@ -27,15 +27,21 @@ export const signInWithEmail = async (email: string, password: string, rememberM
   return toUserData(data.user);
 };
 
-export const logout = async () => {
-  const { error } = await supabase.auth.signOut();
+export const sendPasswordReset = async (email: string) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
   if (error) throw error;
 };
 
-// ponytail: Google needs an OAuth client in the Supabase dashboard; then this is
-// supabase.auth.signInWithOAuth({ provider: 'google' }).
-export const signInWithGoogle = async (_rememberMe: boolean): Promise<ReturnType<typeof toUserData>> => {
-  throw new Error('Google sign-in is coming soon. Please use email and password.');
+export const updatePassword = async (password: string) => {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+};
+
+export const logout = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 };
 
 export const initAuthListener = () => {

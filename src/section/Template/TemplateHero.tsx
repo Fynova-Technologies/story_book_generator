@@ -2,15 +2,14 @@ import { useState } from "react";
 const TemplateHeroBg = "/assets/images/contactbg.png";
 
 
-const TemplateHero = ({ onSearch }: any) => {
+const TemplateHero = ({ onSearch }: { onSearch?: (query: string) => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
     onSearch?.(searchQuery);
-    console.log("Searching for:", searchQuery);
   };
 
-  const handleKeyDown = (e: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSearch();
   };
 
@@ -18,7 +17,6 @@ const TemplateHero = ({ onSearch }: any) => {
     <div className="relative w-full mx-auto pt-40" style={{ minHeight: "340px" }}>
 
       {/* ── BACKGROUND IMAGE ── */}
-      👉 Uncomment when image is ready:
       <img
         src={TemplateHeroBg}
         alt="Template Hero Background"
@@ -57,7 +55,7 @@ const TemplateHero = ({ onSearch }: any) => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e: any) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); onSearch?.(e.target.value); }}
             onKeyDown={handleKeyDown}
             placeholder="Search for a template...."
             className="flex-1 px-5 py-3.5 rounded-l-full bg-white dark:bg-dark-bg text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none"

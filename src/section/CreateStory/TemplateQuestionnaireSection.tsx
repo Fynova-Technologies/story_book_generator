@@ -35,44 +35,34 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
 
   // ✅ Convert title to category and get questions based on selected template
   const templateCategory = titleToCategoryMap[selectedTemplate] || selectedTemplate;
-  const questions = templateQuestions[templateCategory] || defaultQuestions;
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isFilled, setIsFilled] = useState(false);
+  const questions = (templateQuestions[templateCategory] || defaultQuestions).slice(0, numberOfQuestions);
 
-  // ✅ Store answers - initialize from Redux
+  // Counts answers to this template's questions only (answers from another template don't count).
+  const countAnswered = (a: Record<string, string>) => questions.filter((q) => a[q.question]?.trim()).length;
+
+  // ✅ Store answers - initialize from Redux, so saved answers keep their progress
   const [answers, setAnswers] = useState<Record<string, string>>(storedQuestionnaire);
-  const [currentProgress, setCurrentProgress] = useState(0);
+  // Already saved if every answer came back from Redux; editing an answer needs another save.
+  const [isSubmitted, setIsSubmitted] = useState(() => countAnswered(storedQuestionnaire) === questions.length);
 
-  // Update answers when Redux questionnaire changes (e.g., when navigating back)
-  useEffect(() => {
-    setAnswers(storedQuestionnaire);
-  }, [storedQuestionnaire]);
+  const answeredCount = countAnswered(answers);
+  const isFilled = answeredCount === questions.length;
+  const currentProgress = Math.round((answeredCount / questions.length) * 100);
 
   const handleAnswerChange = (question: string, value: string) => {
-    const updated = { ...answers, [question]: value };
-    setAnswers(updated);
-    const answered = Object.values(updated).filter((v) => v.trim() !== "").length;
-    setCurrentProgress(Math.round((answered /numberOfQuestions) * 100));
+    setAnswers({ ...answers, [question]: value });
+    setIsSubmitted(false);
   };
-
-
 
   const handleSubmit = () => {
-    // console.log("Answers submitted:", answers);
-    // 👉 Dispatch to Redux or pass to parent
-    dispatch(setQuestionnaire( answers ));
+    dispatch(setQuestionnaire(answers));
     setIsSubmitted(true);
-    // console.log(answers);
-    
-
   };
- useEffect(() => {
-    // Mark this step as valid when all questions are answered
-    if(Object.values(answers).filter((v) => v.trim() !== "").length === numberOfQuestions){
-      setIsFilled(true);
-    }
-    onValidChange(Object.values(answers).filter((v) => v.trim() !== "").length === numberOfQuestions && isSubmitted);
-  },[answers, questions.length, isSubmitted]);
+
+  useEffect(() => {
+    // Valid once every question is answered and saved
+    onValidChange(isFilled && isSubmitted);
+  }, [isFilled, isSubmitted, onValidChange]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl  border-light-outline-secondary dark:border-dark-primary-30 overflow-hidden flex flex-col"
@@ -123,7 +113,7 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
 
       {/* ── SCROLLABLE QUESTIONS AREA ── */}
       <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-6">
-        {questions.slice(0, numberOfQuestions).map((q, index) => (
+        {questions.map((q, index) => (
           <div key={q.id} className="space-y-2">
 
             {/* Question label */}
@@ -138,7 +128,7 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
             {q.type === "textarea" ? (
               <textarea
                 value={answers[q.question] || ""}
-                onChange={(e: any) => handleAnswerChange(q.question, e.target.value)}
+                onChange={(e) => handleAnswerChange(q.question, e.target.value)}
                 placeholder={q.placeholder}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all resize-none leading-relaxed"
@@ -147,7 +137,7 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
               <input
                 type="text"
                 value={answers[q.question] || ""}
-                onChange={(e: any) => handleAnswerChange(q.question, e.target.value)}
+                onChange={(e) => handleAnswerChange(q.question, e.target.value)}
                 placeholder={q.placeholder}
                 className="w-full px-4 py-3 rounded-xl bg-light-bg dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text placeholder:text-light-outline-secondary font-body text-sm focus:outline-none focus:border-light-primary dark:focus:border-dark-primary focus:ring-2 focus:ring-dark-primary-10 transition-all"
               />
@@ -160,7 +150,7 @@ const TemplateQuestionnaireSection = ({ onValidChange }: props) => {
       {/* ── FIXED FOOTER ── */}
       <div className="flex-shrink-0 px-6 md:px-8 py-4 border-t border-light-outline-secondary dark:border-dark-primary-30 flex items-center justify-between bg-light-on-primary dark:bg-dark-bg">
         <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-80">
-          {Object.values(answers).filter((v) => v.trim() !== "").length} of {numberOfQuestions} answered
+          {answeredCount} of {questions.length} answered
         </p>
         <button
           onClick={handleSubmit}

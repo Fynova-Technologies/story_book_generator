@@ -5,15 +5,24 @@ import { useNavigate } from "react-router-dom";
 import { generateStory, saveDraft, UserFacingError } from "../../services/storyService";
 import { STORY_COST, useCredits } from "../../services/credits";
 import { setCurrentDraftId, setImages } from "../../store/slices/storyWizardSlice";
+import { STEPS } from "../../components/StoryStepperNav/StoryStepperNav";
 
-const GENERATE_STEP = 6;
+const GENERATE_STEP = STEPS.length - 1;
 
-const GenerateStorySection = ({ storyData }: any) => {
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+interface Props {
+  onEditDetails: () => void;
+}
+
+const GenerateStorySection = ({ onEditDetails }: Props) => {
   const wizard = useSelector((state: RootState) => state.story);
   const user = useSelector((state: RootState) => state.auth.userData);
-  const { credits: balance } = useCredits();
-  const credits = balance ?? 0;
+  const { credits } = useCredits();
   const storyCost = STORY_COST;
+  // Only block when the balance is known to be short; the server checks again anyway.
+  const notEnoughCredits = credits !== null && credits < storyCost;
+  const characters = [...new Set(wizard.images.filter((p) => p.image).map((p) => p.characterName.trim()).filter(Boolean))];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,12 +30,12 @@ const GenerateStorySection = ({ storyData }: any) => {
   const [storyLength, setStoryLength] = useState<number>(6);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const remaining = credits - storyCost;
+  const remaining = credits === null ? null : credits - storyCost;
 
   // Saves the draft (photos included), then starts generation. The book page shows progress.
   // Error messages come from our functions and are already written for the user.
   const handleGenerate = async () => {
-    if (!user) return;
+    if (!user || notEnoughCredits) return;
     setErrorMessage(null);
     setloading(true);
     try {
@@ -43,17 +52,8 @@ const GenerateStorySection = ({ storyData }: any) => {
     }
   };
 
-  const handleEditDetails = () => {
-    setloading(true)
-    setTimeout(() => {
-      console.log("Edit details clicked");
-      setloading(false)
-    }, 4000);
-  };
-
-  const handleGetMoreCredits = () => {
-    console.log("Get more credits clicked");
-  };
+  // /pricing for now; point at a credit packs page once there is one.
+  const handleGetMoreCredits = () => navigate("/pricing");
 
   const clearErrorMessage = () => {
     setErrorMessage(null);
@@ -125,33 +125,35 @@ const GenerateStorySection = ({ storyData }: any) => {
           {/* Story Title + Author */}
           <div>
             <h3 className="font-display text-2xl font-bold text-light-text dark:text-dark-text">
-              {storyData?.title || "The Adventures of Leo"}
+              {wizard.template || "Your own story"}
             </h3>
-            <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 mt-1">
-              Created by {storyData?.author || "Mom"}
-            </p>
+            {user?.displayName && (
+              <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60 mt-1">
+                Created by {user.displayName}
+              </p>
+            )}
           </div>
 
           {/* Details Grid */}
           <div className="grid grid-cols-2 gap-3">
 
-            {/* Template */}
+            {/* Story Style */}
             <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
               <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Template
+                Story Style
               </p>
               <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {storyData?.template || "Magical Forest"}
+                {wizard.storyStyle || "—"}
               </p>
             </div>
 
-            {/* Hero */}
+            {/* Characters */}
             <div className="p-3 rounded-xl bg-light-on-primary dark:bg-dark-bg  border-light-outline-secondary dark:border-dark-primary-30">
               <p className="font-body text-[10px] font-bold text-light-outline dark:text-dark-text opacity-50 uppercase tracking-widest mb-1">
-                Hero
+                {characters.length === 1 ? "Hero" : "Characters"}
               </p>
               <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {storyData?.hero || "Leo (Bear)"}
+                {characters.join(", ") || "—"}
               </p>
             </div>
 
@@ -176,7 +178,7 @@ const GenerateStorySection = ({ storyData }: any) => {
                 Art Style
               </p>
               <p className="font-body text-sm font-medium text-light-text dark:text-dark-text">
-                {storyData?.artStyle || "Watercolor"}
+                {wizard.artStyle || "—"}
               </p>
             </div>
 
@@ -184,7 +186,7 @@ const GenerateStorySection = ({ storyData }: any) => {
 
           {/* Edit Details Link */}
           <button
-            onClick={handleEditDetails}
+            onClick={onEditDetails}
             className="flex items-center gap-1.5 font-body text-sm font-semibold text-light-primary dark:text-dark-primary hover:opacity-80 transition-all w-fit"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -231,7 +233,7 @@ const GenerateStorySection = ({ storyData }: any) => {
               Your Balance
             </span>
             <span className="font-body text-sm font-bold text-light-text dark:text-dark-text">
-              {credits} Credits
+              {credits ?? "…"} Credits
             </span>
           </div>
 
@@ -242,11 +244,11 @@ const GenerateStorySection = ({ storyData }: any) => {
                 Story Cost
               </p>
               <p className="font-body text-[10px] text-light-outline dark:text-dark-text opacity-40 mt-0.5">
-                Includes 12 high-res illustrations
+                Includes {plural(storyLength, "illustrated page")}
               </p>
             </div>
             <span className="font-body text-sm font-bold text-light-accent dark:text-dark-accent shrink-0">
-              - {storyCost} Credit
+              - {plural(storyCost, "Credit")}
             </span>
           </div>
 
@@ -258,19 +260,21 @@ const GenerateStorySection = ({ storyData }: any) => {
             <span className="font-body text-sm text-light-outline dark:text-dark-text opacity-70">
               Remaining
             </span>
-            <span className="font-body text-sm font-bold text-green-500">
-              {remaining} Credits
+            <span className={`font-body text-sm font-bold ${notEnoughCredits ? "text-red-600 dark:text-red-400" : "text-green-500"}`}>
+              {remaining === null ? "…" : notEnoughCredits ? "Not enough" : plural(remaining, "Credit")}
             </span>
           </div>
 
           {/* Generate Button */}
           <button
             onClick={handleGenerate}
-            disabled={loading}
+            disabled={loading || notEnoughCredits}
             className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-body font-semibold text-sm transition-all duration-200 ${
               loading 
                 ? 'bg-light-primary/80 dark:bg-dark-primary/80 cursor-not-allowed animate-pulse' 
-                : 'bg-light-primary dark:bg-dark-primary text-light-on-primary hover:opacity-90 active:scale-[0.99]'
+                : notEnoughCredits
+                  ? 'bg-light-primary dark:bg-dark-primary text-light-on-primary opacity-50 cursor-not-allowed'
+                  : 'bg-light-primary dark:bg-dark-primary text-light-on-primary hover:opacity-90 active:scale-[0.99]'
             }`}
           >
             {loading ? (
@@ -291,9 +295,15 @@ const GenerateStorySection = ({ storyData }: any) => {
             )}
           </button>
 
+          {notEnoughCredits && (
+            <p className="font-body text-xs font-medium text-red-600 dark:text-red-400 text-center">
+              You need {plural(storyCost, "credit")} to generate a story.
+            </p>
+          )}
+
           {/* Disclaimer */}
           <p className="font-body text-[10px] text-light-outline dark:text-dark-text opacity-40 text-center leading-relaxed">
-            By clicking Generate, 1 credit will be deducted from your account.
+            By clicking Generate, {plural(storyCost, "credit")} will be deducted from your account.
           </p>
 
           {/* Get More Credits */}
@@ -301,7 +311,7 @@ const GenerateStorySection = ({ storyData }: any) => {
             onClick={handleGetMoreCredits}
             className="flex items-center justify-center gap-1 font-body text-xs font-medium text-light-outline dark:text-dark-text opacity-60 hover:opacity-100 hover:text-light-primary dark:hover:text-dark-primary transition-all duration-200"
           >
-            Running low? Get more credits
+            {notEnoughCredits ? "Get more credits" : "Running low? Get more credits"}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>

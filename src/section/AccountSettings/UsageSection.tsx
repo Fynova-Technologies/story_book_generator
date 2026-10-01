@@ -1,7 +1,23 @@
+import { useEffect, useState } from "react";
+import { STORY_COST, useCredits } from "../../services/credits";
+import { listStories } from "../../services/storyService";
+
 const UsageSection = () => {
-  const storiesUsed = 1;
-  const storiesTotal = 2;
-  const progressPercent = (storiesUsed / storiesTotal) * 100;
+  const { credits } = useCredits();
+  const [storiesCreated, setStoriesCreated] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    listStories(["completed", "incomplete", "generating", "failed"])
+      .then((rows) => setStoriesCreated(rows.length))
+      .catch((error) => { console.error("Could not load stories:", error); setError(true); });
+  }, []);
+
+  const stats = [
+    { label: "Credits", value: credits, note: `${STORY_COST} credits make one story` },
+    { label: "Stories Created", value: storiesCreated, note: "Every book you've generated" },
+    { label: "Stories You Can Make", value: credits === null ? null : Math.floor(credits / STORY_COST), note: "With your current credits" },
+  ];
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6  border-light-outline-secondary dark:border-dark-primary-30">
@@ -12,19 +28,13 @@ const UsageSection = () => {
           Usage Details
         </h3>
         <p className="font-body text-xs text-light-text dark:text-dark-text opacity-80 mt-3">
-          Track your tokens and monthly consumptions
-        </p>
-        <p className="font-body text-xs text-light-text dark:text-dark-text opacity-80 mt-2">
-          Billing period: Dec 27, 2025 - Jan 26, 2026
+          Track your credits and stories
         </p>
       </div>
 
       <div className="space-y-4 mt-6">
-
-        {/* Stories Created */}
-        <div className="p-4 rounded-xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10">
-
-          <div className="flex items-center justify-between mb-3">
+        {stats.map((stat) => (
+          <div key={stat.label} className="p-4 rounded-xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {/* Icon */}
               <div className="w-9 h-9 rounded-full bg-dark-primary-10 border border-dark-primary-30 flex items-center justify-center">
@@ -35,64 +45,21 @@ const UsageSection = () => {
               </div>
               <div>
                 <p className="font-body text-sm font-semibold text-light-text dark:text-dark-text">
-                  Stories Created
+                  {stat.label}
                 </p>
                 <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">
-                  {storiesUsed} of {storiesTotal} used
+                  {stat.note}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="font-display font-bold text-lg text-light-text dark:text-dark-text">
-                {storiesTotal - storiesUsed}
-              </p>
-              <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-90">
-                Remaining
-              </p>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">
-                Progress
-              </span>
-              <span className="font-body text-xs font-semibold text-light-text dark:text-dark-text">
-                {progressPercent}%
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-light-outline-secondary/20 dark:bg-dark-primary-30 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-light-primary dark:bg-dark-primary transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-            <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-80 mt-1">
-              You are close to your monthly limit. Consider upgrading for more stories.
+            <p className="font-display font-bold text-lg text-light-text dark:text-dark-text">
+              {stat.value ?? (error && stat.label === "Stories Created" ? "–" : "…")}
             </p>
           </div>
-
-        </div>
-
-        {/* Usage Reset */}
-        <div className="p-4 rounded-xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-dark-primary-10 border border-dark-primary-30 flex items-center justify-center flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <path d="M23 4v6h-6"/>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-          </div>
-          <div>
-            <p className="font-body text-sm font-semibold text-light-text dark:text-dark-text">
-              Usage Reset
-            </p>
-            <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-60">
-              Your usage will reset on Feb 26, 2026
-            </p>
-          </div>
-        </div>
-
+        ))}
+        {error && (
+          <p className="font-body text-xs text-red-500">We couldn't load your stories. Please refresh the page to try again.</p>
+        )}
       </div>
     </div>
   );

@@ -1,25 +1,23 @@
 import GoogleIcon from '../GoogleIcon'
 
+// ponytail: Google needs an OAuth client in the Supabase dashboard; then wire an onClick to
+// supabase.auth.signInWithOAuth({ provider: 'google' }). Until then it's shown disabled.
 function GoogleButton({
-  loading,
-  onClick
+  label = "Google sign-in coming soon",
 }: {
-  loading: boolean;
-  onClick: () => void;
+  label?: string;
 }) {
- 
-
   return (
     <div>
       <button
-        onClick={onClick}
         type="button"
-        disabled={loading}
-        className="w-full py-2.5 rounded-lg bg-transparent border border-light-outline dark:border-dark-primary-30 hover:bg-dark-primary-10
-         text-light-text dark:text-dark-text font-medium text-sm transition-all duration-200 flex items-center justify-center gap-3"
+        disabled
+        title="Google sign-in coming soon"
+        className="w-full py-2.5 rounded-lg bg-transparent border border-light-outline dark:border-dark-primary-30
+         text-light-text dark:text-dark-text font-medium text-sm flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
       >
               <GoogleIcon/>
-              Log in with Google
+              {label}
             </button>
 
     </div>

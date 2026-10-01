@@ -5,10 +5,12 @@ const UsageIcon = "/assets/icons/Account/Usage.png";
 const SubscriptionIcon = "/assets/icons/Account/Subscription.png";
 const LogoutIcon = "/assets/icons/Account/Logout.png";
 
+export type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";
+
 type NavItem = {
-  id: string;
+  id: Section;
   label: string;
-  icon: any;
+  icon: string;
   danger?: boolean;
 };
 
@@ -35,7 +37,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "billing",
-    label: "Subscription & Billing",
+    label: "Credits & Billing",
     icon: SubscriptionIcon,
   },
   {
@@ -49,7 +51,7 @@ const navItems: NavItem[] = [
 const AccountNav = ({ 
   activeSection, 
   onSectionChange 
-}: any) => {
+}: { activeSection: Section; onSectionChange: (id: Section) => void }) => {
   return (
     <aside className="w-full  lg:w-80 flex-shrink-0">
       <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-4  border-light-outline-secondary

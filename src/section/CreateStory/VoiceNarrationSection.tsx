@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { setNarration } from "../../store/slices/storyWizardSlice";
+import { RootState } from "../../store/store";
 
 const voiceOptions = [
   {
@@ -30,14 +31,13 @@ interface props{
 }
 const VoiceNarrationSection = ({ onValidChange }: props) => {
   const dispatch = useDispatch();
-  
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState("storyteller");
-  dispatch(setNarration(selectedVoice))
-  
+  // The stored narration is the voice id, or '' when narration is off.
+  const selectedVoice = useSelector((state: RootState) => state.story.narration);
+  const isEnabled = selectedVoice !== "";
+
   useEffect(() => {
     onValidChange(true); // Voice narration is optional, so we consider it valid even if not enabled
-  }, [isEnabled]);
+  }, [onValidChange]);
 
   return (
     <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8 border-light-outline-secondary dark:border-dark-primary-30">
@@ -83,7 +83,10 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
 
         {/* ── TOGGLE ── */}
         <button
-          onClick={() => setIsEnabled(!isEnabled)}
+          onClick={() => dispatch(setNarration(isEnabled ? "" : voiceOptions[0].id))}
+          role="switch"
+          aria-checked={isEnabled}
+          aria-label="Enable voice narration"
           className={`relative w-12 h-6 rounded-full transition-all duration-300 flex-shrink-0 mt-1
             ${isEnabled
               ? "bg-light-primary dark:bg-dark-primary"
@@ -128,7 +131,7 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
               return (
                 <button
                   key={voice.id}
-                  onClick={() => setSelectedVoice(voice.id)}
+                  onClick={() => dispatch(setNarration(voice.id))}
                   className={`flex items-center justify-between gap-3 p-4 rounded-2xl border text-left transition-all duration-200
                     ${isSelected
                       ? "border-light-primary dark:border-dark-primary bg-dark-primary-10 dark:bg-dark-primary-10"
@@ -136,20 +139,8 @@ const VoiceNarrationSection = ({ onValidChange }: props) => {
                     }
                   `}
                 >
-                  {/* Left — Play icon + Text */}
+                  {/* Left — Text (no voice previews yet) */}
                   <div className="flex items-center gap-3">
-
-                    {/* Play Button */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200
-                      ${isSelected
-                        ? "bg-light-primary dark:bg-dark-primary"
-                        : "bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30"
-                      }
-                    `}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={isSelected ? "text-white ml-0.5" : "text-light-primary dark:text-dark-primary ml-0.5"}>
-                        <path d="M6 4l14 8-14 8V4z"/>
-                      </svg>
-                    </div>
 
                     {/* Voice Name + Description */}
                     <div>

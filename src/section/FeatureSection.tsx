@@ -5,6 +5,8 @@ const Story2 = "/assets/images/storyimg2.png";
 const Story3 = "/assets/images/storyimg3.png";
 const Story4 = "/assets/images/storyimg4.png";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 const storiesData = [
   {
@@ -43,6 +45,7 @@ const storiesData = [
 
 const FeatureSection = () => {
   const navigate = useNavigate();
+  const loggedIn = useSelector((state: RootState) => state.auth.status);
   const [likedCards, setLikedCards] = useState<number[]>([]);
 
   const handleLike = (id: number) => {
@@ -98,14 +101,14 @@ const FeatureSection = () => {
               author={story.author}
               isLiked={likedCards.includes(story.id)}
               onLike={() => handleLike(story.id)}
-              onViewStory={() => console.log(`View story ${story.id}`)}
+              onViewStory={() => navigate(loggedIn ? "/create-story" : "/signup")}
             />
           ))}
         </div>
 
         {/* ── View All Button (Mobile) ── */}
         <div className="flex justify-center mt-8 md:hidden">
-          <button className="flex items-center gap-2 px-6 py-3 rounded-full border border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary font-body font-medium text-sm hover:bg-light-primary hover:text-light-on-primary transition-all duration-200">
+          <button onClick={() => navigate("/stories")} className="flex items-center gap-2 px-6 py-3 rounded-full border border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary font-body font-medium text-sm hover:bg-light-primary hover:text-light-on-primary transition-all duration-200">
             View All Stories
           </button>
         </div>

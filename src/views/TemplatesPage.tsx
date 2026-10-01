@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import TemplateHero from "../section/Template/TemplateHero";
 import TemplateSection from "../section/Template/TemplateSection";
@@ -6,10 +7,7 @@ import Footer from "../components/Footer/Footer";
 
 
 const TemplatesPage = () => {
-  const handleSearch = (query: string) => {
-    console.log("Search query:", query);
-    // Handle search logic here
-  };
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
@@ -19,11 +17,11 @@ const TemplatesPage = () => {
 
       {/* ── HERO SECTION ── */}
       <div >
-        <TemplateHero onSearch={handleSearch} />
+        <TemplateHero onSearch={setSearchQuery} />
       </div>
 
       {/* ── FEATURED TEMPLATES ── */}
-      <TemplateSection />
+      <TemplateSection searchQuery={searchQuery} />
 
       <Footer />
 

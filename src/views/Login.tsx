@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const LoginImage = "/assets/images/ImageinLoginPage.png";
 import InputField from "../components/InputField/Input";
 import Button from "../components/Button/Button";
@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm,SubmitHandler } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setError, setLoading } from "../store/slices/authSlice";
-import { signInWithEmail,signInWithGoogle } from "../services/authService";
+import { sendPasswordReset, signInWithEmail } from "../services/authService";
 import { RootState } from "../store/store";
 
 
@@ -16,14 +16,19 @@ const Login = () => {
       email: string;
       password:string;
     };
-  const {handleSubmit,register,formState:{errors,isSubmitting}} = useForm<FormData>();
+  const {handleSubmit,register,getValues,trigger,formState:{errors,isSubmitting}} = useForm<FormData>();
   const [rememberMe, setRememberMe] = useState(true)
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [sendingReset, setSendingReset] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loading = useSelector((state:RootState)=>state.auth.loading);
   const error = useSelector((state:RootState)=>state.auth.error);
 
-  const handleAuthSuccess=(user:any) => {
+  // Don't carry an error over from Signup or a previous visit.
+  useEffect(() => { dispatch(setError(null)); }, [dispatch]);
+
+  const handleAuthSuccess=(user: Parameters<typeof login>[0]["userData"]) => {
     dispatch(login({ userData: {
       uid:         user.uid,
       email:       user.email,
@@ -33,34 +38,34 @@ const Login = () => {
     navigate("/dashboard");
   }
   const handleLogin: SubmitHandler<FormData> = async(data) => {
-    // console.log(data); // fully typed!
     dispatch(setLoading(true));
     try {
       const user = await signInWithEmail(data.email, data.password,rememberMe);
-      // console.log(user);
       handleAuthSuccess(user);
-    } catch (error: any) {
-      // console.log("Login error",error);
-      dispatch(setError(error.message));
+    } catch (error) {
+      console.error("Login failed", error);
+      dispatch(setError(error instanceof Error && error.message ? error.message : "Couldn't log in. Please try again."));
     } finally{
       dispatch(setLoading(false));
     }
   };
 
-  const GoogleLogin = async() => {
-     dispatch(setLoading(true));
-    try{
-      const user = await signInWithGoogle(rememberMe);
-      // console.log(user.displayName,user.photoURL);
-      handleAuthSuccess(user);
-      navigate("/dashboard");
-    }catch(error: any){
-      // console.log("Google login error");
-      dispatch(setError(error.message));
-    } finally{
-      dispatch(setLoading(false));
+  const handleForgotPassword = async () => {
+    setResetMessage(null);
+    if (!getValues("email") || !(await trigger("email"))) {
+      setResetMessage("Enter your email above, then click \"Forgot password?\" again.");
+      return;
     }
-
+    setSendingReset(true);
+    try {
+      await sendPasswordReset(getValues("email"));
+      setResetMessage("If an account exists for that email, we've sent a reset link.");
+    } catch (error) {
+      console.error("Password reset email failed", error);
+      setResetMessage("Couldn't send the reset email. Please try again in a minute.");
+    } finally {
+      setSendingReset(false);
+    }
   };
 
   return (
@@ -156,22 +161,23 @@ const Login = () => {
                         <span className="text-sm text-light-text dark:text-dark-text">Remember me</span>
                       </label>
 
-                      <div
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={sendingReset}
                         className="text-sm text-light-text dark:text-dark-text hover:text-light-primary dark:hover:text-dark-primary transition-colors"
                       >
-                        Forgot password?
-                      </div>
+                        {sendingReset ? "Sending..." : "Forgot password?"}
+                      </button>
                     </div>
+                    {resetMessage && <p className="text-sm text-light-text dark:text-dark-text">{resetMessage}</p>}
                     <Button
                         type = "submit"
                         name = {`${loading ? "Logging in..." : "Log in"}`}
                         disabled={isSubmitting || loading}
                     /> 
                    
-                  <GoogleButton
-                    loading={loading} 
-                    onClick= {() => GoogleLogin()}
-                    />
+                  <GoogleButton />
             </form>
 
             {/* Sign Up Link */}
