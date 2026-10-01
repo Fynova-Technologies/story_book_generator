@@ -6,7 +6,7 @@ function HowItWorks() {
   return (
     <div>
       <Navbar bglight= {true}/>
-      <div className='bg-light-bg px-25 pt-25'>
+      <div className='px-4 sm:px-10 lg:px-[100px] pt-24 md:pt-28 pb-10 md:pb-20'>
       <HowItWorksSection/>
       </div>
       <Footer/>

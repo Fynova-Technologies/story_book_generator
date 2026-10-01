@@ -1,8 +1,8 @@
-import { ApiError } from '../utils/ApiError';
-import { respond } from './openai';
-import { getInstructionsByStyle } from './storyStyleConfig';
-import { CharacterReference, referenceParts } from './characterReferences';
-import { trace } from './trace';
+import { ApiError } from './ApiError.ts';
+import { respond } from './openai.ts';
+import { getInstructionsByStyle } from './storyStyleConfig.ts';
+import { CharacterReference, referenceParts } from './characterReferences.ts';
+import { trace } from './trace.ts';
 
 // ── Types ──────────────────────────────────────────────────
 interface GenerateStoryInput {

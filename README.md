@@ -1,29 +1,36 @@
 # Story Book Generator
 
-One Next.js app: the React Router UI (`src/app/[[...slug]]`, rendered client-side) and the
-story API (`src/app/api/story/generate/route.ts`, server code in `src/server/`).
+A Next.js frontend (the React Router UI in `src/app/[[...slug]]`, rendered client-side) on
+Supabase: Auth (email/password), Postgres, Storage and Edge Functions. Credits are RevenueCat
+in-app currency (`CRED`). Plan and design notes: `docs/supabase-plan.md`.
+
+- `supabase/migrations/`: schema, RLS, storage bucket and policies
+- `supabase/functions/generate-story`: spends credits, writes the story and character sheets
+- `supabase/functions/generate-page`: draws one page (also the user's "Retry page")
+- `supabase/functions/welcome-credits`: free starting credits, once per account
+- `supabase/functions/_shared/`: the story pipeline, shared with the test harness
 
 ## Local development
 
-Copy `.env.sample` to `.env.local` and set `OPENAI_API_KEY`. Leave the
-`NEXT_PUBLIC_FIREBASE_*` keys empty to run fully local: no Firebase calls, and you're
-signed in as a local dev user.
+Copy `.env.sample` to `.env.local` and `supabase/functions/.env.example` to
+`supabase/functions/.env`, then fill them in.
 
 ```sh
 bun install
-bun run dev      # http://localhost:3000
-bun run build    # type-check + production build
-bun run start
+supabase start                 # local Supabase (Docker); prints the URL and keys
+supabase functions serve       # Edge Functions with hot reload
+bun run dev                    # http://localhost:3000
+bun run build                  # type-check + production build
 bun run lint
 ```
 
-Deploy anywhere that runs `next start` as a long-lived Node server. Generation takes 1-2
-minutes and uses an in-process lock, so run a single instance.
+Deploy: `supabase db push`, `supabase functions deploy`, `supabase secrets set ...`, and the
+Next.js app anywhere that runs `next start` (or a static host).
 
 ## Story pipeline tests
 
 `bun run test:story test/story/cases/whatsapp-duo.json` runs a case through the same
-`createStory` flow as `/api/story/generate` (one paid story generation, about
+pipeline as the Edge Functions (`createStory` in `supabase/functions/_shared/storyPipeline.ts`) (one paid story generation, about
 $0.45-0.70) and saves everything to `test-runs/<timestamp>-<case>/`:
 
 - `trace.jsonl`: every model call with prompt, output, latency and token usage

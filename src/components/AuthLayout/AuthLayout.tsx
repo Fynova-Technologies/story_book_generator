@@ -15,7 +15,7 @@ export default function Protected({
     (state: RootState) => state.auth
   );
 
-  // Wait until Firebase finishes checking auth state
+  // Wait until Supabase restores the session
   if (!authInitialized) {
     return (
       <div className="flex h-screen items-center justify-center">

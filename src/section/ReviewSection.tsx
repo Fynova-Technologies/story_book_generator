@@ -42,7 +42,7 @@ const reviewsData = [
     id: 5,
     username: "Lisa Anderson",
     avatar: sampleAvatar,
-    stars: 2,
+    stars: 5,
     date: "Nov 5, 2024",
     message:
       "The best gift I have ever given. My niece still reads her storybook every night. Worth every penny!",
@@ -58,34 +58,55 @@ const reviewsData = [
   },
 ];
 
+// ponytail: CSS-only marquee (duplicated list, translate -50%); swap for a carousel if the reviews need controls.
+const marqueeKeyframes = `@keyframes review-marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`;
+
+const ReviewRow = ({ reverse = false }: { reverse?: boolean }) => (
+  <div className="flex w-max gap-7 animate-[review-marquee_60s_linear_infinite] motion-reduce:animate-none hover:[animation-play-state:paused]"
+    style={reverse ? { animationDirection: "reverse" } : undefined}
+  >
+    {[...reviewsData, ...reviewsData].map((review, i) => (
+      <div key={i} className="w-[300px] sm:w-[393px] shrink-0" aria-hidden={i >= reviewsData.length}>
+        <ReviewCard
+          username={review.username}
+          avatar={review.avatar}
+          stars={review.stars}
+          date={review.date}
+          message={review.message}
+        />
+      </div>
+    ))}
+  </div>
+);
+
 const ReviewsSection = () => {
   return (
     <section
       data-bg="light"
-      className="w-full py-14 px-6 md:px-12 xl:px-20 bg-dark-primary-10 dark:bg-dark-bg rounded-3xl"
+      className="max-w-7xl mx-auto py-8 md:py-10 bg-light-panel rounded-[36px] overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto">
+      <style>{marqueeKeyframes}</style>
+      <div className="px-5 md:px-10">
 
         {/* ── TOP BADGE ── */}
         <div className="flex justify-center mb-4">
-          <span className="px-5 py-2 rounded-full border-light-outline-secondary dark:border-dark-primary-30 text-sm 
-          font-body font-medium text-light-text dark:text-dark-text bg-light-on-primary dark:bg-dark-primary-10">
+          <span className="px-8 py-2 rounded-full text-base font-body font-semibold text-black bg-white">
             Reviews
           </span>
         </div>
 
         {/* ── HEADING ── */}
         <div className="text-center mb-4">
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-light-text dark:text-dark-text leading-tight mb-3">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-[50px] font-bold text-light-text leading-tight md:leading-[60px] mb-3">
             Real Stories
           </h2>
-          <p className="font-body text-sm text-light-outline dark:text-dark-text max-w-md mx-auto">
-            Hear from people who've created something meaningful.
+          <p className="font-body text-base md:text-[17px] text-light-text max-w-md mx-auto">
+            Hear from people who've created something meaningful
           </p>
         </div>
 
-        {/* ── OVERALL RATING ── */}
-        <div className="flex items-center justify-center gap-3 mb-10">
+        {/* ── OVERALL RATING (kept per D8) ── */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <svg
@@ -94,34 +115,29 @@ const ReviewsSection = () => {
                 height="20"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="text-light-accent dark:text-dark-accent"
+                className="text-light-accent"
               >
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}
           </div>
-          <span className="font-display font-bold text-2xl text-light-text dark:text-dark-text">
+          <span className="font-heading font-bold text-2xl text-light-text">
             4.9
           </span>
-          <span className="font-body text-sm text-light-outline dark:text-dark-text">
+          <span className="font-body text-sm text-light-outline">
             from 2,400+ reviews
           </span>
         </div>
+      </div>
 
-        {/* ── REVIEW CARDS GRID ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {reviewsData.map((review) => (
-            <ReviewCard
-              key={review.id}
-              username={review.username}
-              avatar={review.avatar}
-              stars={review.stars}
-              date={review.date}
-              message={review.message}
-            />
-          ))}
+      {/* ── REVIEW CARDS — two offset rows scrolling in opposite directions ── */}
+      <div className="relative flex flex-col gap-7 overflow-hidden">
+        <ReviewRow />
+        <div className="-ml-[200px]">
+          <ReviewRow reverse />
         </div>
-
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 md:w-16 bg-white/5 backdrop-blur-[4px]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 md:w-16 bg-white/5 backdrop-blur-[4px]" />
       </div>
     </section>
   );

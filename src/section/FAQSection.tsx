@@ -51,14 +51,14 @@ const FAQSection = () => {
   return (
     <section
       data-bg="light"
-      className="w-full py-16 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg"
+      className="w-full py-10 md:py-20 px-4 sm:px-10 lg:px-[100px]"
     >
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-16">
+      <div className="max-w-7xl mx-auto md:py-8">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
 
           {/* ── LEFT — Heading ── */}
-          <div className="lg:w-[35%] shrink-0">
-            <h2 className="font-heading text-4xl md:text-4xl font-bold text-light-text dark:text-dark-text leading-tight">
+          <div className="lg:w-[40%] shrink-0 lg:pl-10">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-[53px] font-bold text-light-text leading-tight md:leading-[75px]">
               Frequently <br /> Asked Questions
             </h2>
           </div>
@@ -78,7 +78,7 @@ const FAQSection = () => {
 
         </div>
       </div>
-      <div>
+      <div className="max-w-7xl mx-auto mt-10 md:mt-16">
         <CTASection/>
       </div>
     </section>

@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { resetWizard, setTemplate } from "../../store/slices/storyWizardSlice";
 import TemplateCard from "../../components/TempleteCard/TemplateCard";
 
 // 👉 Import your template images here
@@ -140,31 +143,60 @@ const templatesData = [
   },
 ];
 
-const TemplateSection = () => {
+// `inDashboard`: the dashboard's Templates screen (Figma 1172:3574) has only a search pill above the
+// grid; the public page gets its search from the hero and shows category tabs and a heading.
+const TemplateSection = ({ searchQuery, inDashboard = false }: { searchQuery?: string; inDashboard?: boolean }) => {
   const [activeFilter, setActiveFilter] = useState("All Templates");
-  const [searchQuery] = useState("");
+  const [ownQuery, setOwnQuery] = useState("");
+  searchQuery ??= ownQuery;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const startWithTemplate = (title: string) => {
+    dispatch(resetWizard());
+    dispatch(setTemplate(title));
+    navigate("/create-story");
+  };
 
   // ✅ Filter templates by category
+  const query = searchQuery.trim().toLowerCase();
   const filteredTemplates = templatesData.filter((template) => {
     const matchesFilter = activeFilter === "All Templates" || template.category === activeFilter;
-    const matchesSearch = template.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = template.title.toLowerCase().includes(query);
     return matchesFilter && matchesSearch;
   });
 
   return (
-    <section className="w-full py-15 px-6 md:px-12 xl:px-20 bg-light-bg dark:bg-dark-bg">
+    <section className={inDashboard ? "w-full px-4 sm:px-7 py-6 sm:py-7" : "w-full pt-8 pb-14 md:pb-20 px-4 sm:px-10 lg:px-20"}>
       <div className="max-w-7xl mx-auto">
 
+        {inDashboard && (
+          <label className="flex items-center gap-3 w-full sm:max-w-[507px] h-11 px-4 mb-8 rounded-full bg-white focus-within:ring-2 focus-within:ring-light-primary/40">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="shrink-0 text-light-outline" aria-hidden>
+              <circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" />
+            </svg>
+            <input
+              type="search"
+              placeholder="Search by template"
+              aria-label="Search templates"
+              value={ownQuery}
+              onChange={(e) => setOwnQuery(e.target.value)}
+              className="w-full bg-transparent outline-none font-body text-sm text-light-text placeholder:text-light-outline"
+            />
+          </label>
+        )}
+
         {/* ── FILTER TABS ── */}
-        <div className="flex items-center gap-2 flex-wrap mb-10">
+        {!inDashboard && <>
+        <div className="flex items-center gap-2.5 flex-wrap mb-8">
           {filterTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveFilter(tab)}
-              className={`px-4 py-2 rounded-full font-body text-sm font-medium transition-all duration-200
+              className={`px-[18px] py-1.5 rounded-full border font-body text-[13px] font-bold transition-all duration-200
                 ${activeFilter === tab
-                  ? "bg-light-primary dark:bg-dark-primary text-light-on-primary shadow-sm"
-                  : "bg-light-on-primary dark:bg-dark-primary-10 border border-light-outline-secondary dark:border-dark-primary-30 text-light-text dark:text-dark-text hover:border-light-primary dark:hover:border-dark-primary hover:text-light-primary dark:hover:text-dark-primary"
+                  ? "bg-dark-primary border-dark-primary text-white"
+                  : "bg-white border-[#DDDDDD] text-[#555555] hover:border-light-primary hover:text-light-primary"
                 }
               `}
             >
@@ -175,17 +207,18 @@ const TemplateSection = () => {
 
         {/* ── SECTION HEADING ── */}
         <div className="mb-6">
-          <h2 className="font-display text-2xl font-bold text-light-text dark:text-dark-text">
+          <h2 className="font-heading text-2xl md:text-[32px] md:leading-[38px] font-bold text-light-text">
             Featured Templates
           </h2>
-          <p className="font-body text-xs text-light-outline dark:text-dark-text opacity-50 mt-1">
-            Crafted by our community — ready for your story
+          <p className="font-body text-base text-light-text mt-2">
+            Crafted by our community — ready for your story.
           </p>
         </div>
+        </>}
 
         {/* ── TEMPLATE CARDS GRID ── */}
         {filteredTemplates.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 xl:gap-7">
             {filteredTemplates.map((template) => (
               <TemplateCard
                 key={template.id}
@@ -194,24 +227,23 @@ const TemplateSection = () => {
                 description={template.description}
                 likes={template.likes}
                 views={template.views}
-                onUseTemplate={() => console.log("Using template:", template.title)}
-                onLike={() => console.log("Liked:", template.title)}
+                onUseTemplate={() => startWithTemplate(template.title)}
               />
             ))}
           </div>
         ) : (
           // Empty state
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-light-outline-secondary dark:text-dark-primary-30">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-light-outline-secondary">
               <circle cx="11" cy="11" r="8"/>
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-50">
-              No templates found for "{activeFilter}"
+            <p className="font-body text-sm text-light-outline opacity-50">
+              No templates found{query ? ` for "${searchQuery.trim()}"` : ""} in "{activeFilter}"
             </p>
             <button
               onClick={() => setActiveFilter("All Templates")}
-              className="font-body text-sm font-medium text-light-primary dark:text-dark-primary hover:underline underline-offset-2"
+              className="font-body text-sm font-medium text-light-primary hover:underline underline-offset-2"
             >
               View all templates
             </button>

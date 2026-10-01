@@ -1,5 +1,6 @@
-import { ApiError } from '../utils/ApiError';
-import type { ContentPart } from './openai';
+import { Buffer } from 'node:buffer';
+import { ApiError } from './ApiError.ts';
+import type { ContentPart } from './openai.ts';
 
 export interface CharacterReference {
   image: string;

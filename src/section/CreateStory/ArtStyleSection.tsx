@@ -8,6 +8,7 @@ const photorealisticImg = "/assets/images/artstyle/Realistic.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setArtStyle } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
+import StepPanel, { SelectedPill } from "./StepPanel";
 
 
 
@@ -21,25 +22,25 @@ const artStyles = [
   {
     id: "clay3d",
     name: "3D",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Rounded, sculpted characters with soft lighting, like a modern animated film.",
     image: clay3dImg, 
   },
   {
     id: "anime",
     name: "Anime",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Clean lines, big expressive eyes and bold colors in Japanese animation style.",
     image: animeImg, 
   },
   {
     id: "ghibli",
     name: "Ghibli",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Hand-painted, warm and whimsical scenes with lush, detailed backgrounds.",
    image: ghibliImg, 
   },
   {
     id: "photorealistic",
     name: "Photorealistic",
-    description: "Soft, blended colors perfect for dreamy and emotional stories. Creates a classic storybook feel.",
+    description: "Lifelike images with natural light and detail, like real photographs.",
     image: photorealisticImg,
   },
 ];
@@ -71,43 +72,21 @@ const ArtStyleSection = ( { onValidChange }: props) => {
 
     // ✅ Dispatch to Redux
     dispatch(setArtStyle(styleName));
-
-    console.log("Selected art style:", styleName);
-    
   };
   useEffect(() => {
     onValidChange(selectedArtStyle !== null);
   }, [selectedArtStyle, onValidChange]);
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
-
-      {/* ── HEADING ── */}
-      <div className="text-center mb-8">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
-          Choose Art Style
-        </h2>
-        <p className="font-body text-sm text-light-outline dark:text-dark-text">
-          Select the visual style for your storybook illustrations.
-        </p>
-      </div>
-
-      {/* ✅ Selected art style display */}
-      {selectedArtStyle && (
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-              {artStyles.find((s) => s.id === selectedArtStyle)?.name} selected
-            </span>
-          </div>
-        </div>
-      )}
+    <StepPanel
+      centered
+      title="Choose Art Style"
+      subtitle="Select the visual style for your storybook illustrations."
+      aside={selectedArtStyle && <SelectedPill label={artStyles.find((s) => s.id === selectedArtStyle)?.name ?? ""} />}
+    >
 
       {/* ── ART STYLE GRID ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {artStyles.map((style) => (
           <ArtStyleCard
             key={style.id}
@@ -120,7 +99,7 @@ const ArtStyleSection = ( { onValidChange }: props) => {
         ))}
       </div>
 
-    </div>
+    </StepPanel>
   );
 };
 

@@ -1,80 +1,45 @@
-import { useEffect, useState }    from 'react';
-import { useDispatch,useSelector }   from 'react-redux';
-import { restoreDraft, setCurrentDraftId }           from '../store/slices/storyWizardSlice';
-import {
-  loadAllDraftsFromLocal,
-  loadDraftFromLocal,
-  hasDrafts,
-  deleteDraftFromLocal,
-  Draft,
-} from '../services/draftService';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { restoreDraft, resetWizard, setCurrentDraftId } from '../store/slices/storyWizardSlice';
+import { deleteStory, listStories, loadDraft, StoryRow } from '../services/storyService';
 import { RootState } from '../store/store';
 
-interface UseDraftRestoreReturn {
-  drafts:           Draft[];
-  draftsExist:      boolean;
-  restoreDraftById: (draftId: string) => void;
-  deleteDraftById:  (draftId: string) => void;
-}
-
-export const useDraftRestore = (): UseDraftRestoreReturn => {
+export const useDraftRestore = () => {
   const dispatch = useDispatch();
   const user     = useSelector((state: RootState) => state.auth.userData);
-
-  const [drafts,     setDrafts]     = useState<Draft[]>([]);
-  const [draftsExist, setDraftsExist] = useState(false);
+  const [drafts, setDrafts] = useState<StoryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
-
-    // check LocalStorage for existing drafts
-    if (hasDrafts(user.uid)) {
-      const savedDrafts = loadAllDraftsFromLocal(user.uid);
-      setDrafts(savedDrafts);
-      setDraftsExist(true);
-    }
+    listStories(['draft'])
+      .then(setDrafts)
+      .catch(error => { console.error('Could not load drafts:', error); setError(true); })
+      .finally(() => setLoading(false));
   }, [user?.uid]);
 
-  // restore draft by ID
-  const restoreDraftById = (draftId: string) => {
-    if (!user?.uid) return;
-
-    const draft = loadDraftFromLocal(user.uid, draftId);
-    if (!draft) return;
-
-    // restore all wizard fields to Redux
+  // Loads the draft, photos included, into the wizard.
+  const restoreDraftById = async (draftId: string) => {
+    const { story, images } = await loadDraft(draftId);
+    dispatch(resetWizard());
     dispatch(restoreDraft({
-      template:      draft.template,
-      questionnaire: draft.questionnaire,
-      artStyle:      draft.artStyle,
-      storyStyle:    draft.storyStyle,
-      narration:     draft.narration,
-      story:         draft.story,
+      template:      story.template,
+      questionnaire: story.questionnaire,
+      artStyle:      story.art_style,
+      storyStyle:    story.story_style,
+      narration:     story.narration,
+      story:         story.custom_story,
+      images,
+      wizardStep:    story.wizard_step,
     }));
     dispatch(setCurrentDraftId(draftId));
-
-    console.log('Draft restored to Redux successfully');
   };
 
-  // delete draft by ID
-  const deleteDraftById = (draftId: string) => {
-    if (!user?.uid) return;
-
-    deleteDraftFromLocal(user.uid, draftId);
-
-    // Update local state
-    setDrafts(prev => prev.filter(d => d.id !== draftId));
-    if (drafts.length === 1) {
-      setDraftsExist(false);
-    }
-
-    console.log('Draft deleted');
+  const deleteDraftById = async (draftId: string) => {
+    await deleteStory(draftId);
+    setDrafts(prev => prev.filter(draft => draft.id !== draftId));
   };
 
-  return {
-    drafts,
-    draftsExist,
-    restoreDraftById,
-    deleteDraftById,
-  };
+  return { drafts, loading, error, draftsExist: drafts.length > 0, restoreDraftById, deleteDraftById };
 };

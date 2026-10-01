@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ImageUploadCard from "../../components/ImageUploadCard/ImageUploadCard";
+import StepPanel from "./StepPanel";
 import { useDispatch, useSelector } from "react-redux";
 import { setImages, StoryImage } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
@@ -28,7 +29,7 @@ const UploadPhotoSection = ({
       const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
         const stored = storedImages[index];
         return stored
-          ? { image: stored.image, description: stored.description, characterName: stored.characterName || "" }
+          ? { ...stored, characterName: stored.characterName || "" }
           : { image: null, description: "", characterName: "" };
       });
       setPhotos(initializedPhotos);
@@ -36,13 +37,20 @@ const UploadPhotoSection = ({
     }
   }, [storedImages]);
 
-  // const uploadedCount = photos.filter((p) => p.image !== null).length;
   const totalSize = sizes.reduce((sum, s) => sum + s, 0);
 
   const handleImageUpload = (index: number, image: string) => {
     setPhotos((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, image } : p))
+      // A new image replaces the uploaded one, so it needs uploading again.
+      prev.map((p, i) => (i === index ? { ...p, image, path: undefined } : p))
     );
+  };
+
+  const handleRemove = (index: number) => {
+    setPhotos((prev) =>
+      prev.map((p, i) => (i === index ? { image: null, description: "", characterName: "" } : p))
+    );
+    setSizes((prev) => prev.map((s, i) => (i === index ? 0 : s)));
   };
 
   const handleDescriptionChange = (index: number, description: string) => {
@@ -80,59 +88,46 @@ const UploadPhotoSection = ({
     }
   }, [photos, totalSize, dispatch, onValidChange]);
 
-  // console.log(photos);
-  
+
+  const uploadedCount = photos.filter((p) => p.image !== null).length;
+  const nextEmpty = photos.findIndex((p) => p.image === null);
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-2 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
+    <StepPanel
+      title="Gather Your Heroes"
+      subtitle="Upload up to 5 photos with one person in each, and say who is in every photo. Use the same name on several photos of one person, and the names you'll use in the story. Add a small description to help our AI create magic."
+    >
 
-      {/* ── HEADER ── */}
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h2 className="font-heading text-3xl font-bold text-light-text dark:text-dark-text">
-            Gather Your Heroes
-          </h2>
-          <p className="font-body text-sm text-light-outline dark:text-dark-text mt-1.5">
-            Upload up to 5 photos with one person in each, and say who is in every photo.
-            Use the same name on several photos of one person, and the names you'll use in the story.
-          </p>
-        </div>
-
-        {/* Draft saved badge */}
-        <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 flex-shrink-0">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="font-body text-xs text-light-primary dark:text-dark-text">
-            Draft saved automatically
+      {/* ── UPLOADED PHOTOS HEADER ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h3 className="font-heading font-bold text-xl text-light-text">
+          Uploaded Photos
+        </h3>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* show limit exceed */}
+          {totalSize > 10 && (
+            <div role="alert" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p className="font-body text-xs font-bold text-red-700">
+                10MB limit exceeded
+              </p>
+            </div>
+          )}
+          <span className={`font-body text-xs font-bold px-3 py-1 rounded-full ${totalSize > 10 ? "bg-red-50 text-red-600" : "bg-white/60 text-light-outline"}`}>
+            {totalSize.toFixed(1)} / 10 MB
+          </span>
+          <span className="font-body text-xs font-bold px-3 py-1 rounded-full bg-light-primary/10 text-light-primary">
+            {uploadedCount} / {MAX_PHOTOS}
           </span>
         </div>
       </div>
 
-      {/* ── UPLOADED PHOTOS HEADER ── */}
-      <div className="flex items-center justify-between mt-6 mb-4">
-        <h3 className="font-heading font-bold text-base text-light-text dark:text-dark-text">
-          Uploaded Photos
-        </h3>
-        {/* show limit exceed */}
-        {totalSize > 10 && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <p className="font-body text-sm font-medium text-red-700 dark:text-red-400">
-              10MB Limit Exceeded
-            </p>
-          </div>
-        )}
-        
-        <span className={`font-body text-sm font-semibold opacity-60 bg-light-bg dark:bg-dark-primary-10 px-3 py-1 rounded-full border ${totalSize > 10 ? 'text-red-600 dark:text-red-400 border-red-300 dark:border-red-700' : 'text-light-outline dark:text-dark-text border-light-outline-secondary dark:border-dark-primary-30'}`}>
-          {totalSize.toFixed(1)} / 10 MB
-        </span>
-      </div>
-
       {/* ── PHOTO GRID ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
         {photos.map((photo, index) => (
           <ImageUploadCard
             key={index}
@@ -142,6 +137,8 @@ const UploadPhotoSection = ({
             onDescriptionChange={(desc: string) => handleDescriptionChange(index, desc)}
             characterName={photo.characterName}
             onNameChange={(name: string) => handleNameChange(index, name)}
+            onRemove={() => handleRemove(index)}
+            dimmed={nextEmpty !== -1 && index > nextEmpty}
             nameOptions={knownNames}
             onFileSizeChange={(size: number) => handleFileSizeChange(index, size)}
           />
@@ -149,26 +146,24 @@ const UploadPhotoSection = ({
       </div>
 
       {/* ── PRO TIP ── */}
-      <div className="mt-6 p-4 rounded-2xl bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30 flex items-start gap-3">
-        {/* Bulb Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
+      <div className="mt-4 p-6 rounded-2xl border border-white bg-linear-to-b from-[#E0F2FE]/50 to-white shadow-sm">
+        <div className="flex items-center gap-4">
+          {/* Bulb Icon */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 shrink-0">
             <line x1="9" y1="18" x2="15" y2="18"/>
             <line x1="10" y1="22" x2="14" y2="22"/>
             <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
           </svg>
-        </div>
-        <div>
-          <p className="font-heading text-sm font-semibold text-light-text dark:text-dark-text">
+          <p className="font-heading text-lg font-bold text-light-text">
             Pro Tip for Magic Results
           </p>
-          <p className="font-body text-sm text-light-outline dark:text-dark-text opacity-70 mt-0.5 leading-relaxed">
-            Clear, front-facing photos of one person with good lighting work best. Crop out other people, and avoid photos where faces are covered by sunglasses or masks.
-          </p>
         </div>
+        <p className="font-body text-base text-light-outline mt-4 leading-relaxed">
+          Clear, front-facing photos of one person with good lighting work best. Crop out other people, and avoid photos where faces are covered by sunglasses or masks.
+        </p>
       </div>
 
-    </div>
+    </StepPanel>
   );
 };
 

@@ -6,6 +6,7 @@ const comic = "/assets/images/storystyle/comic.png";
 import { useDispatch, useSelector } from 'react-redux';
 import { setStoryStyle } from '../../store/slices/storyWizardSlice';
 import { RootState } from '../../store/store';
+import StepPanel, { SelectedPill } from './StepPanel';
 
 // ── Default styles data ────────────────────────────────────
 const storystyles = [
@@ -30,7 +31,7 @@ const storystyles = [
 ];
 
 // ── Section Component ──────────────────────────────────────
-const StoryStyleSection = ({ onValidChange }: any) => {
+const StoryStyleSection = ({ onValidChange }: { onValidChange: (valid: boolean) => void }) => {
   const dispatch = useDispatch();
   const storedStoryStyle = useSelector((state: RootState) => state.story?.storyStyle || "");
   
@@ -55,8 +56,6 @@ const StoryStyleSection = ({ onValidChange }: any) => {
       
       // ✅ Dispatch to Redux
       dispatch(setStoryStyle(style.name));
-      
-      console.log("Selected story style:", style.name);
     }
   };
 
@@ -65,34 +64,15 @@ const StoryStyleSection = ({ onValidChange }: any) => {
   }, [selectedStyleId, onValidChange]);
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
-
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
-          Choose Story Style
-        </h2>
-        <p className="font-body text-sm text-light-outline dark:text-dark-text">
-          Select how you want your story to be presented.
-        </p>
-      </div>
-
-      {/* ✅ Selected story style display */}
-      {selectedStyleId && (
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-dark-primary-10 dark:bg-dark-primary-10 border border-dark-primary-30">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-light-primary dark:text-dark-primary">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-              {storystyles.find((s) => s.id === selectedStyleId)?.name} selected
-            </span>
-          </div>
-        </div>
-      )}
+    <StepPanel
+      centered
+      title="Choose Your Story Style"
+      subtitle="Select how you want your story to look and feel"
+      aside={selectedStyleId && <SelectedPill label={storystyles.find((s) => s.id === selectedStyleId)?.name ?? ""} />}
+    >
 
       {/* ── STORY STYLE GRID ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {storystyles.map((style) => (
           <StyleCard
             key={style.id}
@@ -106,7 +86,7 @@ const StoryStyleSection = ({ onValidChange }: any) => {
         ))}
       </div>
 
-    </div>
+    </StepPanel>
   );
 };
 

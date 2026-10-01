@@ -1,4 +1,8 @@
 // Minimal OpenAI REST client (Responses + Image edits). Usage is normalized for tracing.
+// node: imports keep this file running on both Deno (Edge Functions) and Bun (test harness).
+import { Buffer } from 'node:buffer';
+import process from 'node:process';
+
 const API = 'https://api.openai.com/v1';
 const auth = () => ({ Authorization: `Bearer ${process.env.OPENAI_API_KEY || ''}` });
 
@@ -63,6 +67,8 @@ export async function editImage(options: {
   form.set('model', options.model);
   form.set('prompt', options.prompt);
   if (options.size) form.set('size', options.size);
+  // WebP is ~10x smaller than PNG: the Free plan has 1GB storage and 5GB egress.
+  form.set('output_format', 'webp');
   options.images.forEach((image, i) =>
     form.append('image[]', new Blob([Buffer.from(image.data, 'base64')], { type: image.mimeType }), `ref-${i + 1}.${image.mimeType.split('/')[1]}`));
   const body = await call(`${API}/images/edits`, { method: 'POST', headers: auth(), body: form });

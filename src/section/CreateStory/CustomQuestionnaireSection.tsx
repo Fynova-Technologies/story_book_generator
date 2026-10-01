@@ -1,10 +1,12 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCustomStory } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
+import StepPanel from "./StepPanel";
 
 
 const CHAR_LIMIT = 500;
+const MIN_CHARS = 100; // the story needs more than this many characters
 
 interface props{
   onValidChange:(valid:boolean)=>void;
@@ -12,54 +14,17 @@ interface props{
 const CustomQuestionnaireSection = ({
   onValidChange,
 }:props) => {
-  // const selectedTemplate = useSelector((state: RootState) => state.story.template);
-  // console.log(selectedTemplate);
   const dispatch = useDispatch();
-  const storedCustomStory = useSelector((state: RootState) => state.story?.story || "");
-  const [story, setStory] = useState("");
+  // Redux is the source of truth, so Next always saves what is on screen.
+  const story = useSelector((state: RootState) => state.story.story);
 
-  // Initialize from Redux on mount
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    dispatch(setCustomStory(e.target.value.slice(0, CHAR_LIMIT)));
+  };
+
   useEffect(() => {
-    if (storedCustomStory) {
-      setStory(storedCustomStory);
-    }
-  }, [storedCustomStory]);
-
-  // Debounce ref for the dispatch function
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleChange = (e: any) => {
-    const value = e.target.value;
-    if (value.length <= CHAR_LIMIT) {
-      setStory(value);
-    }
-    onValidChange(value.length > 0);
-  };
-
-  // Debounced dispatch function
-  const debouncedDispatch = useCallback(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = setTimeout(() => {
-      if(story.length > 100){
-        dispatch(setCustomStory(story));
-        onValidChange(true);
-      }else{
-        onValidChange(false);
-      }
-    }, 500); // 500ms debounce delay
-  }, [story, dispatch, onValidChange]);
-
- useEffect(() => {
-  debouncedDispatch();
-  return () => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-  };
-},[story, debouncedDispatch, onValidChange]);
-  
+    onValidChange(story.trim().length > MIN_CHARS);
+  }, [story, onValidChange]);
 
   const handleInspireMe = () => {
     const inspirations = [
@@ -68,7 +33,7 @@ const CustomQuestionnaireSection = ({
       "Twin siblings stumble upon a mysterious lighthouse that grants wishes, but they must learn that true magic comes from the heart.",
     ];
     const random = inspirations[Math.floor(Math.random() * inspirations.length)];
-    setStory(random.slice(0, CHAR_LIMIT));
+    dispatch(setCustomStory(random.slice(0, CHAR_LIMIT)));
   };
 
   const progressPercent = (story.length / CHAR_LIMIT) * 100;
@@ -76,56 +41,47 @@ const CustomQuestionnaireSection = ({
   const isAtLimit = story.length === CHAR_LIMIT;
 
   return (
-    <div className="bg-light-on-primary dark:bg-dark-bg rounded-3xl p-6 md:p-8  border-light-outline-secondary dark:border-dark-primary-30">
-
-      {/* ── HEADING ── */}
-      <div className="mb-6">
-        <h2 className="font-heading text-3xl font-bold text-light-text dark:text-dark-text mb-2">
-          Tell us about your adventure
-        </h2>
-        <p className="font-body text-sm text-light-outline dark:text-dark-text">
-          Describe the main events, characters, or the lesson you want to teach.
-        </p>
-      </div>
+    <StepPanel
+      narrow
+      small
+      title="Tell us about your adventure"
+      subtitle="Describe the main events, characters, or the lesson you want to teach."
+    >
 
       {/* ── STORY INPUT CARD ── */}
-      <div className="p-4 rounded-3xl  border-light-outline-secondary dark:border-dark-primary-30 bg-light-bg dark:bg-dark-primary-10 overflow-hidden">
+      <div className="p-5 md:p-8 rounded-3xl border border-[#F3EDE7] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08)]">
 
         {/* Card Header */}
-        <div className="flex items-center justify-between px-5 py-3  border-light-outline-secondary dark:border-dark-primary-30">
-          <h3 className="font-body text-sm font-bold text-light-text dark:text-dark-text">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <label htmlFor="custom-story" className="font-body text-base font-bold text-light-text">
             What is your story about?
-          </h3>
+          </label>
 
           {/* Inspire Me Button */}
           <button
             onClick={handleInspireMe}
-            className="flex items-center gap-1.5 font-body text-sm font-medium text-light-primary dark:text-dark-primary hover:opacity-80 transition-all duration-200"
+            className="flex items-center gap-1.5 font-body text-sm text-light-primary hover:opacity-80 transition-all duration-200 shrink-0"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="16 3 21 3 21 8"/>
+              <line x1="4" y1="20" x2="21" y2="3"/>
+              <polyline points="21 16 21 21 16 21"/>
+              <line x1="15" y1="15" x2="21" y2="21"/>
+              <line x1="4" y1="4" x2="9" y2="9"/>
             </svg>
             Inspire me
           </button>
         </div>
 
         {/* Textarea */}
-        <div className="relative bg-light-on-accent rounded-3xl">
+        <div className="relative bg-[#F8F7F6] rounded-3xl border-2 border-transparent focus-within:border-light-primary/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]">
           <textarea
+            id="custom-story"
             value={story}
             onChange={handleChange}
             placeholder=""
-            rows={10}
-            className="w-full px-5 py-4 bg-transparent font-body text-sm text-light-text dark:text-dark-text
+            rows={12}
+            className="block w-full px-5 pt-4 pb-14 bg-transparent font-body text-sm text-light-text
              placeholder:text-light-outline-secondary resize-none focus:outline-none leading-relaxed"
           />
 
@@ -133,10 +89,10 @@ const CustomQuestionnaireSection = ({
           <div className="absolute bottom-3 right-3">
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200
               ${isAtLimit
-                ? "bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/30"
+                ? "bg-red-50 border-red-300"
                 : isNearLimit
-                  ? "bg-light-accent/10 dark:bg-dark-accent/10 border-light-accent/30 dark:border-dark-accent/30"
-                  : "bg-light-on-primary dark:bg-dark-bg border-light-outline-secondary dark:border-dark-primary-30"
+                  ? "bg-light-accent/10 border-light-accent/30"
+                  : "bg-white/80 backdrop-blur-sm border-[#F3EDE7]"
               }
             `}>
               {/* Mini progress circle */}
@@ -148,7 +104,7 @@ const CustomQuestionnaireSection = ({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="text-light-outline-secondary dark:text-dark-primary-30 opacity-30"
+                  className="text-light-outline-secondary opacity-30"
                 />
                 <circle
                   cx="7"
@@ -164,8 +120,8 @@ const CustomQuestionnaireSection = ({
                     ${isAtLimit
                       ? "stroke-red-500"
                       : isNearLimit
-                        ? "stroke-light-accent dark:stroke-dark-accent"
-                        : "stroke-light-primary dark:stroke-dark-primary"
+                        ? "stroke-light-accent"
+                        : "stroke-light-primary"
                     }
                   `}
                 />
@@ -176,8 +132,8 @@ const CustomQuestionnaireSection = ({
                 ${isAtLimit
                   ? "text-red-500"
                   : isNearLimit
-                    ? "text-light-accent dark:text-dark-accent"
-                    : "text-light-outline dark:text-dark-text opacity-60"
+                    ? "text-light-accent"
+                    : "text-light-outline/50 font-semibold"
                 }
               `}>
                 {story.length}/{CHAR_LIMIT} characters
@@ -186,9 +142,16 @@ const CustomQuestionnaireSection = ({
           </div>
         </div>
 
+        {/* Minimum length hint */}
+        <p className={`font-body text-xs mt-2 px-1 ${story.trim().length > MIN_CHARS ? "text-light-outline opacity-60" : "text-light-accent"}`}>
+          {story.trim().length > MIN_CHARS
+            ? "Great, that's enough to work with."
+            : `Write at least ${MIN_CHARS + 1} characters (${Math.max(0, MIN_CHARS + 1 - story.trim().length)} to go).`}
+        </p>
+
       </div>
 
-    </div>
+    </StepPanel>
   );
 };
 

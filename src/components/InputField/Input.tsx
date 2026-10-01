@@ -17,15 +17,15 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     const id = useId();
 
     return (
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-2">
 
         {/* Label */}
         <label
           htmlFor={id}
-          className="text-sm font-medium text-light-text dark:text-dark-text"
+          className="font-body text-base md:text-lg text-light-text"
         >
           {label}
-          <span className="text-light-text dark:text-dark-text">*</span>
+          <span className="text-light-text">*</span>
         </label>
 
         {/* Input */}
@@ -36,16 +36,16 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
           placeholder={placeholder}
           ref={ref}
           id={id}
-          className={`w-full px-4 py-2 rounded-lg 
-            bg-dark-primary-10 dark:bg-dark-primary-10 
-            border text-light-text dark:text-dark-text 
+          className={`w-full h-12 px-3 rounded-xl
+            bg-[#050B0A]/5
+            border text-light-text 
             placeholder:text-light-outline-secondary 
             focus:outline-none focus:ring-2 focus:ring-dark-primary-10 
-            transition-all text-sm
+            transition-all text-base
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error
               ? "border-red-500 focus:border-red-500"
-              : "border-light-outline-secondary dark:border-dark-primary-30 focus:border-light-primary dark:focus:border-dark-primary"
+              : "border-[#050B0A]/15 focus:border-light-primary"
             }
           `}
         />
@@ -54,7 +54,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-light-outline-secondary dark:text-dark-text hover:text-light-text dark:hover:text-dark-primary transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-light-outline-secondary hover:text-light-text transition-colors"
         >
           {showPassword ? (
             // Eye Off Icon

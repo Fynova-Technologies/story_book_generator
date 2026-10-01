@@ -1,7 +1,6 @@
 'use client'
 
 import { StrictMode } from 'react'
-import App from '../../App'
 import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import LandingPage from '../../views/LandingPage'
 import Login from '../../views/Login'
@@ -25,17 +24,14 @@ import { store } from '../../store/store'
 import AuthLayout from '../../components/AuthLayout/AuthLayout'
 import FeaturedStoryPage from '../../views/FeaturedStoryPage'
 import FlipBookPage from '../../views/FlipBookPage'
-import { initAuthListener } from '../../firebase/authService'
+import ResetPassword from '../../views/ResetPassword'
+import { initAuthListener } from '../../services/authService'
 // import { setLoading } from '../../store/slices/authSlice';
 
 
 initAuthListener();
 
 const router = createBrowserRouter([
-      {
-        path:'/',
-        element:<App/>,
-      },
       {
         path:'/',
         element:<LandingPage/>
@@ -58,55 +54,33 @@ const router = createBrowserRouter([
         )
       },
       {
+        path:'/reset-password',
+        element:<ResetPassword/>
+      },
+      {
         path:'/how-it-works',
-        element:(
-          <AuthLayout authentication={false}>
-            <HowItWorks/>
-          </AuthLayout>
-        )
+        element:<HowItWorks/>
       },
       {
         path:'/templates',
-        element:(
-          <AuthLayout authentication={false}>
-              <TemplatesPage/>
-          </AuthLayout>)              
+        element:<TemplatesPage/>              
       },
       
       {
         path:'/pricing',
-        element:(
-          <AuthLayout authentication={false}>
-        <PricingPage/>
-        </AuthLayout>
-
-        )
+        element:<PricingPage/>
       },
       {
         path:'/samples',
-        element:(
-          <AuthLayout authentication={false}>
-            <SampleGallery/>
-          </AuthLayout>
-
-        )
+        element:<SampleGallery/>
       },
       {
         path:'/contact',
-        element:(
-          <AuthLayout authentication={false}>
-        <ContactusPage/>
-        </AuthLayout>
-
-        )
+        element:<ContactusPage/>
       },
       {
         path:'/stories',
-        element:(
-          <AuthLayout authentication={false}>
-            <FeaturedStoryPage/>
-          </AuthLayout>
-        )
+        element:<FeaturedStoryPage/>
       },
       {
         path:'/dashboard',
@@ -119,12 +93,7 @@ const router = createBrowserRouter([
         children:[
           {
             path:"/dashboard/",
-            element:(
-              <AuthLayout authentication={true}>
-              <Dashboard/>
-              </AuthLayout>
-
-            )
+            element:<Dashboard/>
           },
           {
             path:'/dashboard/collection',
@@ -132,10 +101,10 @@ const router = createBrowserRouter([
           },
           {
             path:'/dashboard/templates',
-            element:<TemplateSection/>
+            element:<TemplateSection inDashboard/>
           },
           {
-            path:'/dashboard/videosection',
+            path:'/dashboard/how-it-works',
             element:<VideoSection/>
           },
           {
@@ -162,7 +131,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path:'/flipbook',
+        path:'/flipbook/:id',
         element:(
           <AuthLayout authentication={true}>
             <FlipBookPage/>
