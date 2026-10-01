@@ -1,105 +1,46 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useState } from "react";
-import { setGeneratedStory } from "../../store/slices/generatedStorySlice";
 import { useNavigate } from "react-router-dom";
-// import { hasDraft, loadDraftFromLocal, deleteDraftFromLocal } from "../../services/draftService";
+import { generateStory, saveDraft, UserFacingError } from "../../services/storyService";
+import { STORY_COST, useCredits } from "../../services/credits";
+import { setCurrentDraftId, setImages } from "../../store/slices/storyWizardSlice";
 
+const GENERATE_STEP = 6;
 
-
-const GenerateStorySection = ({ 
-    storyData, 
-    credits = 12, 
-    storyCost = 1 
-}: any) => {
-  const template = useSelector((state: RootState) => state.story.template);
-  const images = useSelector((state: RootState) => state.story.images);
-  const questionnaire = useSelector((state: RootState) => state.story.questionnaire);
-  const artStyle = useSelector((state: RootState) => state.story.artStyle);
-  const narration = useSelector((state: RootState) => state.story.narration);
-  const story = useSelector((state: RootState) => state.story.story);
-  const storyStyle = useSelector((state: RootState) => state.story.storyStyle);
-  
+const GenerateStorySection = ({ storyData }: any) => {
+  const wizard = useSelector((state: RootState) => state.story);
+  const user = useSelector((state: RootState) => state.auth.userData);
+  const { credits: balance } = useCredits();
+  const credits = balance ?? 0;
+  const storyCost = STORY_COST;
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [loading,setloading]= useState(false);
   const [storyLength, setStoryLength] = useState<number>(6);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // console.log("Length of story:", storyLength);
 
-  // Helper function to extract first sentence from error message
-  const extractFirstSentence = (message: string): string => {
-    if (!message) return 'An error occurred.';
-    
-    // Try to parse if it's a JSON error response
-    try {
-      const parsed = JSON.parse(message);
-      if (parsed.error && parsed.error.message) {
-        message = parsed.error.message;
-      }
-    } catch (e) {
-      // Not JSON, use as is
-    }
-    
-    // Extract first sentence (up to first period, question mark, or exclamation mark)
-    const sentenceEnd = message.search(/[.!?]/);
-    if (sentenceEnd !== -1) {
-      return message.substring(0, sentenceEnd + 1).trim();
-    }
-    
-    // If no sentence end found, return first 100 characters
-    return message.length > 100 ? message.substring(0, 100) + '...' : message;
-  };
- 
-  
   const remaining = credits - storyCost;
-  const handleGenerate = async() => {
 
-  console.log("generating story.....");
-  setErrorMessage(null);
-  setloading(true);
-  
-  try {
-    const response = await fetch(`/api/story/generate`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        template,
-        artStyle,
-        narration,
-        images,
-        story,
-        questionnaire,
-        storyStyle,
-        storyLength,
-      })
-    });
-    const data = await response.json();
-    console.log(data);
-
-    if (!response.ok) {
-      setErrorMessage(extractFirstSentence(data.message) || 'Something went wrong while generating the story.');
-      return;
-    }
-    
-    if (data?.success) {
+  // Saves the draft (photos included), then starts generation. The book page shows progress.
+  // Error messages come from our functions and are already written for the user.
+  const handleGenerate = async () => {
+    if (!user) return;
+    setErrorMessage(null);
+    setloading(true);
+    try {
+      const { id, images } = await saveDraft(user.uid, wizard, GENERATE_STEP, storyLength);
+      dispatch(setCurrentDraftId(id));
+      dispatch(setImages(images));
+      await generateStory(id);
+      navigate(`/flipbook/${id}`);
+    } catch (error) {
+      console.error("Failed to generate story:", error);
+      setErrorMessage(error instanceof UserFacingError ? error.message : 'Could not save your story. Please try again.');
+    } finally {
       setloading(false);
-      // Delete draft when story generation is successful
-      // if (user?.uid) {
-      //   deleteDraftFromLocal(user.uid);
-      // }
-      dispatch(setGeneratedStory(data.data));
-      navigate('/flipbook');
-    } else {
-      setErrorMessage(extractFirstSentence("failed to generate the story") || 'Failed to generate the story.');
     }
-  } catch (error: any) {
-    console.error("Failed to generate story:", error);
-    setErrorMessage(extractFirstSentence(error?.message) || 'Unable to generate story. Please try again.');
-  } finally {
-    setloading(false);
-  }
   };
 
   const handleEditDetails = () => {
@@ -221,8 +162,10 @@ const GenerateStorySection = ({
               </p>
               <input 
                 type="number" 
+                min={1}
+                max={20}
                 value={storyLength}
-                onChange={(e) => setStoryLength(Number(e.target.value))}
+                onChange={(e) => setStoryLength(Math.min(20, Math.max(1, Number(e.target.value) || 1)))}
                 className="w-full font-body text-sm font-medium text-light-text dark:text-dark-text"/>
              
             </div>

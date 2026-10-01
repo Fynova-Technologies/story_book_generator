@@ -7,7 +7,7 @@ import { useForm,SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setError, setLoading } from "../store/slices/authSlice";
-import { signInWithGoogle, signUpWithEmailAndPassword } from "../firebase/authService";
+import { signInWithGoogle, signUpWithEmailAndPassword } from "../services/authService";
 import { RootState } from "../store/store";
 
 
@@ -38,7 +38,7 @@ const Signup = () => {
   const handleSignup: SubmitHandler<FormData> = async(data) => {
      dispatch(setLoading(true));
       try {
-        const user= await signUpWithEmailAndPassword(data.email,data.password,rememberMe);
+        const user= await signUpWithEmailAndPassword(data.email,data.password,rememberMe,data.name);
         handleAuthSuccess(user);
         // console.log(user);
         

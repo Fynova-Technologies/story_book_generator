@@ -8,19 +8,24 @@
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
-import { createStory } from '../../src/server/services/storyPipeline';
-import { normalizeReferences } from '../../src/server/services/characterReferences';
-import { withTrace } from '../../src/server/services/trace';
+import sharp from 'sharp';
+import { createStory } from '../../supabase/functions/_shared/storyPipeline.ts';
+import { normalizeReferences } from '../../supabase/functions/_shared/characterReferences.ts';
+import { withTrace } from '../../supabase/functions/_shared/trace.ts';
 
 const RUNS = path.resolve(__dirname, '../../test-runs');
 
 type Ref = { characterName: string; file: string };
 type Page = { page: number; text: string; image: string; imagePrompt: string };
 
-const mime = (file: string) => ({ '.png': 'image/png', '.webp': 'image/webp' } as Record<string, string>)[path.extname(file)] || 'image/jpeg';
-const dataUrl = (file: string) => `data:${mime(file)};base64,${fs.readFileSync(file).toString('base64')}`;
 const write = (dir: string, name: string, value: unknown) =>
   fs.writeFileSync(path.join(dir, name), typeof value === 'string' ? value : JSON.stringify(value, null, 2));
+// The app resizes photos in the browser before upload; do the same here.
+// rotate() applies EXIF orientation before it is stripped.
+const shrunkDataUrl = async (file: string) => {
+  const jpeg = await sharp(file).rotate().resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 90 }).toBuffer();
+  return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
+};
 const read = (dir: string, name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
 
 async function generate(casePath: string) {
@@ -35,8 +40,8 @@ async function generate(casePath: string) {
     fs.copyFileSync(src, path.join(dir, file));
     return { characterName: r.characterName, file };
   });
-  const references = normalizeReferences(testCase.references.map((r: any, i: number) =>
-    ({ ...r, image: dataUrl(path.join(dir, refs[i].file)) })));
+  const references = normalizeReferences(await Promise.all(testCase.references.map(async (r: any, i: number) =>
+    ({ ...r, image: await shrunkDataUrl(path.join(dir, refs[i].file)) }))));
   const request = { storytext: '', storyStyle: 'storybook', ...testCase.request };
   write(dir, 'case.json', testCase);
 
@@ -46,7 +51,7 @@ async function generate(casePath: string) {
     // Character sheets arrive as data URLs; keep the image as a file, not in the trace.
     if (typeof data.imageUrl === 'string') {
       fs.mkdirSync(path.join(dir, 'sheets'), { recursive: true });
-      const file = `sheets/${data.characterName}.png`;
+      const file = `sheets/${data.characterName}.${/^data:image\/(\w+)/.exec(data.imageUrl)![1]}`;
       fs.writeFileSync(path.join(dir, file), Buffer.from(data.imageUrl.split(',')[1], 'base64'));
       data = { ...data, imageUrl: undefined, file };
     }

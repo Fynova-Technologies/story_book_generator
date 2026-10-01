@@ -9,9 +9,7 @@ const userAvatar = "/assets/images/sampleavatar.png";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearAuth } from "../store/slices/authSlice";
-import { store } from "../store/store";
-import { auth } from "../firebase/config";
-import { logout } from "../firebase/authService";
+import { logout } from "../services/authService";
 
 
 type Section = "profile" | "password" | "notifications" | "usage" | "billing" | "logout";
@@ -117,9 +115,7 @@ const AccountSettings = () => {
               if (id === "logout") {
                 await logout();
                 navigate("/")
-                console.log("Logout clicked.Current user:",auth?.currentUser);
                 dispatch(clearAuth());
-                console.log("Redux State:", store.getState().auth);
                 return
               }
               setActiveSection(id)

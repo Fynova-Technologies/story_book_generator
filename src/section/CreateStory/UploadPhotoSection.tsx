@@ -28,7 +28,7 @@ const UploadPhotoSection = ({
       const initializedPhotos = Array(MAX_PHOTOS).fill(null).map((_, index) => {
         const stored = storedImages[index];
         return stored
-          ? { image: stored.image, description: stored.description, characterName: stored.characterName || "" }
+          ? { ...stored, characterName: stored.characterName || "" }
           : { image: null, description: "", characterName: "" };
       });
       setPhotos(initializedPhotos);
@@ -41,7 +41,8 @@ const UploadPhotoSection = ({
 
   const handleImageUpload = (index: number, image: string) => {
     setPhotos((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, image } : p))
+      // A new image replaces the uploaded one, so it needs uploading again.
+      prev.map((p, i) => (i === index ? { ...p, image, path: undefined } : p))
     );
   };
 

@@ -1,5 +1,7 @@
-import {useState} from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import StoryCard from '../../components/StoryCard/StoryCard';
+import { coverUrls, listStories, StoryRow, StoryStatus } from '../../services/storyService';
 const storyimg1 = "/assets/images/storyimg1.png";
 const completed = "/assets/icons/Dashboard/Completed.png";
 const avatar = "/assets/images/sampleavatar.png";
@@ -7,35 +9,26 @@ const avatar = "/assets/images/sampleavatar.png";
 type FilterTab = "All" | "Favorites" | "Shared";
 
 const FILTER_TABS: FilterTab[] = ["All", "Favorites", "Shared"];
-const storiesData = [
-  {
-    id: 1,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 2,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 3,
-    image: storyimg1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-]
+
+// Every book past the draft stage, so in-progress and failed ones can be opened too.
+const BOOK_STATUSES: StoryStatus[] = ['generating', 'incomplete', 'completed', 'failed'];
+const STATUS_LABEL: Partial<Record<StoryStatus, string>> = {
+  generating: 'Being created...',
+  incomplete: 'Some pages need a retry',
+  failed:     "Couldn't be finished",
+};
 
 function CompletedSection() {
     const [activeTab, setActiveTab] = useState<FilterTab>("All");
+    const [stories, setStories] = useState<StoryRow[]>([]);
+    const [covers, setCovers] = useState(new Map<string, string>());
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      listStories(BOOK_STATUSES)
+        .then(async rows => { setStories(rows); setCovers(await coverUrls(rows.map(row => row.id))); })
+        .catch(error => console.error('Could not load stories:', error));
+    }, []);
   return (
      <section className="pb-8">
           <div className="flex items-center justify-between mb-4">
@@ -68,14 +61,15 @@ function CompletedSection() {
 
           {/* ✅ Same width as draft cards using same grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-            {storiesData.map((story) => (
+            {stories.map((story) => (
               <StoryCard
                 key={story.id}
-                image={story.image}
-                title={story.title}
-                description={story.description}
-                author={story.author}
+                image={covers.get(story.id) || storyimg1}
+                title={story.title || 'Untitled story'}
+                description={STATUS_LABEL[story.status] || story.subtitle || ''}
+                author="You"
                 authorAvatar={avatar}
+                onViewStory={() => navigate(`/flipbook/${story.id}`)}
               />
             ))}
           </div>

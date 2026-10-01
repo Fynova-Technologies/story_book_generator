@@ -7,8 +7,11 @@ import ArtStyleSection from "../section/CreateStory/ArtStyleSection";
 import VoiceNarrationSection from "../section/CreateStory/VoiceNarrationSection";
 import GenerateStorySection from "../section/CreateStory/GenerateStorySection";
 import TemplateSelection from "../section/CreateStory/TemplateSelection";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import { saveDraft } from "../services/storyService";
+import { useCredits } from "../services/credits";
+import { setCurrentDraftId, setImages } from "../store/slices/storyWizardSlice";
 import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
 import StoryStyleSection from "../section/CreateStory/StoryStyleSection";
 
@@ -35,12 +38,15 @@ const CreateStory = () => {
   // } = useDraftRestore();
   const [isValid, setIsValid] = useState(false);
   const template = useSelector((state: RootState) => state.story.template);
-  // const user = useSelector((state: RootState) => state.auth.userData);
+  const wizard = useSelector((state: RootState) => state.story);
+  const user = useSelector((state: RootState) => state.auth.userData);
+  const dispatch = useDispatch();
 
-  // ✅ Track step using index
-  const [currentStepIndex, setCurrentStepIndex] = useState(1); // starts at "photo"
+  // ✅ Track step using index (a restored draft resumes where it was left)
+  const [currentStepIndex, setCurrentStepIndex] = useState(wizard.wizardStep);
+  const [saving, setSaving] = useState(false);
 
-  const credits = 12;
+  const { credits } = useCredits();
 
   // ✅ Current section derived from index — single source of truth
   const activeSection = STEPS[currentStepIndex].id as Section;
@@ -52,12 +58,22 @@ const CreateStory = () => {
     }
   };
 
-  // ✅ Next — go to next step
-  const handleNext = () => {
-    if (currentStepIndex < STEPS.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
-      setIsValid(false); // reset validity for next step
+  // ✅ Next — save the draft, then go to next step
+  const handleNext = async () => {
+    if (currentStepIndex >= STEPS.length - 1 || !user) return;
+    setSaving(true);
+    try {
+      const { id, images } = await saveDraft(user.uid, wizard, currentStepIndex + 1);
+      dispatch(setCurrentDraftId(id));
+      dispatch(setImages(images));
+    } catch (error) {
+      // The wizard still works from memory; the draft catches up on the next save.
+      console.error("Could not save draft:", error);
+    } finally {
+      setSaving(false);
     }
+    setCurrentStepIndex((prev) => prev + 1);
+    setIsValid(false); // reset validity for next step
   };
 
   // ✅ Stepper click — jump to any step
@@ -155,7 +171,7 @@ const CreateStory = () => {
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
             <span className="font-body text-sm font-semibold text-light-primary dark:text-dark-primary">
-              {credits} Credits
+              {credits ?? "…"} Credits
             </span>
           </div>
 
@@ -209,8 +225,8 @@ const CreateStory = () => {
           {currentStepIndex < STEPS.length - 1 ? (
             <button
               onClick={handleNext}
-              disabled={!isValid} // disable Next if current step is not valid
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl ${!isValid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'} bg-light-primary dark:bg-dark-primary text-light-on-primary
+              disabled={!isValid || saving} // disable Next if current step is not valid
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl ${!isValid || saving ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'} bg-light-primary dark:bg-dark-primary text-light-on-primary
                font-body font-semibold text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200`}
             >
               Next

@@ -1,4 +1,4 @@
-import { AsyncLocalStorage } from 'async_hooks';
+import { AsyncLocalStorage } from 'node:async_hooks';
 
 // Test-harness hook: records pipeline events when a run is active, no-op otherwise.
 export type TraceSink = (event: string, data: Record<string, unknown>) => void;
