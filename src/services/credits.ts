@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ErrorCode, type Package, Purchases, PurchasesError } from '@revenuecat/purchases-js';
+import { ErrorCode, type NonSubscriptionTransaction, type Package, Purchases, PurchasesError } from '@revenuecat/purchases-js';
 import { supabase } from '../lib/supabase';
 
 // Credits are RevenueCat in-app currency CRED; the RevenueCat app user id is the Supabase user id.
@@ -62,7 +62,8 @@ export const useCreditPacks = (loggedIn: boolean, authReady: boolean) => {
 };
 
 // "credits_25" -> 25
-export const packCredits = (pack: Package) => Number(pack.webBillingProduct.identifier.split('_').pop());
+export const productCredits = (productId: string) => Number(productId.split('_').pop());
+export const packCredits = (pack: Package) => productCredits(pack.webBillingProduct.identifier);
 
 // Opens RevenueCat's checkout. Resolves false if the user closed it; credits land via RevenueCat.
 export const buyPack = async (pack: Package, email: string | null) => {
@@ -73,4 +74,20 @@ export const buyPack = async (pack: Package, email: string | null) => {
     if (error instanceof PurchasesError && error.errorCode === ErrorCode.UserCancelledError) return false;
     throw error;
   }
+};
+
+// Credit pack purchases, newest first.
+export const usePurchaseHistory = () => {
+  const [purchases, setPurchases] = useState<NonSubscriptionTransaction[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      await ready;
+      if (!Purchases.isConfigured()) return setPurchases([]);
+      const info = await Purchases.getSharedInstance().getCustomerInfo();
+      setPurchases([...info.nonSubscriptionTransactions].sort((a, b) => b.purchaseDate.getTime() - a.purchaseDate.getTime()));
+    })().catch(error => { console.error('Could not load purchases:', error); setPurchases([]); });
+  }, []);
+
+  return purchases;
 };
