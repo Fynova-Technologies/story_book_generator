@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Purchases } from '@revenuecat/purchases-js';
+import { ErrorCode, type Package, Purchases, PurchasesError } from '@revenuecat/purchases-js';
 import { supabase } from '../lib/supabase';
 
 // Credits are RevenueCat in-app currency CRED; the RevenueCat app user id is the Supabase user id.
@@ -38,4 +38,39 @@ export const useCredits = () => {
   useEffect(() => { refresh().catch(error => console.error('Could not load credits:', error)); }, [refresh]);
 
   return { credits, refresh };
+};
+
+// Credit packs from the current RevenueCat offering ("credits"), cheapest first. Logged-out
+// visitors browse with an anonymous RevenueCat id; startCredits swaps in the real user on login.
+export const useCreditPacks = (loggedIn: boolean, authReady: boolean) => {
+  const [packs, setPacks] = useState<Package[] | null>(null);
+
+  useEffect(() => {
+    if (!authReady) return;
+    (async () => {
+      if (loggedIn) await ready;
+      else if (!Purchases.isConfigured()) {
+        Purchases.configure({ apiKey: process.env.NEXT_PUBLIC_REVENUECAT_API_KEY!, appUserId: Purchases.generateRevenueCatAnonymousAppUserId() });
+      }
+      const offerings = await Purchases.getSharedInstance().getOfferings();
+      setPacks([...offerings.current?.availablePackages ?? []]
+        .sort((a, b) => a.webBillingProduct.currentPrice.amountMicros - b.webBillingProduct.currentPrice.amountMicros));
+    })().catch(error => { console.error('Could not load credit packs:', error); setPacks([]); });
+  }, [loggedIn, authReady]);
+
+  return packs;
+};
+
+// "credits_25" -> 25
+export const packCredits = (pack: Package) => Number(pack.webBillingProduct.identifier.split('_').pop());
+
+// Opens RevenueCat's checkout. Resolves false if the user closed it; credits land via RevenueCat.
+export const buyPack = async (pack: Package, email: string | null) => {
+  try {
+    await Purchases.getSharedInstance().purchase({ rcPackage: pack, customerEmail: email ?? undefined });
+    return true;
+  } catch (error) {
+    if (error instanceof PurchasesError && error.errorCode === ErrorCode.UserCancelledError) return false;
+    throw error;
+  }
 };
