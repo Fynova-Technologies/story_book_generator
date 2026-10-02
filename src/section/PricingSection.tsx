@@ -1,120 +1,31 @@
 import { useState } from "react";
+import type { Package } from "@revenuecat/purchases-js";
 import PricingCard from "../components/PricingCard/PricingCard";
+import { buyPack, packCredits, STORY_COST, useCreditPacks } from "../services/credits";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 
-const pricingData = {
-  annually: [
-    {
-      id: 1,
-      planName: "Storybook Basic",
-      price: "$0/mo",
-      description: "For team use with light needs.",
-      isFree: true,
-      isPopular: false,
-      buttonLabel: "Try Free",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Voice narration included",
-        "Share unlimited stories",
-        "Share unlimited stories",
-      ],
-    },
-    {
-      id: 2,
-      planName: "Storybook Lifetime",
-      price: "$189/mo",
-      description: "For pro use with light needs.",
-      isFree: false,
-      isPopular: true,
-      buttonLabel: "Get started",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Voice narration included",
-        "Share unlimited stories",
-        "Share unlimited stories",
-      ],
-    },
-    {
-      id: 3,
-      planName: "Storybook Lifetime",
-      price: "$189/mo",
-      description: "For team use with light needs.",
-      isFree: false,
-      isPopular: false,
-      buttonLabel: "Get started",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Voice narration included",
-        "Share unlimited stories",
-        "Share unlimited stories",
-      ],
-    },
-  ],
-  monthly: [
-    {
-      id: 1,
-      planName: "Storybook Basic",
-      price: "$0/mo",
-      description: "For team use with light needs.",
-      isFree: true,
-      isPopular: false,
-      buttonLabel: "Try Free",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Share unlimited stories",
-      ],
-    },
-    {
-      id: 2,
-      planName: "Storybook Pro",
-      price: "$29/mo",
-      description: "For pro use with light needs.",
-      isFree: false,
-      isPopular: true,
-      buttonLabel: "Get started",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Voice narration included",
-        "Share unlimited stories",
-        "Share unlimited stories",
-      ],
-    },
-    {
-      id: 3,
-      planName: "Storybook Business",
-      price: "$49/mo",
-      description: "For team use with light needs.",
-      isFree: false,
-      isPopular: false,
-      buttonLabel: "Get started",
-      features: [
-        "Unlimited story generation",
-        "All art styles",
-        "Voice narration included",
-        "Voice narration included",
-        "Share unlimited stories",
-        "Share unlimited stories",
-      ],
-    },
-  ],
-};
-
 const PricingSection = () => {
-  const [billing, setBilling] = useState<"annually" | "monthly">("annually");
   const navigate = useNavigate();
-  const loggedIn = useSelector((state: RootState) => state.auth.status);
+  const { status: loggedIn, authInitialized, userData } = useSelector((state: RootState) => state.auth);
+  const packs = useCreditPacks(loggedIn, authInitialized);
+  const [buying, setBuying] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const buy = async (pack: Package) => {
+    if (!loggedIn) return navigate("/signup");
+    setError(null);
+    setBuying(pack.identifier);
+    try {
+      if (await buyPack(pack, userData?.email ?? null)) navigate("/dashboard");
+    } catch (error) {
+      console.error("Purchase failed:", error);
+      setError("The payment didn't go through. Please try again.");
+    } finally {
+      setBuying(null);
+    }
+  };
 
   return (
     <section
@@ -133,58 +44,37 @@ const PricingSection = () => {
         {/* ── HEADING ── */}
         <div className="text-center mb-8">
           <h2 className="font-heading text-3xl sm:text-4xl md:text-[50px] font-bold text-black leading-tight md:leading-[60px]">
-            Simple Plans <br /> For Serious Work
+            Buy Credits, <br /> Make Stories
           </h2>
         </div>
 
-        {/* ── TOGGLE — Annually / Monthly ── */}
-        <div className="flex justify-center mb-12">
-          <div className="flex items-center gap-3 p-1 rounded-[26px] bg-light-bg">
-
-            {/* Annually */}
-            <button
-              onClick={() => setBilling("annually")}
-              className={`w-[129px] py-1.5 rounded-full text-[15px] font-body font-medium transition-all duration-200
-                ${billing === "annually"
-                  ? "bg-light-primary text-light-on-primary shadow-sm"
-                  : "text-black hover:text-light-primary"
-                }
-              `}
-            >
-              Annually
-            </button>
-
-            {/* Monthly */}
-            <button
-              onClick={() => setBilling("monthly")}
-              className={`w-[129px] py-1.5 rounded-full text-[15px] font-body font-medium transition-all duration-200
-                ${billing === "monthly"
-                  ? "bg-light-primary text-light-on-primary shadow-sm"
-                  : "text-black hover:text-light-primary"
-                }
-              `}
-            >
-              Monthly
-            </button>
-
-          </div>
-        </div>
+        {error && <p className="mb-6 text-center font-body text-red-600">{error}</p>}
 
         {/* ── PRICING CARDS ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 items-center">
-          {pricingData[billing].map((plan) => (
-            <PricingCard
-              key={plan.id}
-              planName={plan.planName}
-              price={plan.price}
-              description={plan.description}
-              features={plan.features}
-              buttonLabel={plan.buttonLabel}
-              isPopular={plan.isPopular}
-              isFree={plan.isFree}
-              onButtonClick={() => navigate(loggedIn ? "/dashboard" : "/signup")}
-            />
-          ))}
+          {packs === null && <p className="md:col-span-3 text-center font-body text-light-outline">Loading credit packs…</p>}
+          {packs?.length === 0 && <p className="md:col-span-3 text-center font-body text-light-outline">Credit packs are unavailable right now. Please try again later.</p>}
+          {packs?.map((pack, i) => {
+            const credits = packCredits(pack);
+            const stories = credits / STORY_COST;
+            return (
+              <PricingCard
+                key={pack.identifier}
+                planName={pack.webBillingProduct.title}
+                price={pack.webBillingProduct.currentPrice.formattedPrice}
+                description={`${stories} storybooks, one-time payment.`}
+                features={[
+                  `${credits} credits (${STORY_COST} per story)`,
+                  "All art and story styles",
+                  "Credits never expire",
+                  "No subscription",
+                ]}
+                buttonLabel={!loggedIn ? "Sign up to buy" : buying === pack.identifier ? "Opening checkout…" : "Buy credits"}
+                isPopular={i === 1}
+                onButtonClick={() => { if (!buying) buy(pack); }}
+              />
+            );
+          })}
         </div>
 
       </div>
