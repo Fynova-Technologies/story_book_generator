@@ -53,7 +53,6 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
     }
   };
 
-  // /pricing for now; point at a credit packs page once there is one.
   const handleGetMoreCredits = () => navigate("/pricing");
 
   const clearErrorMessage = () => {
