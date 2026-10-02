@@ -9,7 +9,6 @@ const dashboardImg = "/assets/icons/Sidebar/Dashboard.png";
 const heart = "/assets/icons/Sidebar/Heart.png";
 const templete = "/assets/icons/Sidebar/Templete.png";
 const user = "/assets/icons/Sidebar/User.png";
-const diamond = "/assets/icons/Sidebar/Diamond.png";
 const setting = "/assets/icons/Sidebar/Setting.png";
 
 interface NavItem {
@@ -80,22 +79,10 @@ const Sidebar = ({ open = false, onClose }: SidebarProps) => {
           <br />
           {STORY_COST} credits per story
         </p>
-      </div>
-
-      {/* Premium Upgrade Card */}
-      <div className="relative overflow-hidden rounded-[13px] bg-blue-50 p-4">
-        <span aria-hidden className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-light-primary/20 blur-lg" />
-        <div className="relative flex items-center gap-2 mb-1.5">
-          <img src={diamond} alt="" className="w-4 h-4" />
-          <p className="font-heading text-xs font-bold text-light-primary">Premium Plan</p>
-        </div>
-        <p className="relative font-body text-xs text-gray-600 leading-snug mb-3">
-          Get more credits to make more stories.
-        </p>
         <button
           onClick={() => { onClose?.(); navigate("/pricing"); }}
-          className="relative w-full h-8 rounded-[13px] bg-light-primary text-white font-body text-[11px] font-bold shadow-md hover:opacity-90 transition-opacity">
-          Upgrade Now
+          className="w-full h-8 mt-3 rounded-[13px] bg-light-primary text-white font-body text-[11px] font-bold shadow-md hover:opacity-90 transition-opacity">
+          Buy credits
         </button>
       </div>
 
