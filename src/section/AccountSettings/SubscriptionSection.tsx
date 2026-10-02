@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { STORY_COST, useCredits } from "../../services/credits";
+import { productCredits, STORY_COST, useCredits, usePurchaseHistory } from "../../services/credits";
 
 const SubscriptionSection = () => {
   const navigate = useNavigate();
   const { credits } = useCredits();
+  const purchases = usePurchaseHistory();
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F2F0F4] shadow-sm">
@@ -47,9 +48,20 @@ const SubscriptionSection = () => {
           <p className="font-body text-xs font-bold text-light-text uppercase tracking-wide mb-3">
             Purchase History
           </p>
-          <p className="font-body text-sm text-light-outline">
-            Your credit purchases will appear here.
-          </p>
+          {purchases === null ? (
+            <p className="font-body text-sm text-light-outline">Loading…</p>
+          ) : purchases.length === 0 ? (
+            <p className="font-body text-sm text-light-outline">No purchases yet.</p>
+          ) : (
+            <ul className="divide-y divide-[#F2F0F4]">
+              {purchases.map(purchase => (
+                <li key={purchase.transactionIdentifier} className="flex justify-between py-2.5 font-body text-sm">
+                  <span className="font-semibold text-light-text">{productCredits(purchase.productIdentifier)} credits</span>
+                  <span className="text-light-outline">{purchase.purchaseDate.toLocaleDateString()}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
       </div>
