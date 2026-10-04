@@ -110,6 +110,11 @@ body {
 
 @layer utilities {
 
+  /* Stacked paper edges beside the open book (StoryFlipBook). */
+  .page-edges {
+    background: repeating-linear-gradient(to right, #e6dfcf 0 1px, #a99f88 1px 2px);
+  }
+
   .bg-paper {
     background: #F2EFEA url('/assets/images/paper.jpg') center / cover fixed;
   }

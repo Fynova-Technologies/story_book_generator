@@ -21,22 +21,68 @@ interface Props {
 
 // Figma 798:2607: white pill bars with dark round buttons.
 const darkBtn = 'rounded-full bg-light-outline text-white flex items-center justify-center hover:opacity-90 active:scale-95 transition-all disabled:opacity-40';
+// Storage images are WebP, which jsPDF can't embed: redraw them as JPEG.
+const toJpeg = async (url: string) => {
+  const bitmap = await createImageBitmap(await (await fetch(url)).blob());
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0);
+  return canvas.toDataURL('image/jpeg', 0.9);
+};
+
 const Divider = () => <div className="hidden sm:block w-px h-10 bg-light-outline/60" />;
 
 const StoryFlipBook = ({ story }: Props) => {
   
   // react-pageflip's ref exposes pageFlip(); typed loosely, as the library doesn't export it.
-  const bookRef = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } | undefined }>(null);
+  const bookRef = useRef<{ pageFlip: () => {
+    flipNext: () => void;
+    flipPrev: () => void;
+    getBoundsRect: () => { left: number };
+    getFlipController: () => { flip: (point: { x: number; y: number }) => void };
+  } | undefined }>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isPlaying,   setIsPlaying]   = useState(false);
   const [playSpeed,   setPlaySpeed]   = useState(1);
-  const [copied,      setCopied]      = useState(false);
+  const [notice,      setNotice]      = useState('');
+  const flash = (message: string) => { setNotice(message); setTimeout(() => setNotice(''), 2500); };
 
   const totalPages = story.pages.length + 2;
 
   const goNext = () => bookRef.current?.pageFlip()?.flipNext();
-  const goPrev = () => bookRef.current?.pageFlip()?.flipPrev();
+  // page-flip's flipPrev starts at x=10 regardless of where the book sits. In single-page mode
+  // that is the spine, so the page grew out of the spine instead of turning back. Start from
+  // the book's real left edge, mirroring flipNext (which does use it).
+  const goPrev = () => {
+    const flip = bookRef.current?.pageFlip();
+    if (!flip) return;
+    if (landscape) flip.flipPrev();
+    else flip.getFlipController().flip({ x: flip.getBoundsRect().left + 10, y: 1 });
+  };
   const onFlip = (e: { data: number }) => setCurrentPage(e.data);
+
+  // Two-page spreads only in landscape; portrait shows one page, so nothing to recentre.
+  const [landscape, setLandscape] = useState(true);
+  const onOrientation = (e: { data: string }) => setLandscape(e.data === 'landscape');
+  const onInit = (e: { data: { mode: string } }) => setLandscape(e.data.mode === 'landscape');
+
+  // Intro: the closed book slides in from the left, grows and settles with a tilt; opening straightens it.
+  const [entered, setEntered] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setEntered(true), 50); return () => clearTimeout(t); }, []);
+  const closedFront = currentPage === 0;
+  const closedBack  = currentPage >= totalPages - 1;
+  // A closed book is one page wide: shift it by half a page so the cover sits centred.
+  const bookTransform = !entered ? 'translateX(calc(-50vw - 50%)) scale(0.5) rotate(-10deg)'
+    : closedFront ? `translateX(${landscape ? '-25%' : '0'}) rotate(-3deg)`
+    : closedBack  ? `translateX(${landscape ? '25%' : '0'}) rotate(3deg)`
+    : 'none';
+
+  // Page-edge stacks either side, as thick as the pages left on that side (up to 10px).
+  const edge = (pages: number) => Math.round(Math.min(pages, totalPages) / totalPages * 10);
+  // Portrait shows one page with the spine on its left, so only the right-hand stack is drawn.
+  const leftEdge  = closedFront || !landscape ? 0 : edge(currentPage);
+  const rightEdge = closedBack  ? 0 : edge(totalPages - 1 - currentPage);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -49,6 +95,31 @@ const StoryFlipBook = ({ story }: Props) => {
 
   const cycleSpeed = () => setPlaySpeed(s => s === 1 ? 1.5 : s === 1.5 ? 2 : 1);
 
+  // A real PDF of the book: title page, one page per story page. jsPDF only loads on click.
+  const [downloading, setDownloading] = useState(false);
+  const download = async () => {
+    setDownloading(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+      const W = 600, M = 36;
+      const pdf = new jsPDF({ unit: 'pt', format: [W, W] });
+      pdf.setFontSize(28).text(story.title, W / 2, W / 2 - 10, { align: 'center', maxWidth: W - 2 * M });
+      if (story.subtitle) pdf.setFontSize(14).text(story.subtitle, W / 2, W / 2 + 30, { align: 'center', maxWidth: W - 2 * M });
+      for (const page of story.pages) {
+        const lines: string[] = page.text ? pdf.setFontSize(12).splitTextToSize(page.text, W - 2 * M) : [];
+        pdf.addPage([W, lines.length ? W + 2 * M + lines.length * 16 : W]);
+        if (page.imageUrl) pdf.addImage(await toJpeg(page.imageUrl), 'JPEG', 0, 0, W, W);
+        if (lines.length) pdf.setFontSize(12).text(lines, M, W + M + 12);
+      }
+      pdf.save(`${story.title || 'story'}.pdf`);
+    } catch (error) {
+      console.error(error);
+      flash('Could not create the PDF');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   // Native share sheet where there is one, otherwise copy the link.
   const share = async () => {
     const url = window.location.href;
@@ -58,15 +129,15 @@ const StoryFlipBook = ({ story }: Props) => {
     }
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      flash('Link copied');
     } catch {
       window.prompt('Copy this link', url);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-6 px-4 pt-6 pb-10 md:pt-10">
+    // overflow-clip: the corner peel briefly draws the next page outside the book, which added page scrollbars.
+    <div className="min-h-screen flex flex-col items-center gap-6 px-4 pt-6 pb-10 md:pt-10 overflow-clip">
 
       {/* ── Header ── */}
       <div className="w-full max-w-5xl flex flex-col gap-6">
@@ -90,7 +161,7 @@ const StoryFlipBook = ({ story }: Props) => {
 
       {/* ── Top bar: download + share ── */}
       <div className="relative flex items-center gap-4 bg-white p-3 md:p-4 rounded-full shadow-sm">
-        <button onClick={() => window.print()} className={`${darkBtn} w-12 h-12`} title="Download (print)" aria-label="Download">
+        <button onClick={download} disabled={downloading} className={`${darkBtn} w-12 h-12`} title="Download PDF" aria-label="Download PDF">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3v12M7 10l5 5 5-5"/>
             <path d="M5 21h14"/>
@@ -105,15 +176,20 @@ const StoryFlipBook = ({ story }: Props) => {
             <line x1="15.41" y1="6.51"  x2="8.59"  y2="10.49"/>
           </svg>
         </button>
-        {copied && (
+        {notice && (
           <span role="status" className="absolute left-1/2 -translate-x-1/2 top-full mt-2 whitespace-nowrap px-3 py-1 rounded-full bg-light-outline text-white font-body text-xs">
-            Link copied
+            {notice}
           </span>
         )}
       </div>
 
       {/* The Flipbook: two-page spread on wide screens, one page (portrait) when the screen is narrower than two pages */}
-      <div className="w-full max-w-[900px]">
+      <div
+        className={`relative w-full ${landscape ? 'max-w-[900px]' : 'max-w-[450px]'} transition-transform duration-1000 ease-[cubic-bezier(.2,.8,.2,1)] motion-reduce:transition-none [filter:drop-shadow(0_20px_25px_rgb(0_0_0/0.25))]`}
+        style={{ transform: bookTransform }}
+      >
+      {leftEdge > 0 && <div aria-hidden className="absolute top-[3px] bottom-[3px] right-[calc(100%-6px)] rounded-l-md page-edges" style={{ width: leftEdge + 6 }} />}
+      {rightEdge > 0 && <div aria-hidden className="absolute top-[3px] bottom-[3px] left-[calc(100%-6px)] rounded-r-md page-edges" style={{ width: rightEdge + 6 }} />}
       <HTMLFlipBook
         ref={bookRef}
         width={450}
@@ -125,7 +201,7 @@ const StoryFlipBook = ({ story }: Props) => {
         maxHeight={530}
         showCover={true}
         flippingTime={700}
-        className="shadow-2xl"
+        className=""
         style={{}}
         startPage={0}
         drawShadow={true}
@@ -140,10 +216,12 @@ const StoryFlipBook = ({ story }: Props) => {
         showPageCorners={true}
         disableFlipByClick={false}
         onFlip={onFlip}
+        onInit={onInit}
+        onChangeOrientation={onOrientation}
       >
 
       {/* Cover Page */}
-      <div className="w-full h-full relative rounded-2xl overflow-hidden">
+      <div className="w-full h-full relative overflow-hidden rounded-r-md">
 
         {/* Background Cover Image */}
         {story.pages?.[0]?.imageUrl ? (
@@ -181,11 +259,13 @@ const StoryFlipBook = ({ story }: Props) => {
 
       </div>
 
-        {/* Story Pages */}
-        {story.pages.map((page) => (
+        {/* Story Pages: odd pages sit on the left of a spread, so their outer edge is the left one. */}
+        {story.pages.map((page) => {
+          const left = landscape && page.page % 2 === 1;
+          return (
           <div
             key={page.page}
-            className="w-full h-full bg-white flex flex-col overflow-hidden rounded-2xl"
+            className={`relative w-full h-full bg-[#fdfbf6] flex flex-col overflow-hidden ${left ? 'rounded-l-md' : 'rounded-r-md'}`}
           >
             {/* Image - full height if no text, 70% if text exists */}
             <div className={`w-full overflow-hidden ${page.text ? 'h-[70%]' : 'h-full'}`}>
@@ -196,33 +276,28 @@ const StoryFlipBook = ({ story }: Props) => {
               />
             </div>
 
-            {/* Text - only show if text exists */}
             {page.text && (
-              <div className="flex-1 p-5 flex flex-col justify-between">
-                <p className="font-body text-sm text-light-text leading-relaxed">
-                  {page.text}
-                </p>
-                <span className="text-xs text-light-outline opacity-50 self-end">
-                  {page.page} / {story.pages.length}
-                </span>
-              </div>
+              <p className="flex-1 px-5 pt-5 pb-8 font-body text-sm text-light-text leading-relaxed">
+                {page.text}
+              </p>
             )}
 
-            {/* Page number when no text */}
-            {!page.text && (
-              <span className="absolute bottom-4 right-4 text-xs text-light-outline opacity-50">
-                {page.page} / {story.pages.length}
-              </span>
-            )}
+            {/* Page number on the outer corner */}
+            <span className={`absolute bottom-3 ${left ? 'left-4' : 'right-4'} text-xs text-light-outline opacity-60`}>
+              {page.page}
+            </span>
+
+            {/* Shading where the page curves into the spine */}
+            <div aria-hidden className={`pointer-events-none absolute inset-y-0 w-10 ${left
+              ? 'right-0 bg-gradient-to-l from-black/15 via-black/5 to-transparent'
+              : 'left-0 bg-gradient-to-r from-black/15 via-black/5 to-transparent'}`} />
           </div>
-
-          
-          
-        ))}
+          );
+        })}
 
         {/* Back Cover */}
-        <div className="w-full h-full bg-light-primary flex flex-col items-center justify-center
-         p-8 text-center rounded-2xl">
+        <div className={`w-full h-full ${landscape ? 'rounded-l-md' : 'rounded-r-md'} bg-light-primary flex flex-col items-center justify-center
+         p-8 text-center`}>
           <p className="text-white text-lg font-semibold">The End</p>
           <p className="text-white/70 text-sm mt-4">
             Created with StoryBook Generator

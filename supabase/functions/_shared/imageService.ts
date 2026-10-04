@@ -11,6 +11,10 @@ export async function transformImage(
   prompt: string,
   page?: number,
 ) {
+  // Only the faces in this scene: every extra reference face ends up on background people.
+  // ponytail: plain name match; a scene that names nobody keeps every reference (edits need at least one image).
+  const inScene = references.filter(reference => prompt.toLowerCase().includes(reference.characterName.toLowerCase()));
+  if (inScene.length) references = inScene;
   const fullPrompt = `${referenceLabels(references)}
 
 Create the requested story illustration.
@@ -22,12 +26,20 @@ Reference photos establish identity, not scene membership. Render ONLY character
 present in the scene/panel. The same character may recur in different panels.
 Never duplicate a character within a panel unless the scene explicitly requires it.
 Preserve face, hair, skin/fur, proportions, and distinguishing features across pages,
-adapting them to the requested art style. Do not blend identities or give background
-people a reference character's face. Use the canonical outfit below; if reference
+adapting them to the requested art style. Do not blend identities. Use the canonical outfit below; if reference
 photos disagree on clothing, the first photo of that character defines the outfit.
 Treat the character definitions as fixed; vary pose, expression and camera angle.
-Keep every main character's face clearly visible and large enough to recognize:
-front or three-quarter view, never from behind, never hidden.
+When a character's face is shown, it must be recognizably theirs.
+
+BACKGROUND PEOPLE:
+Only the named characters look like the reference images. Everyone else (crowds, passers-by,
+spectators, staff) is a stranger: give each a clearly different face, age, build, hairstyle
+and skin tone, and never reuse a reference character's face or outfit on them.
+
+TEXT IN THE IMAGE:
+Render only text that appears in quotes in the scene, spelled exactly. Phone screens, calendars,
+signs, posters, cakes and labels without quoted text stay blank or unreadable: never invent
+dates, names, numbers or words.
 
 SCENE:
 ${prompt}`;
