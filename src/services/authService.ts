@@ -7,7 +7,7 @@ import { startCredits } from './credits';
 const toUserData = (user: User) => ({
   uid:         user.id,
   email:       user.email ?? null,
-  displayName: (user.user_metadata.display_name as string | undefined) ?? null,
+  displayName: (user.user_metadata.display_name ?? user.user_metadata.full_name ?? null) as string | null,
   photoURL:    null,
 });
 
@@ -25,6 +25,16 @@ export const signInWithEmail = async (email: string, password: string, rememberM
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return toUserData(data.user);
+};
+
+// Leaves the page; on return the client picks the session out of the URL and initAuthListener logs the user in.
+export const signInWithGoogle = async () => {
+  setRememberMe(true);
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/dashboard` },
+  });
+  if (error) throw error;
 };
 
 export const sendPasswordReset = async (email: string) => {
