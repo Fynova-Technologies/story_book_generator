@@ -33,8 +33,13 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
     - In imagePrompt, refer to characters by their exact names only
     - Never describe a character's face, hair, body or clothing in imagePrompt: the illustrator
       receives each character's photos and character sheet, and extra description makes faces drift
-    - Frame every main character so their face is clearly visible (front or three-quarter view)
     - Never blend two characters' traits
+    - Crowds and background people are strangers: describe them as varied (different ages, builds, hair)
+
+    PROPS WITH TEXT
+    - Never leave a phone, calendar, sign, cake or note's text to the illustrator
+    - Either give its exact words in quotes from the story facts (only in styles that allow text in images),
+      or say it is blank or unreadable
 
     ABSOLUTE RESTRICTIONS
     - No text or letters inside images
@@ -70,11 +75,18 @@ export const getInstructionsByStyle = (data: any, visualSection: string, style: 
       Every single 'imagePrompt' string must layout an authentic Japanese Manga multi-panel page matrix read right-to-left:
       "IMAGE PROMPT STRUCTURE:
       Authentic 4-panel traditional manga page layout, high contrast monochrome ink wash, clean gutters, right-to-left reading flow direction.
-      PANEL 1 (Top Right): [Start with character visual text if present, then action, speedlines]. Speech bubble: '[short dialogue]'
+      PANEL 1 (Top Right): [Start with character visual text if present, then action, speedlines]. Narration box: '[short narration]'. Speech bubble: '[short dialogue]'
       PANEL 2 (Top Left): [Dramatic reaction close-up, screen-tone texture, shadow hatching]. Katakana Sound effect overlay: '[stylized text]'
-      PANEL 3 (Bottom Right): [Dynamic environmental establishing wide shot, deep angles]. Thought balloon: '[internal monologue]'
+      PANEL 3 (Bottom Right): [Dynamic environmental establishing wide shot, deep angles]. Narration box: '[short narration]'. Thought balloon: '[internal monologue]'
       PANEL 4 (Bottom Left): [Climax scene, bold ink brush contours, intense focal depth]. Speech bubble: '[impactful short line]'
       Style details: Traditional black and white manga ink, screentones, ${style.styleDetails || ""}. Negative prompts/Restrictions: Colored imagery, photorealism, ${style.restrictions || ""}"
+
+      MANGA TEXT RULES (override the "no text" rules above):
+      - The story narration lives INSIDE the image, in rectangular narration boxes: white box, thin black border, set in the top corner of its panel
+      - Split the page's narration across 1-2 narration boxes, at most 12 words each, in the panels where it happens
+      - Speech bubbles and thought balloons stay as above, at most 8 words each
+      - Set every page's "text" to an empty string: nothing is printed below the image
+      - End each imagePrompt with: "No watermarks, no distorted faces" (never "No text")
     `,
 
    storybook: `
