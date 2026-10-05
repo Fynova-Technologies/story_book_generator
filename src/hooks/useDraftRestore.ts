@@ -26,7 +26,6 @@ export const useDraftRestore = () => {
     dispatch(restoreDraft({
       template:      story.template,
       questionnaire: story.questionnaire,
-      artStyle:      story.art_style,
       storyStyle:    story.story_style,
       narration:     story.narration,
       story:         story.custom_story,

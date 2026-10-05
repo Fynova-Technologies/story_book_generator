@@ -4,6 +4,7 @@ const CONTACT_EMAIL = "contact@fynovatech.com";
 import InputField from "../components/InputField/Input";
 import {useForm} from "react-hook-form"
 import Navbar from "../components/Navbar/Navbar";
+import { supabase } from "../lib/supabase";
 
 const ContactUsSection = () => {
     type FormData = {
@@ -12,13 +13,12 @@ const ContactUsSection = () => {
       message:string;
     };
   const {register,handleSubmit,formState:{errors}}= useForm<FormData>();
-  const [sent, setSent] = useState(false);
-  // ponytail: no backend for messages yet, so open the visitor's mail app; a `contact` Edge Function can replace this.
-  const handleSend = (data: FormData) => {
-    const subject = encodeURIComponent(`Message from ${data.name}`);
-    const body = encodeURIComponent(`${data.message}\n\nFrom: ${data.name} <${data.email}>`);
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
-    setSent(true);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  // Saved to the contact_messages table; read them in the Supabase dashboard.
+  const handleSend = async (data: FormData) => {
+    setStatus("sending");
+    const { error } = await supabase.from("contact_messages").insert(data);
+    setStatus(error ? "error" : "sent");
   };
 
 
@@ -143,13 +143,19 @@ const ContactUsSection = () => {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-fit px-6 py-2.5 rounded-xl bg-light-primary text-white font-body font-medium text-base md:text-lg hover:opacity-90 active:scale-[0.99] transition-all duration-200"
+                  disabled={status === "sending"}
+                  className="w-fit px-6 py-2.5 rounded-xl bg-light-primary text-white font-body font-medium text-base md:text-lg hover:opacity-90 active:scale-[0.99] transition-all duration-200 disabled:opacity-60"
                 >
-                  Submit
+                  {status === "sending" ? "Sending..." : "Submit"}
                 </button>
-                {sent && (
+                {status === "sent" && (
                   <p className="font-body text-sm text-light-text">
-                    Thanks! Your email app should open with your message. If it didn't, email us at {CONTACT_EMAIL}.
+                    Thanks! We got your message and will get back to you soon.
+                  </p>
+                )}
+                {status === "error" && (
+                  <p className="font-body text-sm text-red-500">
+                    Couldn't send your message. Please try again or email us at {CONTACT_EMAIL}.
                   </p>
                 )}
 

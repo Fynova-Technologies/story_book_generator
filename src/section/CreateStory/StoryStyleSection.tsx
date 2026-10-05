@@ -13,19 +13,19 @@ const storystyles = [
   {
     id:           "storybook",
     name:         "Storybook",
-    description:  "Soft illustrations with text below, classic children's feel",
+    description:  "Hand-painted, Ghibli-like animated film look, with the story text below",
     previewImage: storybook,
   },
   {
     id:           "manga",
     name:         "Manga",
-    description:  "Black & white, expressive, Japanese-style panels",
+    description:  "Black & white ink and screentones, panels read right to left",
     previewImage: manga,
   },
   {
     id:           "comic",
     name:         "Comic",
-    description:  "Colorful panels with speech bubbles and bold outlines",
+    description:  "Bold ink, flat colors, dynamic panels and speech balloons",
     previewImage: comic,
   },
 ];

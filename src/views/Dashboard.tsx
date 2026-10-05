@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { resetWizard } from "../store/slices/storyWizardSlice";
-import { STORY_COST, useCredits } from "../services/credits";
+import { BASE_COST, PAGE_COST, TYPICAL_STORY_COST, useCredits } from "../services/credits";
 import { userName } from "../components/Sidebar/user";
 
 const Dashboard = () => {
@@ -13,7 +13,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.userData);
   const { credits } = useCredits();
-  const storiesLeft = credits === null ? null : Math.floor(credits / STORY_COST);
+  const storiesLeft = credits === null ? null : Math.floor(credits / TYPICAL_STORY_COST);
   const name = userName(user);
 
   return (
@@ -55,7 +55,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between gap-3">
                 <span className="text-white text-xs font-bold uppercase">Credits</span>
                 <span className="bg-white/10 rounded-lg px-2 py-1 text-white text-[10px] font-bold">
-                  {STORY_COST} per story
+                  {BASE_COST} + {PAGE_COST}/page
                 </span>
               </div>
               <p className="text-white text-2xl font-semibold leading-none">{credits ?? "…"}</p>

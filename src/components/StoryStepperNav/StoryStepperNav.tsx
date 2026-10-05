@@ -6,7 +6,6 @@ export const STEPS = [
   { id: "photo",         label: "Upload Photo" },
   { id: "questionnaire", label: "Questionnaire" },
   { id: "storystyle",    label: "Story Style Selection" },
-  { id: "art",           label: "Art Style Selection" },
   { id: "voice",         label: "Voice Narration" },
   { id: "generate",      label: "Generate" },
 ] as const;

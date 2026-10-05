@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import StoryFlipBook from '../components/StoryFlipBook/StoryFlipBook';
-import { STORY_COST } from '../services/credits';
+import { storyCost } from '../services/credits';
 import { BookPage, generateStory, loadBook, retryPage, StoryRow, UserFacingError, watchBook } from '../services/storyService';
 
 const MAX_ATTEMPTS = 3;
@@ -135,7 +135,7 @@ const FlipBookPage = () => {
         <p className={muted}>{story.error || 'Something went wrong on our side.'} Your credits were refunded.</p>
         {retryError && <p role="alert" className={errorText}>{retryError}</p>}
         <button onClick={() => retry()} disabled={retrying !== null} className={primaryBtn}>
-          {retrying !== null ? 'Starting…' : `Try again (${STORY_COST} credits)`}
+          {retrying !== null ? 'Starting…' : `Try again (${storyCost(story.story_length, !!story.narration)} credits)`}
         </button>
         <Link className={link} to="/dashboard">Back to dashboard</Link>
       </Message>
