@@ -13,13 +13,15 @@ export interface StoryWizardState {
   images:        StoryImage[];
   story:         string;
   questionnaire: Record<string, string>;
-  artStyle:      string;
   storyStyle:    string;
   narration:     string;
   currentDraftId: string | null;
   wizardStep:    number;
   // The user picked "Write my own story" instead of a template.
   customStory:   boolean;
+  // Questionnaire answers drawn from the character notes. key is the template and notes it was made
+  // from, so it reruns when they change. Not saved with drafts: a restored draft asks again.
+  prefill:       { key: string; filled: string[]; suggestions: Record<string, string[]> } | null;
 }
 
 const initialState: StoryWizardState = {
@@ -27,12 +29,12 @@ const initialState: StoryWizardState = {
   images:        [],
   story:         '',
   questionnaire: {},
-  artStyle:      '',
   storyStyle:    '',
   narration:     '',
   currentDraftId: null,
   wizardStep:    0, // starts at "Select Template"
   customStory:   false,
+  prefill:       null,
 };
 
 const storyWizardSlice = createSlice({
@@ -58,8 +60,12 @@ const storyWizardSlice = createSlice({
     setQuestionnaire: (state, action: PayloadAction<Record<string,string>>) => {
          state.questionnaire = action.payload; 
     },
-    setArtStyle:(state, action: PayloadAction<string>) => { 
-        state.artStyle      = action.payload; 
+    // Fills only unanswered questions, so nothing the user typed meanwhile is overwritten.
+    applyPrefill: (state, action: PayloadAction<{ key: string; answers: Record<string, string>; suggestions: Record<string, string[]> }>) => {
+         const { key, answers, suggestions } = action.payload;
+         const filled = Object.keys(answers).filter((q) => !state.questionnaire[q]?.trim());
+         filled.forEach((q) => { state.questionnaire[q] = answers[q]; });
+         state.prefill = { key, filled, suggestions };
     },
     setStoryStyle:(state, action: PayloadAction<string>) => { 
         state.storyStyle    = action.payload; 
@@ -77,7 +83,6 @@ const storyWizardSlice = createSlice({
     if (draft.template)      state.template      = draft.template;
     if (draft.questionnaire) state.questionnaire = draft.questionnaire;
     if (draft.story)         state.story         = draft.story;
-    if (draft.artStyle)      state.artStyle      = draft.artStyle;
     if (draft.storyStyle)    state.storyStyle    = draft.storyStyle;
     if (draft.narration)     state.narration     = draft.narration;
     if (draft.images)        state.images        = draft.images;
@@ -93,7 +98,7 @@ export const {
   setImages,
   setCustomStory,
   setQuestionnaire,
-  setArtStyle,
+  applyPrefill,
   setStoryStyle,
   setNarration,
   setCurrentDraftId,

@@ -3,7 +3,7 @@ import { RootState } from "../../store/store";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateStory, saveDraft, UserFacingError } from "../../services/storyService";
-import { STORY_COST, useCredits } from "../../services/credits";
+import { DEFAULT_PAGES, MAX_PAGES, storyCost as priceOf, useCredits } from "../../services/credits";
 import { setCurrentDraftId, setImages } from "../../store/slices/storyWizardSlice";
 import { STEPS } from "../../components/StoryStepperNav/StoryStepperNav";
 import StepPanel from "./StepPanel";
@@ -20,15 +20,15 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
   const wizard = useSelector((state: RootState) => state.story);
   const user = useSelector((state: RootState) => state.auth.userData);
   const { credits } = useCredits();
-  const storyCost = STORY_COST;
-  // Only block when the balance is known to be short; the server checks again anyway.
-  const notEnoughCredits = credits !== null && credits < storyCost;
   const characters = [...new Set(wizard.images.filter((p) => p.image).map((p) => p.characterName.trim()).filter(Boolean))];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading,setloading]= useState(false);
-  const [storyLength, setStoryLength] = useState<number>(6);
+  const [storyLength, setStoryLength] = useState<number>(DEFAULT_PAGES);
+  const storyCost = priceOf(storyLength, !!wizard.narration);
+  // Only block when the balance is known to be short; the server checks again anyway.
+  const notEnoughCredits = credits !== null && credits < storyCost;
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const remaining = credits === null ? null : credits - storyCost;
@@ -139,7 +139,7 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
                 <p className={valueCls}>{wizard.storyStyle || "—"}</p>
               </div>
               <div className={detailCls}>
-                <p className={labelCls}>{characters.length === 1 ? "Hero" : "Characters"}</p>
+                <p className={labelCls}>{characters.length === 1 ? "Character" : "Characters"}</p>
                 <p className={valueCls}>{characters.join(", ") || "—"}</p>
               </div>
               <div className={detailCls}>
@@ -148,15 +148,11 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
                   id="story-length"
                   type="number"
                   min={1}
-                  max={20}
+                  max={MAX_PAGES}
                   value={storyLength}
-                  onChange={(e) => setStoryLength(Math.min(20, Math.max(1, Number(e.target.value) || 1)))}
+                  onChange={(e) => setStoryLength(Math.min(MAX_PAGES, Math.max(1, Number(e.target.value) || 1)))}
                   className={`w-full bg-white/70 rounded-lg px-2 py-0.5 -mx-0.5 focus:outline-none focus:ring-2 focus:ring-light-primary/40 ${valueCls}`}
                 />
-              </div>
-              <div className={detailCls}>
-                <p className={labelCls}>Art Style</p>
-                <p className={valueCls}>{wizard.artStyle || "—"}</p>
               </div>
             </div>
 

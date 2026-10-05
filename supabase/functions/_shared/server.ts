@@ -5,7 +5,6 @@ import { ApiError } from './ApiError.ts';
 
 declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void };
 
-export const STORY_COST      = 5;  // CRED per book ("5 credits = 1 story" in RevenueCat)
 export const WELCOME_CREDITS = 5;
 export const MAX_ATTEMPTS    = 3;  // per page; keep in sync with sync_story_status() in the migration
 
@@ -106,7 +105,7 @@ export async function adjustCredits(userId: string, amount: number, idempotencyK
 
 // Refunds a run's spend when the story ends up failed. Safe to call more than once per run.
 export async function refundIfFailed(storyId: string) {
-  const { data: story } = await admin.from('stories').select('user_id, status, generation').eq('id', storyId).single();
-  if (story?.status !== 'failed') return;
-  await adjustCredits(story.user_id, STORY_COST, `refund-${storyId}-${story.generation}`);
+  const { data: story } = await admin.from('stories').select('user_id, status, generation, credits_spent').eq('id', storyId).single();
+  if (story?.status !== 'failed' || !story.credits_spent) return;
+  await adjustCredits(story.user_id, story.credits_spent, `refund-${storyId}-${story.generation}`);
 }

@@ -2,7 +2,6 @@
   "name": "clockwork-heist",
   "request": {
     "template": "templete",
-    "artStyle": "Watercolor",
     "narration": "witty, suspenseful and heartfelt, with a twist ending",
     "storyStyle": "storybook",
     "storyLength": 6,

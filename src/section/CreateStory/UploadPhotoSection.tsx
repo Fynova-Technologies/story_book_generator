@@ -94,8 +94,8 @@ const UploadPhotoSection = ({
 
   return (
     <StepPanel
-      title="Gather Your Heroes"
-      subtitle="Upload up to 5 photos with one person in each, and say who is in every photo. Use the same name on several photos of one person, and the names you'll use in the story. Add a small description to help our AI create magic."
+      title="Gather Your Characters"
+      subtitle="Upload up to 5 photos with one person in each, and say who is in every photo. Use the same name on several photos of one person, and the names you'll use in the story. Add a short note on who they are (age, what they love) and we'll answer some questions for you."
     >
 
       {/* ── UPLOADED PHOTOS HEADER ── */}

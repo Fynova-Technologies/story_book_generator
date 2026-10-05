@@ -2,7 +2,6 @@
   "name": "whatsapp-duo",
   "request": {
     "template": "templete",
-    "artStyle": "Ghibli",
     "narration": "warm, funny and adventurous",
     "storyStyle": "storybook",
     "storyLength": 6,

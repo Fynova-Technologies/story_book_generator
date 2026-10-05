@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Package } from "@revenuecat/purchases-js";
 import PricingCard from "../components/PricingCard/PricingCard";
-import { buyPack, packCredits, STORY_COST, useCreditPacks } from "../services/credits";
+import { BASE_COST, buyPack, packCredits, PAGE_COST, TYPICAL_STORY_COST, useCreditPacks } from "../services/credits";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
@@ -56,15 +56,15 @@ const PricingSection = () => {
           {packs?.length === 0 && <p className="md:col-span-3 text-center font-body text-light-outline">Credit packs are unavailable right now. Please try again later.</p>}
           {packs?.map((pack, i) => {
             const credits = packCredits(pack);
-            const stories = credits / STORY_COST;
+            const stories = Math.floor(credits / TYPICAL_STORY_COST);
             return (
               <PricingCard
                 key={pack.identifier}
                 planName={pack.webBillingProduct.title}
                 price={pack.webBillingProduct.currentPrice.formattedPrice}
-                description={`${stories} storybooks, one-time payment.`}
+                description={`About ${stories} six-page storybooks, one-time payment.`}
                 features={[
-                  `${credits} credits (${STORY_COST} per story)`,
+                  `${credits} credits (${BASE_COST} per book + ${PAGE_COST} per page)`,
                   "All art and story styles",
                   "Credits never expire",
                   "No subscription",

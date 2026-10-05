@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { productCredits, STORY_COST, useCredits, usePurchaseHistory } from "../../services/credits";
+import { BASE_COST, PAGE_COST, productCredits, TYPICAL_STORY_COST, useCredits, usePurchaseHistory } from "../../services/credits";
 
 const SubscriptionSection = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const SubscriptionSection = () => {
           Credits & Billing
         </h3>
         <p className="font-body text-sm text-light-outline mt-1">
-          Each story uses {STORY_COST} credits.
+          Each book uses {BASE_COST} credits plus {PAGE_COST} per page.
         </p>
       </div>
 
@@ -32,7 +32,7 @@ const SubscriptionSection = () => {
             </p>
             {credits !== null && (
               <p className="font-body text-sm text-white/90 mt-1">
-                Enough for {Math.floor(credits / STORY_COST)} {Math.floor(credits / STORY_COST) === 1 ? "story" : "stories"}
+                Enough for {Math.floor(credits / TYPICAL_STORY_COST)} six-page {Math.floor(credits / TYPICAL_STORY_COST) === 1 ? "story" : "stories"}
               </p>
             )}
           </div>

@@ -5,8 +5,9 @@ import { normalizeReferences } from '../_shared/characterReferences.ts';
 import { planStory } from '../_shared/storyPipeline.ts';
 import {
   admin, adjustCredits, background, body, downloadDataUrl, invoke, json, publicMessage,
-  refundIfFailed, requireUser, serve, STORY_COST, uploadDataUrl,
+  refundIfFailed, requireUser, serve, uploadDataUrl,
 } from '../_shared/server.ts';
+import { clampPages, storyCost } from '../_shared/pricing.ts';
 
 // A run can't legitimately stay 'generating' this long (two invocations of at most 150s each),
 // so the function running it was killed. ponytail: swept only when the user starts another book;
@@ -27,10 +28,12 @@ serve(async req => {
   if (!photos?.length) throw new ApiError(400, 'Add at least one photo first.');
   if (photos.length > 5) throw new ApiError(400, 'Provide at most 5 reference photos.');
 
-  // Claim the story before spending, so two clicks can't both spend.
+  // Claim the story before spending, so two clicks can't both spend. The price is stored with the
+  // claim, so a refund returns exactly what was spent even if the draft is edited mid-run.
   const generation = story.generation + 1;
+  const cost = storyCost(story.story_length, !!story.narration);
   const { data: claimed, error } = await admin.from('stories')
-    .update({ status: 'generating', generation, error: null })
+    .update({ status: 'generating', generation, error: null, credits_spent: cost })
     .eq('id', story.id).eq('status', story.status).eq('generation', story.generation)
     .select('id');
   if (error?.code === '23505') throw new ApiError(409, 'You already have a story being created. Please wait for it to finish.');
@@ -39,9 +42,9 @@ serve(async req => {
 
   const release = () => admin.from('stories').update({ status: story.status }).eq('id', story.id);
   try {
-    if (await adjustCredits(user.id, -STORY_COST, `spend-${story.id}-${generation}`) === 'insufficient') {
+    if (await adjustCredits(user.id, -cost, `spend-${story.id}-${generation}`) === 'insufficient') {
       await release();
-      throw new ApiError(402, `You need ${STORY_COST} credits to create a story.`);
+      throw new ApiError(402, `You need ${cost} credits to create this story.`);
     }
   } catch (error) {
     if (!(error instanceof ApiError)) await release();
@@ -64,11 +67,10 @@ async function run(userId: string, story: any, photos: any[]) {
     const plan = await planStory({
       template:      story.template,
       questionnaire: story.questionnaire,
-      artStyle:      story.art_style,
       narration:     story.narration,
       storytext:     story.custom_story,
       storyStyle:    story.story_style || 'storybook',
-      storyLength:   story.story_length,
+      storyLength:   clampPages(story.story_length), // the same page count that was priced
     }, references);
 
     await Promise.all(plan.sheets.map((sheet, i) => uploadDataUrl(`${userId}/${story.id}/sheets/${i}.webp`, sheet.image)));

@@ -173,7 +173,7 @@ const ImageUploadCard = ({
         <textarea
           value={description}
           onChange={(e) => onDescriptionChange?.(e.target.value.slice(0, charLimit))}
-          placeholder="Add description..."
+          placeholder="Who are they? e.g. my daughter, turning 7, loves dinosaurs"
           aria-label="Photo description"
           rows={3}
           className="w-full font-body text-xs text-light-outline placeholder:text-light-outline bg-transparent resize-none focus:outline-none leading-snug"

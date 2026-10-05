@@ -51,7 +51,7 @@ export function normalizeReferences(value: unknown): CharacterReference[] {
 
 const referenceLabel = (reference: CharacterReference, index: number) => reference.kind === 'sheet'
   ? `Reference image ${index + 1}: approved character sheet for ${JSON.stringify(reference.characterName)} in the book's art style. Draw them exactly like this on every page; their photos remain the source of truth for the face. Take only the character from it, never its background.`
-  : `Reference photo ${index + 1}: character ${JSON.stringify(reference.characterName)}. Multiple photos with this name show the SAME character.`;
+  : `Reference photo ${index + 1}: character ${JSON.stringify(reference.characterName)}. Multiple photos with this name show the SAME character. Use it for identity only, never its photographic look.`;
 
 // Labels interleaved with the photos, for vision chat models.
 export function referenceParts(references: CharacterReference[]): ContentPart[] {

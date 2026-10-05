@@ -9,6 +9,7 @@ export async function transformImage(
   references: CharacterReference[],
   characterContext: string,
   prompt: string,
+  style: { art: string; avoid: string; sheet: string; size: string },
   page?: number,
 ) {
   // Only the faces in this scene: every extra reference face ends up on background people.
@@ -17,7 +18,11 @@ export async function transformImage(
   if (inScene.length) references = inScene;
   const fullPrompt = `${referenceLabels(references)}
 
-Create the requested story illustration.
+Create the requested story page.
+
+ART STYLE (everything, including the characters, is drawn in this style):
+${style.art}
+Avoid: ${style.avoid}.
 
 CHARACTER IDENTITY:
 ${characterContext}
@@ -26,7 +31,7 @@ Reference photos establish identity, not scene membership. Render ONLY character
 present in the scene/panel. The same character may recur in different panels.
 Never duplicate a character within a panel unless the scene explicitly requires it.
 Preserve face, hair, skin/fur, proportions, and distinguishing features across pages,
-adapting them to the requested art style. Do not blend identities. Use the canonical outfit below; if reference
+redrawn in the art style above, never photographic. Do not blend identities. Use the canonical outfit below; if reference
 photos disagree on clothing, the first photo of that character defines the outfit.
 Treat the character definitions as fixed; vary pose, expression and camera angle.
 When a character's face is shown, it must be recognizably theirs.
@@ -41,23 +46,21 @@ Render only text that appears in quotes in the scene, spelled exactly. Phone scr
 signs, posters, cakes and labels without quoted text stay blank or unreadable: never invent
 dates, names, numbers or words.
 
-SCENE:
-${prompt}`;
-  return generate(fullPrompt, references, 'image.attempt', { page });
+PAGE:
+${prompt}
+
+Draw every character as ${style.sheet}, matching their character sheet.`;
+  return generate(fullPrompt, references, 'image.attempt', { page }, style.size);
 }
 
 // One stylized portrait per character, generated once and passed to every page so each page
 // doesn't reinterpret the photo in the art style on its own.
-// Style words about scenery are dropped: a sheet's background leaks into every page.
-// The rest of the style text stays, because a sheet rendered like the pages keeps likeness best.
-const SCENERY = /\b(backgrounds?|environments?|environmental|landscapes?|scenes?|scenery|composition)\b/i;
-export async function createCharacterSheet(name: string, photos: CharacterReference[], style: { styleDetails: string }) {
-  const rendering = style.styleDetails.split(',').map(part => part.trim().replace(/\.$/, '')).filter(part => part && !SCENERY.test(part)).join(', ');
+export async function createCharacterSheet(name: string, photos: CharacterReference[], style: { sheet: string }) {
   const prompt = `${referenceLabels(photos)}
 
 Character reference sheet for ${JSON.stringify(name)}, for an illustrated storybook.
 One head-and-shoulders portrait, three-quarter view facing the viewer.
-Redraw the person in the reference photos with this rendering: ${rendering}.
+Redraw the person in the reference photos as ${style.sheet}.
 Background: an empty, flat, pale single-colour backdrop. No scenery, no landscape, no buildings, no props.
 Keep their exact facial identity: face shape, eyes, eyebrows, nose, mouth, jaw, hairline and hairstyle,
 facial hair, glasses, skin tone and build. Keep the outfit from the first photo.
@@ -68,11 +71,11 @@ Only this one person. No text, no labels.`;
 
 // One attempt only: retries are the user's call (a "Retry page" button), so we never spend
 // on OpenAI without them asking, and one invocation stays well inside the 150s limit.
-async function generate(prompt: string, references: CharacterReference[], event: string, info: Record<string, unknown>) {
+async function generate(prompt: string, references: CharacterReference[], event: string, info: Record<string, unknown>, size = '1024x1024') {
   const images = references.map(reference => imagePart(reference.image));
   const started = Date.now();
   try {
-    const { b64, usage } = await editImage({ model, prompt, images, size: '1024x1024' });
+    const { b64, usage } = await editImage({ model, prompt, images, size });
     const imageUrl = `data:image/webp;base64,${b64}`;
     trace(event, { ...info, model, ok: true, ms: Date.now() - started, fullPrompt: prompt, usage, ...(event === 'character.sheet' && { imageUrl }) });
     return { success: true, imageUrl };
