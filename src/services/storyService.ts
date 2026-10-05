@@ -127,6 +127,19 @@ async function call(name: string, body: Record<string, unknown>) {
 }
 
 export const generateStory = (storyId: string) => call('generate-story', { storyId });
+
+export interface PrefillAnswer { id: number; answer: string | null; suggestions: string[] }
+// Answers what the character notes cover and suggests answers for the rest. Callers fall back to
+// asking every question if this fails, so it never blocks the wizard.
+export async function prefillQuestionnaire(body: {
+  template: string;
+  questions: { id: number; question: string; type: string }[];
+  characters: { name: string; description: string }[];
+}) {
+  const { data, error } = await supabase.functions.invoke('prefill-questionnaire', { body });
+  if (error) throw error;
+  return data.answers as PrefillAnswer[];
+}
 export const retryPage = (storyId: string, page: number) => call('generate-page', { storyId, page });
 
 export async function loadBook(id: string) {

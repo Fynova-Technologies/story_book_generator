@@ -131,6 +131,12 @@ const buildDetails = (
 };
 
 
+// The user's own notes on each character ("my son, turning 7"), as story facts.
+const notesSection = (images: CharacterReference[]) => {
+  const notes = [...new Set(images.filter(i => i.description.trim()).map(i => `- ${i.characterName}: ${i.description.trim()}`))];
+  return notes.length ? `Notes on the characters:\n${notes.join('\n')}` : '';
+};
+
 export const generateStory = async (
   data: GenerateStoryInput
 ): Promise<any> => {
@@ -161,6 +167,7 @@ export const generateStory = async (
 
         STORY CONTEXT
         ${details}
+        ${notesSection(data.images || [])}
 
         CHARACTERS WITH PHOTOS (for you only: never copy these descriptions into panels)
         ${combinedFormulasString || 'No character photos provided — invent consistent characters.'}

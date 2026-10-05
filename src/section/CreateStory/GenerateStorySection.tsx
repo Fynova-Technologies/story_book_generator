@@ -139,7 +139,7 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
                 <p className={valueCls}>{wizard.storyStyle || "—"}</p>
               </div>
               <div className={detailCls}>
-                <p className={labelCls}>{characters.length === 1 ? "Hero" : "Characters"}</p>
+                <p className={labelCls}>{characters.length === 1 ? "Character" : "Characters"}</p>
                 <p className={valueCls}>{characters.join(", ") || "—"}</p>
               </div>
               <div className={detailCls}>

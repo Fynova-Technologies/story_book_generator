@@ -1,23 +1,31 @@
-export const templateQuestions: Record<string, { id: number; question: string; placeholder: string; type: string }[]> = {
+// "character" questions are answered with the uploaded characters' names; required ones must be answered.
+export interface TemplateQuestion {
+  id: number;
+  question: string;
+  placeholder: string;
+  type: "text" | "textarea" | "character" | "number" | "date";
+  required?: boolean;
+}
+
+export const templateQuestions: Record<string, TemplateQuestion[]> = {
   templete: [
-    { id: 1,  question: "What is the main character's name?",         placeholder: "e.g. Leo, Emma...",              type: "text" },
+    { id: 1,  question: "What is the main character's name?",         placeholder: "e.g. Leo, Emma...",              type: "character", required: true },
     { id: 2,  question: "How old is the main character?",             placeholder: "e.g. 7 years old",              type: "text" },
     { id: 3,  question: "Where does the story take place?",           placeholder: "e.g. a magical forest...",      type: "text" },
     { id: 4,  question: "What is the story's main theme?",            placeholder: "e.g. friendship, courage...",   type: "text" },
-    { id: 5,  question: "Who is the supporting character?",           placeholder: "e.g. a wise owl...",            type: "text" },
-    { id: 6,  question: "What challenge does the hero face?",         placeholder: "e.g. finding a lost treasure",  type: "textarea" },
-    { id: 7,  question: "How does the hero overcome the challenge?",  placeholder: "e.g. with help from friends",   type: "textarea" },
+    { id: 5,  question: "Who is the supporting character?",           placeholder: "e.g. a wise owl...",            type: "character" },
+    { id: 6,  question: "What challenge does the main character face?",         placeholder: "e.g. finding a lost treasure",  type: "textarea" },
+    { id: 7,  question: "How do they overcome the challenge?",  placeholder: "e.g. with help from friends",   type: "textarea" },
     { id: 8,  question: "What lesson does the story teach?",          placeholder: "e.g. never give up",            type: "text" },
     { id: 9,  question: "What is the story's mood?",                  placeholder: "e.g. adventurous, warm...",     type: "text" },
-    { id: 10, question: "Any special details to include?",            placeholder: "e.g. a red bicycle...",         type: "textarea" },
   ],
 
   Birthday: [
-   {id: 1, question: "What is the name of the person celebrating the birthday?",placeholder: "e.g. Sarah", type: "text"},
-    {id: 2, question: "How old is the celebrant turning?", placeholder: "e.g. 30", type: "text"},
-    {id: 3, question: "What is the date of the birthday?", placeholder: "e.g. June 15th", type: "text"},
+   {id: 1, question: "What is the name of the person celebrating the birthday?",placeholder: "e.g. Sarah", type: "character", required: true},
+    {id: 2, question: "How old is the celebrant turning?", placeholder: "e.g. 30", type: "number"},
+    {id: 3, question: "What is the date of the birthday?", placeholder: "e.g. June 15th", type: "date"},
     {id: 4, question: "Where does the celebrant live or where will the celebration take place?", placeholder: "e.g. New York, a cozy home", type: "text"},
-    {id: 5, question: "Who are the key family members or friends involved?", placeholder: "e.g. parents, siblings, close friends", type: "text"},
+    {id: 5, question: "Who are the key family members or friends involved?", placeholder: "e.g. parents, siblings, close friends", type: "character"},
     {id: 6, question: "What is the celebrant's favorite color?", placeholder: "e.g. blue", type: "text"},
     {id: 7, question: "What hobbies or interests does the celebrant have?", placeholder: "e.g. reading, painting", type: "text"},
     {id: 8, question: "Any special dietary preferences or favorite foods?", placeholder: "e.g. vegetarian, chocolate", type: "text"},
@@ -38,7 +46,7 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Love: [
-   {id: 1, question: "What are the names of the couple?",placeholder: "e.g. Jack and Jill", type: "text"},
+   {id: 1, question: "What are the names of the couple?",placeholder: "e.g. Jack and Jill", type: "character", required: true},
     {id: 2, question: "How long have they been together?", placeholder: "e.g. 5 years", type: "text"},
     {id: 3, question: "Where did they first meet?", placeholder: "e.g. at a friend's party", type: "text"},
     {id: 4, question: "What is each partner's age?", placeholder: "e.g. 25", type: "text"},
@@ -63,10 +71,10 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Adventures: [
-    { id: 1,  question: "Who is the adventurer?",                     placeholder: "e.g. Max",                      type: "text" },
+    { id: 1,  question: "Who is the adventurer?",                     placeholder: "e.g. Max",                      type: "character", required: true },
     { id: 2,  question: "Where does the adventure take place?",       placeholder: "e.g. Amazon jungle",            type: "text" },
     { id: 3,  question: "What is the quest or mission?",              placeholder: "e.g. find the golden compass",  type: "textarea" },
-    { id: 4,  question: "Who accompanies the adventurer?",            placeholder: "e.g. a loyal dog",              type: "text" },
+    { id: 4,  question: "Who accompanies the adventurer?",            placeholder: "e.g. a loyal dog",              type: "character" },
     { id: 5,  question: "What dangers do they face?",                 placeholder: "e.g. wild animals, storms",     type: "textarea" },
     { id: 6,  question: "What tools do they have?",                   placeholder: "e.g. a map and compass",        type: "text" },
     { id: 7,  question: "What is the biggest obstacle?",              placeholder: "e.g. a raging river",           type: "textarea" },
@@ -76,11 +84,11 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Memorial: [
-   {id:1, question: "What was the pet's name and what type of animal was it (e.g., dog, cat, bird)?",placeholder: "e.g. Buddy, a golden retriever", type: "text"},
+   {id:1, question: "What was the pet's name and what type of animal was it (e.g., dog, cat, bird)?",placeholder: "e.g. Buddy, a golden retriever", type: "character", required: true},
     {id:2, question: "How old was the pet when it passed away, and how long was it part of the family?",placeholder: "e.g. 10 years old, lived with the family for 8 years", type: "text"},
     {id:3, question: "What was the date or approximate time when the pet passed away?",placeholder: "e.g. March 15, 2023", type: "text"},
     {id:4, question: "Where did the pet live, or any special places it frequented (e.g., home, park)?",placeholder: "e.g. Inside the house, local dog park", type: "text"},
-    {id:5, question: "Who were the key family members or people closest to the pet?",placeholder: "e.g. Sarah, John", type: "text"},
+    {id:5, question: "Who were the key family members or people closest to the pet?",placeholder: "e.g. Sarah, John", type: "character"},
     {id:6, question: "What was the pet's favorite color, toy, or distinctive features?",placeholder: "e.g. Blue collar, squeaky toy", type: "text"},
     {id:7, question: "What were the pet's favorite activities or habits?",placeholder: "e.g. playing fetch, sleeping on the couch", type: "text"},
     {id:8, question: "Any special dietary preferences or favorite treats of the pet?",placeholder: "e.g. grain-free dog food, chicken jerky", type: "text"},
@@ -101,13 +109,13 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Apology:[
-    {id: 1,  question: "Can you please provide the full names of the person who is making the apology and the individual they are apologizing to?", placeholder: "e.g. John Doe apologizing to Jane Smith", type: "text"},
+    {id: 1,  question: "Can you please provide the full names of the person who is making the apology and the individual they are apologizing to?", placeholder: "e.g. John Doe apologizing to Jane Smith", type: "character", required: true},
     {id: 2,  question: "What exactly was the specific mistake, misunderstanding, or hurtful incident that occurred between them?",                  placeholder: "e.g. John accidentally broke Jane's favorite vase", type: "textarea"},
     {id: 3,  question: "When did this incident take place, and where was the location or setting involved?",                                        placeholder: "e.g. Last weekend at Jane's house", type: "text"},
     {id: 4,  question: "In what ways did this incident impact or strain the relationship between the two parties?",                                 placeholder: "e.g. Trust was broken, communication became difficult", type: "textarea"},
     {id: 5,  question: "How would you describe the personality traits or key characteristics of the person who is apologizing?",                    placeholder: "e.g. Apologetic, remorseful, sincere", type: "text"},
     {id: 6,  question: "What events or circumstances led up to this incident happening in the first place?",                                        placeholder: "e.g. John was distracted while carrying the vase", type: "textarea"},
-    {id: 7,  question: "Were there any other people, such as witnesses or additional involved parties, who played a role in the incident?",         placeholder: "e.g. Sarah witnessed the incident", type: "text"},
+    {id: 7,  question: "Were there any other people, such as witnesses or additional involved parties, who played a role in the incident?",         placeholder: "e.g. Sarah witnessed the incident", type: "character"},
     {id: 8,  question: "What happened immediately after the incident, including any initial reactions or short-term effects?",                      placeholder: "e.g. Jane was upset and withdrew from the conversation", type: "textarea"},
     {id: 9,  question: "How did the person apologizing feel in the days or moments following the incident, such as guilt or sadness?",              placeholder: "e.g. John felt overwhelming guilt and regret", type: "textarea"},
     {id: 10, question: "What kinds of emotions do you think the recipient of the apology experienced as a result of the incident?",                 placeholder: "e.g. Jane felt hurt and disappointed", type: "textarea"},
@@ -126,11 +134,11 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Wedding:[
-    {id:1, question: "What are the full names of the bride and groom?",placeholder: "e.g. Emily Johnson and Michael Smith", type: "text"},
+    {id:1, question: "What are the full names of the bride and groom?",placeholder: "e.g. Emily Johnson and Michael Smith", type: "character", required: true},
     {id:2, question: "What is the date and location of the wedding?",placeholder: "e.g. June 15, 2023 at the Grand Hotel", type: "text"},
     {id:3, question: "How many years have passed since the wedding?",placeholder: "e.g. 2 years", type: "text"},
     {id:4, question: "What was the overall theme or style of the wedding (e.g., rustic, elegant, beach-themed)?",placeholder: "e.g. rustic", type: "text"},
-    {id:5, question: "Who were the key family members or close friends involved in the wedding?",placeholder: "e.g. Emily's parents and Michael's sister", type: "text"},
+    {id:5, question: "Who were the key family members or close friends involved in the wedding?",placeholder: "e.g. Emily's parents and Michael's sister", type: "character"},
     {id:6, question: "What were the couple's favorite colors or flowers incorporated into the wedding?",placeholder: "e.g. Soft pink and white roses", type: "text"},
     {id:7, question: "Were there any specific cultural, religious, or family traditions included in the ceremony or reception?",placeholder: "e.g. Yes, we should include a traditional blessing", type: "text"},
     {id:8, question: "What was the dress code or notable attire for the wedding party and guests?",placeholder: "e.g. Black-tie optional", type: "text"},
@@ -151,7 +159,7 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   LongDistance:[
-    {id:1, question: "What are the full names or nicknames of the partners in the long-distance relationship?", placeholder: "e.g. Anna and Ben", type: "text"},
+    {id:1, question: "What are the full names or nicknames of the partners in the long-distance relationship?", placeholder: "e.g. Anna and Ben", type: "character", required: true},
     {id:2, question: "How far apart are the partners geographically (e.g., cities, countries, distance in miles/km)?", placeholder: "e.g. 500 miles", type: "text"},
     {id:3, question: "How long have they been in this long-distance relationship?", placeholder: "e.g. 2 years", type: "text"},
     {id:4, question: "How did the couple first meet, including any unique circumstances?", placeholder: "e.g. They met online", type: "text"},
@@ -176,11 +184,11 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Milestones:[
-    {id:1, question: "What is the full name or nickname of the graduate?", placeholder: "e.g. Alex", type: "text"},
+    {id:1, question: "What is the full name or nickname of the graduate?", placeholder: "e.g. Alex", type: "character", required: true},
   {id:2, question: "What level of graduation is this (e.g., high school, college, master's degree)?", placeholder: "e.g. College", type: "text"},
-  {id:3, question: "What is the date of the graduation ceremony?", placeholder: "e.g. June 15, 2023", type: "text"},
+  {id:3, question: "What is the date of the graduation ceremony?", placeholder: "e.g. June 15, 2023", type: "date"},
   {id:4, question: "Where did the graduate attend school or university, and where is the ceremony?", placeholder: "e.g. University of California, Los Angeles", type: "text"},
-  {id:5, question: "Who are the key family members or friends supporting the graduate?", placeholder: "e.g. Parents, siblings, close friends", type: "text"},
+  {id:5, question: "Who are the key family members or friends supporting the graduate?", placeholder: "e.g. Parents, siblings, close friends", type: "character"},
   {id:6, question: "What is the graduate's favorite color or school colors?", placeholder: "e.g. Blue and gold", type: "text"},
   {id:7, question: "What field of study or major did the graduate pursue?", placeholder: "e.g. Computer Science", type: "text"},
   {id:8, question: "Any special honors, awards, or distinctions received during studies?", placeholder: "e.g. Dean's List, Scholarship", type: "text"},
@@ -202,7 +210,7 @@ export const templateQuestions: Record<string, { id: number; question: string; p
 
   Family:[
     {id:1, question: "What is the family surname and any known origins or meanings behind it?", placeholder: "e.g. The Smith family, originally from England", type: "text"},
-    {id:2, question: "Who are the key family members across generations (e.g., grandparents, parents, siblings)?", placeholder: "e.g. John and Mary Smith, their children Jane and Tom", type: "text"},
+    {id:2, question: "Who are the key family members across generations (e.g., grandparents, parents, siblings)?", placeholder: "e.g. John and Mary Smith, their children Jane and Tom", type: "character", required: true},
     {id:3, question: "Where did the family originate from (e.g., countries, regions, or ancestral homelands)?", placeholder: "e.g. The Smith family originated from England", type: "text"},
     {id:4, question: "What time periods or eras are most significant in the family's history (e.g., immigration year)?", placeholder: "e.g. The family immigrated to the United States in 1850", type: "text"},
     {id:5, question: "Are there any notable ancestors or family figures with unique stories?", placeholder: "e.g. Great-great-grandfather was a Civil War veteran", type: "textarea"},
@@ -226,11 +234,11 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Retirement:[
-    {id:1, question: "What is the full name of the retiree?", placeholder: "e.g. Robert Thompson", type: "text"},
+    {id:1, question: "What is the full name of the retiree?", placeholder: "e.g. Robert Thompson", type: "character", required: true},
     {id:2, question: "What was the retiree's profession or career?", placeholder: "e.g. High school teacher", type: "text"},
-    {id:3, question: "How many years did the retiree work before retiring?", placeholder: "e.g. 35 years", type: "text"},
+    {id:3, question: "How many years did the retiree work before retiring?", placeholder: "e.g. 35 years", type: "number"},
     {id:4, question: "What were some of the retiree's major accomplishments or milestones during their career?", placeholder: "e.g. Received Teacher of the Year award", type: "textarea"},
-    {id:5, question: "Who were the key colleagues, mentors, or students that influenced the retiree's career?", placeholder: "e.g. Colleagues at school, students who inspired him", type: "textarea"},
+    {id:5, question: "Who were the key colleagues, mentors, or students that influenced the retiree's career?", placeholder: "e.g. Colleagues at school, students who inspired him", type: "character"},
     {id:6, question: "What were the retiree's favorite aspects of their job?", placeholder: "e.g. Interacting with students, making a difference in their lives", type: "textarea"},
     {id:7, question: "Describe a funny or memorable incident from the retiree's work life?", placeholder: "e.g. A student once pulled a prank on him", type: "textarea"},
     {id:8, question: "What challenges did the retiree face during their career, and how did they overcome them?", placeholder: "e.g. Dealing with difficult students, but found ways to connect with them", type: "textarea"},
@@ -248,11 +256,11 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Kids:[
-    {id:1, question: "What is the name of the main character in the story?", placeholder: "e.g. Lily", type: "text"},
+    {id:1, question: "What is the name of the main character in the story?", placeholder: "e.g. Lily", type: "character", required: true},
     {id:2, question: "What is the main character's age and a brief description of their personality?", placeholder: "e.g. 8 years old, curious and adventurous", type: "text"},
     {id:3, question: "What is the setting of the story (e.g. a magical forest, a bustling city)?", placeholder: "e.g. A magical forest called Enchanted Woods", type: "text"},
     {id:4, question: "What is the main problem or challenge that the character faces?", placeholder: "e.g. Lily needs to find a hidden treasure to save her village", type: "textarea"},
-    {id:5, question: "Who are the supporting characters in the story (e.g. friends, family, magical creatures)?", placeholder: "e.g. A talking rabbit named Benny and a wise old owl named Oliver", type: "textarea"},
+    {id:5, question: "Who are the supporting characters in the story (e.g. friends, family, magical creatures)?", placeholder: "e.g. A talking rabbit named Benny and a wise old owl named Oliver", type: "character"},
     {id:6, question: "What important lesson or moral should the story teach?", placeholder: "e.g. The value of friendship and teamwork", type: "textarea"},
     {id:7, question: "What are some fun or imaginative elements to include in the story?", placeholder: "e.g. A magical tree that grants wishes", type: "textarea"},
     {id:8, question: "What is the preferred tone of the story (e.g. lighthearted and funny, or adventurous and inspiring)?", placeholder: "e.g. Lighthearted and funny", type: "text"},
@@ -266,8 +274,8 @@ export const templateQuestions: Record<string, { id: number; question: string; p
   ],
 
   Gratitude:[
-    {id:1, question: "What is the full name of the person expressing gratitude?", placeholder: "e.g. Sarah Johnson", type: "text"},
-    {id:2, question: "Who is the recipient of the gratitude (e.g. a friend, family member, mentor)?", placeholder: "e.g. My best friend, Emily", type: "text"},
+    {id:1, question: "What is the full name of the person expressing gratitude?", placeholder: "e.g. Sarah Johnson", type: "character", required: true},
+    {id:2, question: "Who is the recipient of the gratitude (e.g. a friend, family member, mentor)?", placeholder: "e.g. My best friend, Emily", type: "character", required: true},
     {id:3, question: "What specific actions or qualities of the recipient are you grateful for?", placeholder: "e.g. Always being there for me during tough times", type: "textarea"},
     {id:4, question: "Can you share a memorable story or moment that illustrates why you are grateful to this person?", placeholder: "e.g. When I was going through a difficult breakup, Emily stayed up all night talking to me and offering support", type: "textarea"},
     {id:5, question: "How has this person's support or kindness impacted your life?", placeholder: "e.g. It helped me get through one of the hardest times in my life and made me feel less alone", type: "textarea"},
