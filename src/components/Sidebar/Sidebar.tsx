@@ -1,7 +1,7 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { STORY_COST, useCredits } from "../../services/credits";
+import { BASE_COST, PAGE_COST, TYPICAL_STORY_COST, useCredits } from "../../services/credits";
 import { userInitial, userName } from "./user";
 import MaskIcon from "./MaskIcon";
 const bookImg = "/assets/icons/Sidebar/book.png";
@@ -75,9 +75,9 @@ const Sidebar = ({ open = false, onClose }: SidebarProps) => {
         <p className="font-body text-[10px] font-semibold text-black uppercase tracking-wide">Credits</p>
         <p className="font-body text-xl font-semibold text-slate-800 mt-1">{credits ?? "…"}</p>
         <p className="font-body text-[11px] font-semibold text-gray-600 leading-snug mt-1">
-          {credits === null ? "Checking your credits…" : `≈ ${Math.floor(credits / STORY_COST)} ${Math.floor(credits / STORY_COST) === 1 ? "story" : "stories"}`}
+          {credits === null ? "Checking your credits…" : `≈ ${Math.floor(credits / TYPICAL_STORY_COST)} ${Math.floor(credits / TYPICAL_STORY_COST) === 1 ? "6-page story" : "6-page stories"}`}
           <br />
-          {STORY_COST} credits per story
+          {BASE_COST} credits + {PAGE_COST} per page
         </p>
         <button
           onClick={() => { onClose?.(); navigate("/pricing"); }}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { STORY_COST, useCredits } from "../../services/credits";
+import { BASE_COST, PAGE_COST, TYPICAL_STORY_COST, useCredits } from "../../services/credits";
 import { listStories } from "../../services/storyService";
 
 const UsageSection = () => {
@@ -14,9 +14,9 @@ const UsageSection = () => {
   }, []);
 
   const stats = [
-    { label: "Credits", value: credits, note: `${STORY_COST} credits make one story` },
+    { label: "Credits", value: credits, note: `${BASE_COST} per book + ${PAGE_COST} per page` },
     { label: "Stories Created", value: storiesCreated, note: "Every book you've generated" },
-    { label: "Stories You Can Make", value: credits === null ? null : Math.floor(credits / STORY_COST), note: "With your current credits" },
+    { label: "Stories You Can Make", value: credits === null ? null : Math.floor(credits / TYPICAL_STORY_COST), note: "Six-page stories, with your current credits" },
   ];
 
   return (

@@ -64,7 +64,6 @@ export async function saveDraft(userId: string, wizard: StoryWizardState, step: 
     template:      wizard.template,
     questionnaire: wizard.questionnaire,
     custom_story:  wizard.story,
-    art_style:     wizard.artStyle,
     story_style:   wizard.storyStyle,
     narration:     wizard.narration,
     wizard_step:   step,

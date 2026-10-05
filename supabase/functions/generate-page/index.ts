@@ -9,7 +9,7 @@ import {
 
 serve(async req => {
   const { storyId, page } = await body<{ storyId?: string; page?: number }>(req);
-  const { data: row } = await admin.from('story_pages').select('*, stories!inner(user_id, status, character_context)')
+  const { data: row } = await admin.from('story_pages').select('*, stories!inner(user_id, status, character_context, story_style)')
     .eq('story_id', storyId).eq('page', page).maybeSingle();
   if (!row) throw new ApiError(404, 'Page not found.');
 
@@ -30,11 +30,11 @@ serve(async req => {
     if (!data.length) throw new ApiError(409, 'This page is already being retried.');
   }
 
-  background(draw(row.stories.user_id, row.stories.character_context, row));
+  background(draw(row.stories.user_id, row.stories.character_context, row.stories.story_style, row));
   return json(202, { storyId, page });
 });
 
-async function draw(userId: string, characterContext: string, row: any) {
+async function draw(userId: string, characterContext: string, storyStyle: string, row: any) {
   try {
     // Photos first, then character sheets: the order the prompt's reference labels describe.
     const { data: photos } = await admin.from('story_photos').select('*').eq('story_id', row.story_id)
@@ -42,7 +42,7 @@ async function draw(userId: string, characterContext: string, row: any) {
     const references = await Promise.all((photos || []).map(async photo => ({
       image: await downloadDataUrl(photo.path), characterName: photo.character_name, description: photo.description, kind: photo.kind,
     })));
-    const imageUrl = await illustratePage(references, characterContext, { page: row.page, text: row.text, imagePrompt: row.image_prompt });
+    const imageUrl = await illustratePage(references, characterContext, { page: row.page, text: row.text, imagePrompt: row.image_prompt }, storyStyle);
     const path = `${userId}/${row.story_id}/pages/${row.page}.webp`;
     await uploadDataUrl(path, imageUrl);
     const { error } = await admin.from('story_pages').update({ status: 'done', image_path: path }).eq('story_id', row.story_id).eq('page', row.page);

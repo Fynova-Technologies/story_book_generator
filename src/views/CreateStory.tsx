@@ -4,7 +4,6 @@ import Logo from "../components/Navbar/Logo";
 import StoryStepperNav, { STEPS, Section } from "../components/StoryStepperNav/StoryStepperNav";
 import UploadPhotoSection from "../section/CreateStory/UploadPhotoSection";
 import CustomQuestionnaireSection from "../section/CreateStory/CustomQuestionnaireSection";
-import ArtStyleSection from "../section/CreateStory/ArtStyleSection";
 import VoiceNarrationSection from "../section/CreateStory/VoiceNarrationSection";
 import GenerateStorySection from "../section/CreateStory/GenerateStorySection";
 import TemplateSelection from "../section/CreateStory/TemplateSelection";
@@ -92,7 +91,6 @@ const CreateStory = () => {
 
           return <CustomQuestionnaireSection onValidChange={handleStepValidChange} />;
 
-      case "art":            return <ArtStyleSection onValidChange={handleStepValidChange} />;
       case "voice":          return <VoiceNarrationSection onValidChange={handleStepValidChange} />;
       case "generate":       return <GenerateStorySection onEditDetails={() => setCurrentStepIndex(QUESTIONNAIRE_STEP)} />;
       case "storystyle":     return <StoryStyleSection onValidChange={handleStepValidChange} />;

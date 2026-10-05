@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 
 // Credits are RevenueCat in-app currency CRED; the RevenueCat app user id is the Supabase user id.
 // The browser can only read the balance; spending happens in the generate-story function.
-export const STORY_COST = 5;
+export { BASE_COST, DEFAULT_PAGES, MAX_PAGES, PAGE_COST, storyCost, TYPICAL_STORY_COST } from '../../supabase/functions/_shared/pricing.ts';
 
 let ready: Promise<void> = Promise.resolve();
 
