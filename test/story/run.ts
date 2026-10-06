@@ -63,9 +63,9 @@ async function generate(casePath: string) {
   console.log(`Run dir: ${dir}`);
   try {
     const story = await withTrace(sink, () => createStory(request, references));
-    const director = events.find(e => e.event === 'director');
-    const prompts = new Map<number, string>(JSON.parse(String(director?.response || '{"pages":[]}')).pages
-      .map((p: any) => [p.page, p.imagePrompt]));
+    // The server, not the director, builds each page's image prompt.
+    const built = events.find(e => e.event === 'pages')?.pages as { page: number; imagePrompt: string }[] | undefined;
+    const prompts = new Map<number, string>((built || []).map(p => [p.page, p.imagePrompt]));
     const pages: Page[] = story.pages.map(p => {
       const [, type, b64] = /^data:image\/(\w+);base64,(.*)$/.exec(p.imageUrl)!;
       const image = `pages/page-${p.page}.${type === 'jpeg' ? 'jpg' : type}`;
