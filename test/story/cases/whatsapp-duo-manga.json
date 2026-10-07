@@ -1,0 +1,39 @@
+{
+  "name": "whatsapp-duo-manga",
+  "request": {
+    "template": "templete",
+    "narration": "dramatic and funny, big emotions",
+    "storyStyle": "manga",
+    "storyLength": 4,
+    "questionnaire": {
+      "What is the main character's name?": "Arjun",
+      "How old is the main character?": "20 years old",
+      "Where does the story take place?": "a busy college campus that hides a secret rooftop garden",
+      "What is the story's main theme?": "friendship",
+      "Who is the supporting character?": "Dev, Arjun's best friend who wears glasses",
+      "What challenge does the hero face?": "Their laptop dies the night before the big project is due and they blow up at each other, each blaming the other",
+      "How does the hero overcome the challenge?": "After sulking apart they cool off, laugh at how silly the fight was and finish it together on an old library computer",
+      "What lesson does the story teach?": "good friends turn disasters into adventures",
+      "What is the story's mood?": "explosive, then sheepish, then triumphant",
+      "Any special details to include?": "Arjun's brown-and-white zip jacket and Dev's navy t-shirt and glasses"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Arjun",
+      "photo": "../fixtures/arjun.jpg",
+      "description": "young man in brown and white zip jacket"
+    },
+    {
+      "characterName": "Dev",
+      "photo": "../fixtures/dev.jpg",
+      "description": "young man with glasses in navy t-shirt"
+    }
+  ],
+  "decoys": [
+    "../fixtures/decoys/lookalike-1.jpg",
+    "../fixtures/decoys/lookalike-2.jpg",
+    "../fixtures/decoys/lookalike-3.jpg",
+    "../fixtures/decoys/lookalike-4.jpg"
+  ]
+}

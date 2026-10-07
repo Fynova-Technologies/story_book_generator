@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { buildImagePrompt, fitLayout, styleFor } from './storyStyleConfig.ts';
 
-const panel = (n: number) => ({ cast: 'Arjun', shot: 'medium', action: `beat ${n}`, caption: `caption ${n}`, dialogue: '', sfx: '' });
+const panel = (n: number) => ({ cast: 'Arjun', shot: 'medium', action: `beat ${n}`, emotion: `Arjun: furious, extreme`, caption: `caption ${n}`, dialogue: '', sfx: '' });
 const panels = (count: number) => Array.from({ length: count }, (_, i) => panel(i + 1));
 
 Deno.test('fitLayout keeps a matching layout and falls back to the biggest that fits', () => {
@@ -25,4 +25,18 @@ Deno.test('text only goes in the image for manga and comic', () => {
   const storybook = buildImagePrompt(styleFor('storybook'), 'full-bleed', panels(1));
   assert.doesNotMatch(storybook, /Narration box|PANEL/);
   assert.match(storybook, /No text/);
+});
+
+Deno.test('every style passes each panel emotion to the illustrator', () => {
+  for (const name of ['storybook', 'manga', 'comic']) {
+    const style = styleFor(name);
+    assert.ok(style.emotion);
+    assert.match(buildImagePrompt(style, style.layouts[0].id, panels(style.layouts[0].panels)), /Emotion: Arjun: furious, extreme\./);
+  }
+});
+
+Deno.test('speech bubbles quote only the words, never the speaker name', () => {
+  const prompt = buildImagePrompt(styleFor('manga'), 'full-splash', [{ ...panel(1), dialogue: 'Arjun: You forgot to charge it!' }]);
+  assert.match(prompt, /tail pointing at Arjun: "You forgot to charge it!"/);
+  assert.doesNotMatch(prompt, /"Arjun:/);
 });

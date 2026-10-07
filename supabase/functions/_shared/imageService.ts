@@ -9,7 +9,7 @@ export async function transformImage(
   references: CharacterReference[],
   characterContext: string,
   prompt: string,
-  style: { art: string; avoid: string; sheet: string; size: string },
+  style: { art: string; avoid: string; emotion: string; sheet: string; size: string },
   page?: number,
 ) {
   // Only the faces in this scene: every extra reference face ends up on background people.
@@ -33,8 +33,13 @@ Never duplicate a character within a panel unless the scene explicitly requires 
 Preserve face, hair, skin/fur, proportions, and distinguishing features across pages,
 redrawn in the art style above, never photographic. Do not blend identities. Use the canonical outfit below; if reference
 photos disagree on clothing, the first photo of that character defines the outfit.
-Treat the character definitions as fixed; vary pose, expression and camera angle.
+Treat the character definitions as fixed; vary camera angle and push expression and pose to each panel's Emotion.
 When a character's face is shown, it must be recognizably theirs.
+
+EXPRESSIONS:
+${style.emotion}
+Exaggerate the expression, never the anatomy: face shape, features, hair and skin tone stay theirs.
+The character sheet shows a neutral face; never copy its expression onto the page.
 
 BACKGROUND PEOPLE:
 Only the named characters look like the reference images. Everyone else (crowds, passers-by,
