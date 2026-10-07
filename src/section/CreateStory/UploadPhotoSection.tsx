@@ -4,6 +4,7 @@ import StepPanel from "./StepPanel";
 import { useDispatch, useSelector } from "react-redux";
 import { setImages, StoryImage } from "../../store/slices/storyWizardSlice";
 import { RootState } from "../../store/store";
+import { formatBytes, MAX_TOTAL_BYTES } from "../../lib/compressPhoto";
 
 const MAX_PHOTOS = 5;
 const MIN_PHOTOS = 1;
@@ -20,7 +21,6 @@ const UploadPhotoSection = ({
   const [photos, setPhotos] = useState<StoryImage[]>(
     Array(MAX_PHOTOS).fill(null).map(() => ({ image: null, description: "", characterName: "" }))
   );
-  const [sizes, setSizes] = useState<number[]>(Array(MAX_PHOTOS).fill(0));
   const hasInitializedFromRedux = useRef(false);
 
   // Initialize from Redux on mount only once
@@ -37,12 +37,13 @@ const UploadPhotoSection = ({
     }
   }, [storedImages]);
 
-  const totalSize = sizes.reduce((sum, s) => sum + s, 0);
+  const totalSize = photos.reduce((sum, p) => sum + (p.image ? p.size || 0 : 0), 0);
+  const overLimit = totalSize > MAX_TOTAL_BYTES;
 
-  const handleImageUpload = (index: number, image: string) => {
+  const handleImageUpload = (index: number, image: string, size: number) => {
     setPhotos((prev) =>
       // A new image replaces the uploaded one, so it needs uploading again.
-      prev.map((p, i) => (i === index ? { ...p, image, path: undefined } : p))
+      prev.map((p, i) => (i === index ? { ...p, image, size, path: undefined } : p))
     );
   };
 
@@ -50,7 +51,6 @@ const UploadPhotoSection = ({
     setPhotos((prev) =>
       prev.map((p, i) => (i === index ? { image: null, description: "", characterName: "" } : p))
     );
-    setSizes((prev) => prev.map((s, i) => (i === index ? 0 : s)));
   };
 
   const handleDescriptionChange = (index: number, description: string) => {
@@ -68,25 +68,19 @@ const UploadPhotoSection = ({
   // Names typed on other cards, offered as suggestions so several photos of one person match exactly.
   const knownNames = [...new Set(photos.map((p) => p.characterName.trim()).filter(Boolean))];
 
-  const handleFileSizeChange = (index: number, size: number) => {
-    setSizes((prev) =>
-      prev.map((s, i) => (i === index ? size : s))
-    );
-  };
-
   // send the data to the store and mark step as valid if minimum photos uploaded
   useEffect(() => {
     const uploaded = photos.filter((p) => p.image !== null);
     const hasMinPhotos = uploaded.length >= MIN_PHOTOS;
     const allNamed = uploaded.every((p) => p.characterName.trim());
-    const isValid = hasMinPhotos && allNamed && totalSize <= 10;
+    const isValid = hasMinPhotos && allNamed && !overLimit;
 
     onValidChange(isValid);
 
     if (isValid) {
       dispatch(setImages(photos));
     }
-  }, [photos, totalSize, dispatch, onValidChange]);
+  }, [photos, overLimit, dispatch, onValidChange]);
 
 
   const uploadedCount = photos.filter((p) => p.image !== null).length;
@@ -105,7 +99,7 @@ const UploadPhotoSection = ({
         </h3>
         <div className="flex flex-wrap items-center gap-2">
           {/* show limit exceed */}
-          {totalSize > 10 && (
+          {overLimit && (
             <div role="alert" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 flex-shrink-0">
                 <circle cx="12" cy="12" r="10"/>
@@ -117,8 +111,8 @@ const UploadPhotoSection = ({
               </p>
             </div>
           )}
-          <span className={`font-body text-xs font-bold px-3 py-1 rounded-full ${totalSize > 10 ? "bg-red-50 text-red-600" : "bg-white/60 text-light-outline"}`}>
-            {totalSize.toFixed(1)} / 10 MB
+          <span className={`font-body text-xs font-bold px-3 py-1 rounded-full ${overLimit ? "bg-red-50 text-red-600" : "bg-white/60 text-light-outline"}`}>
+            {formatBytes(totalSize)} / {formatBytes(MAX_TOTAL_BYTES)} used
           </span>
           <span className="font-body text-xs font-bold px-3 py-1 rounded-full bg-light-primary/10 text-light-primary">
             {uploadedCount} / {MAX_PHOTOS}
@@ -133,14 +127,14 @@ const UploadPhotoSection = ({
             key={index}
             previewImage={photo.image}
             description={photo.description}
-            onImageUpload={(image: string) => handleImageUpload(index, image)}
+            previewSize={photo.size}
+            onImageUpload={(image: string, size: number) => handleImageUpload(index, image, size)}
             onDescriptionChange={(desc: string) => handleDescriptionChange(index, desc)}
             characterName={photo.characterName}
             onNameChange={(name: string) => handleNameChange(index, name)}
             onRemove={() => handleRemove(index)}
             dimmed={nextEmpty !== -1 && index > nextEmpty}
             nameOptions={knownNames}
-            onFileSizeChange={(size: number) => handleFileSizeChange(index, size)}
           />
         ))}
       </div>

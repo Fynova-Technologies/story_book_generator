@@ -20,11 +20,11 @@ type Page = { page: number; text: string; image: string; imagePrompt: string };
 
 const write = (dir: string, name: string, value: unknown) =>
   fs.writeFileSync(path.join(dir, name), typeof value === 'string' ? value : JSON.stringify(value, null, 2));
-// The app resizes photos in the browser before upload; do the same here.
+// The app compresses photos in the browser when they are picked (src/lib/compressPhoto.ts); do the same here.
 // rotate() applies EXIF orientation before it is stripped.
 const shrunkDataUrl = async (file: string) => {
-  const jpeg = await sharp(file).rotate().resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 90 }).toBuffer();
-  return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
+  const webp = await sharp(file).rotate().resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 85 }).toBuffer();
+  return `data:image/webp;base64,${webp.toString('base64')}`;
 };
 const read = (dir: string, name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
 
@@ -63,9 +63,9 @@ async function generate(casePath: string) {
   console.log(`Run dir: ${dir}`);
   try {
     const story = await withTrace(sink, () => createStory(request, references));
-    const director = events.find(e => e.event === 'director');
-    const prompts = new Map<number, string>(JSON.parse(String(director?.response || '{"pages":[]}')).pages
-      .map((p: any) => [p.page, p.imagePrompt]));
+    // The server, not the director, builds each page's image prompt.
+    const built = events.find(e => e.event === 'pages')?.pages as { page: number; imagePrompt: string }[] | undefined;
+    const prompts = new Map<number, string>((built || []).map(p => [p.page, p.imagePrompt]));
     const pages: Page[] = story.pages.map(p => {
       const [, type, b64] = /^data:image\/(\w+);base64,(.*)$/.exec(p.imageUrl)!;
       const image = `pages/page-${p.page}.${type === 'jpeg' ? 'jpg' : type}`;

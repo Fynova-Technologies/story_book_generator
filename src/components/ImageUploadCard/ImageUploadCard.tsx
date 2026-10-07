@@ -1,22 +1,23 @@
 import React, { useState, useRef, useId } from "react";
+import { blobToDataUrl, compressPhoto, formatBytes } from "../../lib/compressPhoto";
 
 const ImageUploadCard = ({
     onImageUpload,
     previewImage,
+    previewSize,
     description,
     onDescriptionChange,
-    onFileSizeChange,
     characterName,
     onNameChange,
     onRemove,
     dimmed = false, // empty slots after the next one to fill
     nameOptions = [],
 }: {
-    onImageUpload: (image: string) => void;
+    onImageUpload: (image: string, size: number) => void;
     previewImage: string | null;
+    previewSize?: number;
     description: string;
     onDescriptionChange: (description: string) => void;
-    onFileSizeChange: (sizeMB: number) => void;
     characterName: string;
     onNameChange: (name: string) => void;
     onRemove?: () => void;
@@ -26,16 +27,27 @@ const ImageUploadCard = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameListId = useId();
   const [isDragging, setIsDragging] = useState(false);
+  const [readError, setReadError] = useState(false);
+  // The original photo, shown blurred while it is compressed.
+  const [processing, setProcessing] = useState<string | null>(null);
   const charLimit = 100;
 
-  const readFile = (file?: File) => {
+  // The card shows, and the size counts, the compressed copy: that is what gets uploaded.
+  const readFile = async (file?: File) => {
     if (!file) return;
-    onFileSizeChange?.(file.size / (1024 * 1024));
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      onImageUpload?.(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    const original = URL.createObjectURL(file);
+    setProcessing(original);
+    try {
+      // Fast photos would only flash the blur, so it stays at least half a second.
+      const [photo] = await Promise.all([compressPhoto(file), new Promise((r) => setTimeout(r, 500))]);
+      setReadError(false);
+      onImageUpload?.(await blobToDataUrl(photo), photo.size);
+    } catch {
+      setReadError(true);
+    } finally {
+      setProcessing(null);
+      URL.revokeObjectURL(original);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,8 +78,10 @@ const ImageUploadCard = ({
     />
   );
 
+  const shownImage = processing || previewImage;
+
   // ── Empty slot ──
-  if (!previewImage) {
+  if (!shownImage) {
     // The hidden input sits outside the button so its click doesn't bubble back into the button.
     return (
       <>
@@ -95,9 +109,15 @@ const ImageUploadCard = ({
         </span>
         <span className="flex flex-col items-center gap-1.5 text-center">
           <span className="font-body text-sm font-bold text-light-primary">Upload Photo</span>
-          <span className="font-body text-[10px] leading-tight text-light-outline">
-            Supported formats: JPG, PNG, WEBP<br />(Max 10MB)
-          </span>
+          {readError ? (
+            <span role="alert" className="font-body text-[10px] leading-tight font-bold text-red-700">
+              We couldn&apos;t read that photo.<br />Try a JPG, PNG or WEBP.
+            </span>
+          ) : (
+            <span className="font-body text-[10px] leading-tight text-light-outline">
+              Supported formats: JPG, PNG, WEBP
+            </span>
+          )}
         </span>
       </button>
       {fileInput}
@@ -112,11 +132,17 @@ const ImageUploadCard = ({
       {/* ── IMAGE ── */}
       <div className="group relative w-full aspect-square rounded-2xl overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]">
         <img
-          src={previewImage}
+          src={shownImage}
           alt={characterName ? `Photo of ${characterName}` : "Uploaded photo"}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover transition-[filter] duration-300 ${processing ? "blur-sm scale-105" : ""}`}
         />
 
+        {processing ? (
+          <div role="status" className="absolute inset-0 bg-white/30 flex flex-col items-center justify-center gap-2">
+            <span className="w-8 h-8 rounded-full border-[3px] border-light-primary/30 border-t-light-primary animate-spin" />
+            <span className="px-2.5 py-1 rounded-full bg-white/80 font-body text-xs font-bold text-light-primary">Processing…</span>
+          </div>
+        ) : (<>
         {/* Hover: replace or remove */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-end justify-center pb-3">
           <button
@@ -147,8 +173,19 @@ const ImageUploadCard = ({
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
+        {previewSize !== undefined && (
+          <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm font-body text-[10px] font-bold text-white">
+            {formatBytes(previewSize)}
+          </span>
+        )}
+        </>)}
         {fileInput}
       </div>
+      {readError && (
+        <p role="alert" className="px-1 font-body text-[11px] font-bold text-red-700">
+          We couldn&apos;t read that photo. Try a JPG, PNG or WEBP.
+        </p>
+      )}
 
       {/* ── WHO IS THIS ── */}
       <label className="block rounded-xl bg-slate-50 px-3 py-2 font-body text-[11px] font-semibold text-light-outline">

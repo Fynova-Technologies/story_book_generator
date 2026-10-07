@@ -2,16 +2,20 @@
 // turns the layout and panels into the illustrator's prompt (so layout geometry is never paraphrased).
 
 export interface Layout { id: string; panels: number; geometry: string; bestFor: string }
-export interface Panel { cast: string; shot: string; action: string; caption: string; dialogue: string; sfx: string }
+export interface Panel { cast: string; shot: string; action: string; emotion: string; caption: string; dialogue: string; sfx: string }
 interface Style {
   art: string;       // the look, described as a medium (never a studio name)
   avoid: string;
+  emotion: string;   // how this medium exaggerates feelings; faces push, anatomy never changes
   sheet: string;     // how the character sheet is drawn; the sheet anchors every page
   size: string;
   textInImage: boolean;
   rules: string;     // writer rules for this style
   layouts: Layout[];
 }
+
+// Contrast sells the peaks: calm panels keep plain faces so extreme ones land.
+const INTENSITY = 'Intensity: calm = natural expression, no symbols; strong = clearly pushed face and pose; extreme = every device above at once.';
 
 const STYLES: Record<string, Style> = {
   storybook: {
@@ -21,6 +25,12 @@ simplified friendly faces (small nose, simple mouth, expressive eyes) and natura
 Backgrounds are lush hand-painted gouache and watercolour scenery with visible brush texture, towering cumulus
 clouds, rich greens and blues, warm sunlight and gentle everyday detail. Soft, warm, nostalgic and whimsical.`,
     avoid: 'photograph, photorealistic skin or pores, 3D render, CGI, glossy surfaces, HDR, lens blur or bokeh, comic halftone, heavy black outlines',
+    emotion: `Act with the whole body, like animated-film key frames: slump, leap, stomp, hands on head, arms flung wide, puffed cheeks.
+Faces read at a glance: eyes squeezed shut or wide and round, mouth wide open in a shout or laugh, brows sharply angled.
+Soft animated-film touches only: big glistening tears, round pink blush, one sweat drop, a small frustration swirl.
+Light, weather and colour echo the feeling (golden sunbeam for joy, cool blue shade for sadness, gusting wind for anger).
+Never veins, speed lines, harsh symbols or anything scary.
+${INTENSITY}`,
     sheet: 'a hand-drawn 2D animation character model: thin clean ink outline, flat cel colour with one soft shadow tone, simplified drawn features, never photographic',
     size: '1024x1024',
     textInImage: false,
@@ -41,7 +51,16 @@ clouds, rich greens and blues, warm sunlight and gentle everyday detail. Soft, w
     art: `Black-and-white Japanese manga page with a printed-page look: crisp G-pen ink lines of varied weight,
 solid black fills, grey screentone dot shading, hatching for shadows, speed lines and impact lines for motion,
 expressive manga faces and detailed inked backgrounds. Pure black ink on white paper.`,
-    avoid: 'colour, grey watercolour washes, photograph, photorealism, 3D render, western comic style',
+    avoid: 'colour, grey watercolour washes, photograph, photorealism, 3D render, western comic style, speaker names or labels inside speech bubbles',
+    emotion: `Use manga emotion symbols (manpu) drawn in ink:
+anger: cross-shaped popping vein on the temple, shadowed eyes with tiny glinting pupils, clenched bared teeth, flame or dark aura behind;
+frustration: tangled scribble cloud over the head, steam puff from the nose, puffed cheeks;
+embarrassment or awkwardness: one big sweat drop on the temple, hatched blush lines across the cheeks, "> <" squeezed eyes;
+shock: shrunken pupils or blank white eyes, jaw dropped, focus lines radiating to the face;
+gloom: vertical gloom lines over a darkened upper face; dizziness: spiral eyes;
+joy: sparkling eyes or happy closed arcs, screentone sparkles and flowers in the background;
+confrontation: faces nose to nose with a crackle of lightning between the glares.
+${INTENSITY}`,
     sheet: 'a black-and-white manga character design: crisp ink lines, screentone shading, no colour, never photographic',
     size: '1024x1536',
     textInImage: true,
@@ -68,14 +87,21 @@ expressive manga faces and detailed inked backgrounds. Pure black ink on white p
     art: `Modern American comic-book page: bold confident black ink outlines with varied line weight, flat cel
 colours with hard-edged shadows, subtle Ben-Day halftone dots in the midtones, dynamic poses and strong silhouettes,
 vivid saturated palette and detailed inked backgrounds.`,
-    avoid: 'photograph, photorealism, 3D render, soft painterly blending, manga screentones, washed-out colour',
+    avoid: 'photograph, photorealism, 3D render, soft painterly blending, manga screentones, washed-out colour, speaker names or labels inside speech balloons',
+    emotion: `Use comic-book emotion devices (symbolia):
+surprise: short emanata ticks around the head, wide eyes with pinprick pupils;
+stress or effort: flying plewds (sweat drops); rage or fear: agitrons (shake lines) around the body;
+anger: V-shaped brows, deep frown creases, gritted teeth, red-flushed face, hard shadow across the eyes, a steam puff;
+peak moments: a flat red or orange background burst with radiating lines behind the character, and forced perspective
+(a fist or pointing finger thrust at the camera, low dramatic angle).
+${INTENSITY}`,
     sheet: 'an American comic-book character design: bold ink outlines, flat colours with hard-edged shadows, never photographic',
     size: '1024x1536',
     textInImage: true,
     rules: `COMIC PAGES (read left to right, top to bottom; panels are listed in that reading order)
 - "text" is always "": the story lives inside the page.
 - caption: narration in a yellow rectangular caption box, at most 15 words, or "". Spread the page's narration over 1-2 panels.
-- dialogue: "Name: words" for a rounded speech balloon (jagged for shouting), at most 10 words, or "".
+- dialogue: "Name: words" for a rounded speech balloon (jagged for shouting), at most 10 words, or "". A swear is a grawlix like "#@$%!".
 - sfx: one stylized sound-effect word integrated into the action (e.g. "BOOM", "CRACK", "WHOOSH"), or "".
 - Every word must be spelled correctly, grammatical and natural. No placeholder text.`,
     layouts: [
@@ -118,9 +144,16 @@ For each page pick a "layout" from the menu, then write exactly that many panels
 - cast: the exact names of the named characters visible in this panel, comma-separated, or "".
 - shot: the camera framing (establishing wide, medium, close-up, extreme close-up, over-the-shoulder, low angle, high angle, bird's-eye).
 - action: what happens, specific and vivid: the action, setting, time of day, lighting and mood, 15-35 words.
-  Refer to characters by name only; never describe their face, hair, body or clothing: the illustrator has
-  their photos, and extra description makes faces drift. Background people are strangers of varied ages, builds and looks.
+  Refer to characters by name only; never describe their looks (features, hair, build, clothing): the illustrator has
+  their photos, and extra description makes faces drift. Do describe pose and body language.
+  Background people are strangers of varied ages, builds and looks.
+- emotion: what each visible named character feels and how strongly, "Name: feeling, calm|strong|extreme; Name: ...",
+  e.g. "Avishek: furious, extreme; Anupama: smug, strong". "" when no face is visible.
 - caption, dialogue, sfx: as the style rules below say.
+
+EMOTION
+- Follow the story's emotional beats panel by panel; name precise feelings (furious, sulking, sheepish, awestruck), not "happy" or "sad".
+- Every argument, shock, fear or big-joy page gets at least one extreme panel. Quiet beats stay calm: the contrast sells the peaks.
 
 LAYOUT CHOICE
 - Match each page's layout to its beat using "best for".
@@ -152,9 +185,16 @@ export function fitLayout(style: Style, id: string, panels: Panel[]) {
 
 const describePanel = (style: Style, panel: Panel, index: number, single: boolean) => {
   const parts = [`${panel.shot}. ${panel.action}`, `Characters: ${panel.cast || 'no named characters'}.`];
+  if (panel.emotion) parts.push(`Emotion: ${panel.emotion}.`);
   if (style.textInImage) {
     if (panel.caption) parts.push(`Narration box: "${panel.caption}".`);
-    if (panel.dialogue) parts.push(`Speech bubble pointing at the speaker: "${panel.dialogue}" (the name before the colon is the speaker, not part of the bubble).`);
+    // The writer gives "Name: words"; only the words go in quotes, or the name gets lettered into the bubble.
+    if (panel.dialogue) {
+      const [, speaker, words] = /^([^:"]{1,40}):\s*(.+)$/s.exec(panel.dialogue) || [, '', panel.dialogue];
+      parts.push(speaker
+        ? `Speech bubble with its tail pointing at ${speaker.trim()}: "${words.trim()}" (only the quoted words in the bubble, no name).`
+        : `Speech bubble pointing at the speaker: "${words}".`);
+    }
     if (panel.sfx) parts.push(`Sound effect drawn into the art: "${panel.sfx}".`);
   }
   return single ? parts.join(' ') : `PANEL ${index + 1}: ${parts.join(' ')}`;
@@ -185,6 +225,6 @@ export const storyboardSchema = (style: Style) => obj({
     page: { type: 'integer' },
     text: { type: 'string', description: 'the story text printed below the picture' },
     layout: { type: 'string', enum: style.layouts.map(layout => layout.id) },
-    panels: { type: 'array', items: obj({ cast: str, shot: str, action: str, caption: str, dialogue: str, sfx: str }) },
+    panels: { type: 'array', items: obj({ cast: str, shot: str, action: str, emotion: str, caption: str, dialogue: str, sfx: str }) },
   }) },
 });
