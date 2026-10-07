@@ -35,21 +35,6 @@ const check = <T>({ data, error }: { data: T; error: unknown }) => {
   return data as NonNullable<T>;
 };
 
-// ── Photos: resized in the browser, then uploaded straight to Storage ──
-// Image input tokens grow with pixel area and every photo is sent with every page.
-const MAX_SIDE = 1024;
-
-async function resizeToJpeg(dataUrl: string): Promise<Blob> {
-  const image = await createImageBitmap(await (await fetch(dataUrl)).blob());
-  const scale = Math.min(1, MAX_SIDE / Math.max(image.width, image.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(image.width * scale);
-  canvas.height = Math.round(image.height * scale);
-  canvas.getContext('2d')!.drawImage(image, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) =>
-    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not read the photo.')), 'image/jpeg', 0.9));
-}
-
 const signedUrls = async (paths: string[]) => {
   if (!paths.length) return new Map<string, string>();
   const data = check(await supabase.storage.from(BUCKET).createSignedUrls(paths, 60 * 60));
@@ -75,8 +60,10 @@ export async function saveDraft(userId: string, wizard: StoryWizardState, step: 
 
   const images = await Promise.all(wizard.images.map(async photo => {
     if (!photo.image || photo.path) return photo;
-    const path = `${userId}/${id}/photos/${crypto.randomUUID()}.jpg`;
-    check(await supabase.storage.from(BUCKET).upload(path, await resizeToJpeg(photo.image), { contentType: 'image/jpeg' }));
+    // Already compressed when picked (compressPhoto): WebP, or JPEG where the browser can't encode WebP.
+    const blob = await (await fetch(photo.image)).blob();
+    const path = `${userId}/${id}/photos/${crypto.randomUUID()}.${blob.type === 'image/webp' ? 'webp' : 'jpg'}`;
+    check(await supabase.storage.from(BUCKET).upload(path, blob, { contentType: blob.type }));
     return { ...photo, path };
   }));
 
@@ -93,8 +80,13 @@ export async function loadDraft(id: string) {
   const story = check(await supabase.from('stories').select('*').eq('id', id).single()) as StoryRow;
   const photos = check(await supabase.from('story_photos').select('*').eq('story_id', id).eq('kind', 'photo').order('position'));
   const urls = await signedUrls(photos.map((photo: any) => photo.path));
+  // Sizes for the 10 MB total. Every photo shares one folder; replaced photos stay there too, hence the high limit.
+  const folder = photos[0]?.path.slice(0, photos[0].path.lastIndexOf('/'));
+  const files = folder ? check(await supabase.storage.from(BUCKET).list(folder, { limit: 1000 })) : [];
+  const sizes = new Map(files.map(file => [`${folder}/${file.name}`, file.metadata?.size as number | undefined]));
   const images: StoryImage[] = photos.map((photo: any) => ({
-    image: urls.get(photo.path) || null, path: photo.path, characterName: photo.character_name, description: photo.description,
+    image: urls.get(photo.path) || null, path: photo.path, size: sizes.get(photo.path),
+    characterName: photo.character_name, description: photo.description,
   }));
   return { story, images };
 }

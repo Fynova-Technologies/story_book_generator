@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { listRuns } from '@/server/testRuns';
 import { Card, Shell, Status, formatDate } from './ui';
+import PhotoCheck from './PhotoCheck';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Story Test Runs' };
@@ -23,6 +24,7 @@ export default function TestRunsPage() {
         <code className="rounded bg-white/70 px-1.5 py-0.5">bun run test:story test/story/cases/whatsapp-duo.json</code>.
         Tick two or more runs to compare them; the oldest ticked run is the baseline.
       </p>
+      <PhotoCheck />
       {runs.length === 0 ? (
         <Card><p>No runs yet.</p></Card>
       ) : (

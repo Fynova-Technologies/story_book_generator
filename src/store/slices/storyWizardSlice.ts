@@ -7,6 +7,8 @@ export interface StoryImage {
   characterName: string;
   // Set once the photo is uploaded to Storage; image is then a signed URL or the original data URL.
   path?: string;
+  // Bytes of the processed photo (what is uploaded), for the 10 MB total.
+  size?: number;
 }
 export interface StoryWizardState {
   template:      string;
