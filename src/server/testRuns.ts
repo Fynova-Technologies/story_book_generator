@@ -73,6 +73,7 @@ export function loadRun(id: string) {
     story: readJson(dir, 'story.json'),
     // Older runs kept face scores inside judge.json.
     faces: readJson(dir, 'faces.json') ?? readJson(dir, 'judge.json')?.faces ?? null,
+    narration: readJson(dir, 'narration.json'),
     trace,
   };
 }

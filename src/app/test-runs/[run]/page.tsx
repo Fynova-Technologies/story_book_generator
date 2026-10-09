@@ -15,7 +15,8 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
   const { run: id } = await params;
   const run = loadRun(id);
   if (!run) notFound();
-  const { story, faces, metrics, summary, trace, refs, sheets } = run;
+  const { story, faces, metrics, summary, trace, refs, sheets, narration } = run;
+  const providers = Object.entries(narration?.providers || {}) as [string, any][];
 
   return (
     <Shell title={story?.title || run.caseName} back={{ href: '/test-runs', label: 'All runs' }}>
@@ -69,6 +70,22 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
         </Card>
       )}
 
+      {narration && (
+        <Card title="Narration">
+          <p className="text-sm text-light-outline">
+            Voice “{narration.voice}” · {narration.chars.toLocaleString('en-US')} characters, the same script for every provider.
+          </p>
+          <ul className="mt-2 text-sm">
+            {providers.map(([name, p]) => (
+              <li key={name}>
+                <b>{name}</b> ({p.model}): {p.pages.length} pages, {p.seconds ?? '—'}s of audio, est. ${p.estCostUsd?.toFixed(4) ?? '—'}{p.ms != null && `, took ${(p.ms / 1000).toFixed(1)}s`}
+                {p.error && <span className="ml-1 text-red-700">failed: {p.error}</span>}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <Card title="Reference photos and character sheets">
         <div className="flex flex-wrap gap-4">
           {refs.map(r => (
@@ -94,6 +111,21 @@ export default async function RunPage({ params }: { params: Promise<{ run: strin
             <div className="min-w-0 text-sm">
               <h2 className="font-heading text-xl font-bold">Page {page.page}</h2>
               <p className="mt-2">{page.text || <span className="font-semibold text-red-700">No page text</span>}</p>
+              {narration && (
+                <div className="mt-3 space-y-2">
+                  <p><b>Read aloud:</b> {narration.pages.find((n: any) => n.page === page.page)?.script}</p>
+                  {providers.map(([name, p]) => {
+                    const audio = p.pages.find((a: any) => a.page === page.page);
+                    return (
+                      <div key={name} className="flex items-center gap-3">
+                        <span className="w-24 font-semibold">{name}</span>
+                        {audio ? <audio controls preload="none" src={fileUrl(run.id, audio.file)} className="h-9 w-full max-w-sm" /> : <span className="text-red-700">no audio</span>}
+                        {audio?.estCostUsd != null && <span className="text-xs text-light-outline">{audio.seconds.toFixed(1)}s · ${audio.estCostUsd.toFixed(4)}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               {face && (
                 <p className="mt-3">
                   <b>Face identity (ArcFace):</b> {face.facesFound} face{face.facesFound === 1 ? '' : 's'} found ·{' '}
