@@ -14,7 +14,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!res?.ok) return {};
   const book: { title: string; subtitle: string; creator: string | null; pages: { imageUrl: string }[] } = await res.json();
   const description = `${book.subtitle ? `${book.subtitle}. ` : ''}A storybook made by ${book.creator || 'a friend'}. Make your own from your photos.`;
-  const cover = book.pages[0]?.imageUrl;
+  // Pages are ~2 MB WebP; WhatsApp drops preview images over a few hundred KB. Netlify's Image CDN
+  // serves an 800px JPEG (~100 KB) instead. Only exists on Netlify, not under `next dev`.
+  const page = book.pages[0]?.imageUrl;
+  const cover = page && `/.netlify/images?url=${encodeURIComponent(page)}&w=800&fm=jpg&q=70`;
   return {
     title: book.title,
     description,

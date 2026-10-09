@@ -2,3 +2,7 @@
   # NEXT_PUBLIC_* values are compiled into the browser bundle by design, so Netlify's secret
   # scanner must not treat them as leaked secrets (it fails the deploy otherwise).
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,NEXT_PUBLIC_REVENUECAT_API_KEY,NEXT_PUBLIC_SITE_URL"
+
+# Link previews (src/app/flipbook/[id]/page.tsx) shrink signed page images from Supabase Storage.
+[images]
+  remote_images = ['https://xkqtidioqqebuxkuxpbp\.supabase\.co/storage/v1/object/sign/.*']
