@@ -30,3 +30,9 @@ export const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, rejec
   reader.onerror = () => reject(reader.error);
   reader.readAsDataURL(blob);
 });
+
+// A picked file, compressed, as the wizard stores it.
+export async function readPhoto(file: Blob) {
+  const blob = await compressPhoto(file);
+  return { image: await blobToDataUrl(blob), size: blob.size };
+}
