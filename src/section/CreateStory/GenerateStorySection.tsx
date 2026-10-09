@@ -53,7 +53,8 @@ const GenerateStorySection = ({ onEditDetails }: Props) => {
     }
   };
 
-  const handleGetMoreCredits = () => navigate("/pricing");
+  // The draft id brings the user back to this step after buying.
+  const handleGetMoreCredits = () => navigate(wizard.currentDraftId ? `/pricing?draft=${wizard.currentDraftId}` : "/pricing");
 
   const clearErrorMessage = () => {
     setErrorMessage(null);
