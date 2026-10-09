@@ -9,6 +9,8 @@ export interface StoryImage {
   path?: string;
   // Bytes of the processed photo (what is uploaded), for the 10 MB total.
   size?: number;
+  // Their part in the story ("Birthday star"), picked from the template's role chips.
+  role?: string;
 }
 export interface StoryWizardState {
   template:      string;

@@ -42,12 +42,30 @@ const signedUrls = async (paths: string[]) => {
 };
 
 // ── Drafts ──
+// Photo roles ride in the questionnaire as one answer: the story writer reads every answer, and
+// drafts keep them without a database column. "Eren: Birthday star; Mikasa: Friend".
+export const ROLES_KEY = "Who's who in the photos";
+
+const withRoles = (answers: Record<string, string>, images: StoryImage[]) => {
+  const roles = new Map<string, string>();
+  for (const photo of images) {
+    const name = photo.characterName.trim();
+    if (photo.image && name && photo.role && !roles.has(name)) roles.set(name, photo.role);
+  }
+  const rest = { ...answers };
+  delete rest[ROLES_KEY];
+  return roles.size ? { ...rest, [ROLES_KEY]: [...roles].map(([name, role]) => `${name}: ${role}`).join('; ') } : rest;
+};
+
+const roleOf = (roles: string | undefined, name: string) =>
+  roles?.split('; ').find(entry => entry.startsWith(`${name}: `))?.slice(name.length + 2);
+
 // Saves the wizard to its draft row (creating it on first save) and uploads new photos.
 // Returns the draft id and the photos with their storage paths filled in.
 export async function saveDraft(userId: string, wizard: StoryWizardState, step: number, storyLength?: number) {
   const fields = {
     template:      wizard.template,
-    questionnaire: wizard.questionnaire,
+    questionnaire: withRoles(wizard.questionnaire, wizard.images),
     custom_story:  wizard.story,
     story_style:   wizard.storyStyle,
     narration:     wizard.narration,
@@ -87,6 +105,7 @@ export async function loadDraft(id: string) {
   const images: StoryImage[] = photos.map((photo: any) => ({
     image: urls.get(photo.path) || null, path: photo.path, size: sizes.get(photo.path),
     characterName: photo.character_name, description: photo.description,
+    role: roleOf(story.questionnaire?.[ROLES_KEY], photo.character_name),
   }));
   return { story, images };
 }

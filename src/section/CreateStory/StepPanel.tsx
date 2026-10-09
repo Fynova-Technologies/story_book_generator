@@ -5,6 +5,15 @@ export type SaveState = "idle" | "saving" | "saved" | "error";
 // CreateStory owns the draft save; each step's panel shows its status in the header.
 export const SaveStateContext = createContext<SaveState>("idle");
 
+// A step with its own pages (the questionnaire's parts) takes over the footer's Next and Back:
+// they return true while they move within the step. optional parts offer "Skip this part".
+export interface PartNav {
+  next: () => boolean;
+  back: () => boolean;
+  optional: boolean;
+  nextTitle: string;
+}
+
 const SaveStatusPill = () => {
   const saveState = useContext(SaveStateContext);
   if (saveState === "idle") return null;

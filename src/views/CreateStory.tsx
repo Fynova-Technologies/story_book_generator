@@ -14,7 +14,7 @@ import { useCredits } from "../services/credits";
 import { setCurrentDraftId, setImages } from "../store/slices/storyWizardSlice";
 import TemplateQuestionnaireSection from "../section/CreateStory/TemplateQuestionnaireSection";
 import StoryStyleSection from "../section/CreateStory/StoryStyleSection";
-import { SaveState, SaveStateContext } from "../section/CreateStory/StepPanel";
+import { PartNav, SaveState, SaveStateContext } from "../section/CreateStory/StepPanel";
 import { userInitial } from "../components/Sidebar/user";
 
 const QUESTIONNAIRE_STEP = STEPS.findIndex((step) => step.id === "questionnaire");
@@ -37,6 +37,7 @@ const CreateStory = () => {
   // ✅ Track step using index (a restored draft resumes where it was left)
   const [currentStepIndex, setCurrentStepIndex] = useState(Math.min(wizard.wizardStep, STEPS.length - 1));
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [partNav, setPartNav] = useState<PartNav | null>(null);
   const saving = saveState === "saving";
 
   const { credits } = useCredits();
@@ -46,6 +47,7 @@ const CreateStory = () => {
 
   // ✅ Back — previous step, or the dashboard from the first step
   const handleBack = () => {
+    if (partNav?.back()) return;
     if (currentStepIndex > 0) {
       setCurrentStepIndex((prev) => prev - 1);
     } else {
@@ -55,6 +57,7 @@ const CreateStory = () => {
 
   // ✅ Next — save the draft, then go to next step
   const handleNext = async () => {
+    if (partNav?.next()) return;
     if (currentStepIndex >= STEPS.length - 1 || !user) return;
     setSaveState("saving");
     try {
@@ -87,7 +90,7 @@ const CreateStory = () => {
       case "photo":          return <UploadPhotoSection onValidChange={handleStepValidChange} />;
       case "questionnaire": 
 
-          if(template) return <TemplateQuestionnaireSection onValidChange={handleStepValidChange} />;
+          if(template) return <TemplateQuestionnaireSection onValidChange={handleStepValidChange} onPartNav={setPartNav} />;
 
           return <CustomQuestionnaireSection onValidChange={handleStepValidChange} />;
 
@@ -152,6 +155,17 @@ const CreateStory = () => {
 
           {/* ✅ Next — the last step has its own Generate button */}
           {currentStepIndex < STEPS.length - 1 && (
+            <div className="flex items-center gap-4 md:gap-6">
+            {partNav?.optional && (
+              <>
+                <span className="hidden md:inline font-body text-[15px] text-[#597491]">
+                  Optional <span className="text-[#788E9F]">·</span> next: {partNav.nextTitle}
+                </span>
+                <button onClick={handleNext} disabled={saving} className="font-body text-[15px] font-medium text-light-primary underline underline-offset-4 hover:opacity-80">
+                  Skip this part
+                </button>
+              </>
+            )}
             <button
               onClick={handleNext}
               disabled={!isValid || saving} // disable Next if current step is not valid
@@ -163,6 +177,7 @@ const CreateStory = () => {
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
+            </div>
           )}
 
         </div>
