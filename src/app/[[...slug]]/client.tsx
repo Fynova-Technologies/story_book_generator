@@ -136,13 +136,9 @@ const router = createBrowserRouter([
         )
       },
       {
+        // Public: finished books open from their link without logging in.
         path:'/flipbook/:id',
-        element:(
-          <AuthLayout authentication={true}>
-            <FlipBookPage/>
-          </AuthLayout>
-        )
-
+        element:<FlipBookPage/>
       },
       {
         path:'*',

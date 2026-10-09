@@ -144,6 +144,14 @@ export async function loadBook(id: string) {
   return { story, pages };
 }
 
+// A finished book as anyone with its link sees it (no login): title, pages and the creator's first name.
+export interface SharedBook { title: string; subtitle: string; creator: string | null; pages: { page: number; text: string; imageUrl: string }[] }
+export async function loadSharedBook(id: string): Promise<SharedBook> {
+  const { data, error } = await supabase.functions.invoke('shared-book', { body: { storyId: id } });
+  if (error) throw error;
+  return data;
+}
+
 // Calls onChange whenever the story or one of its pages changes (Realtime).
 export function watchBook(id: string, onChange: () => void) {
   const channel = supabase.channel(`book-${id}`)

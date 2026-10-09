@@ -18,6 +18,7 @@ interface GeneratedStory {
 interface Props {
   story: GeneratedStory;
   back?: { to: string; label: string };
+  shareUrl?: string;  // defaults to this page's address
 }
 
 // Figma 798:2607: white pill bars with dark round buttons.
@@ -34,7 +35,7 @@ const toJpeg = async (url: string) => {
 
 const Divider = () => <div className="hidden sm:block w-px h-10 bg-light-outline/60" />;
 
-const StoryFlipBook = ({ story, back = { to: '/dashboard', label: 'Back to dashboard' } }: Props) => {
+const StoryFlipBook = ({ story, back = { to: '/dashboard', label: 'Back to dashboard' }, shareUrl }: Props) => {
   
   // react-pageflip's ref exposes pageFlip(); typed loosely, as the library doesn't export it.
   const bookRef = useRef<{ pageFlip: () => {
@@ -123,7 +124,7 @@ const StoryFlipBook = ({ story, back = { to: '/dashboard', label: 'Back to dashb
 
   // Native share sheet where there is one, otherwise copy the link.
   const share = async () => {
-    const url = window.location.href;
+    const url = shareUrl || window.location.href;
     if (navigator.share) {
       await navigator.share({ title: story.title, text: story.subtitle, url }).catch(() => {});
       return;
