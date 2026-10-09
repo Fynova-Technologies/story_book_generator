@@ -1,0 +1,30 @@
+{
+  "name": "demo-lost-suitcase",
+  "request": {
+    "template": "templete",
+    "narration": "fast, funny and dramatic, big emotions",
+    "storyStyle": "comic",
+    "storyLength": 4,
+    "questionnaire": {
+      "What is the main character's name?": "Leo",
+      "How old is the main character?": "10 years old",
+      "Where does the story take place?": "a busy mountain railway station and a winding train through snowy peaks",
+      "What is the story's main theme?": "siblings sticking together",
+      "Who is the supporting character?": "Zara, Leo's bossy but brilliant 13-year-old sister",
+      "What challenge does the main character face?": "Leo's suitcase, with the family's holiday tickets inside, gets loaded onto the wrong train",
+      "How do they overcome the challenge?": "Zara reads the timetable, Leo sprints, and together they swap trains at the last stop and grab the suitcase as the doors close",
+      "What lesson does the story teach?": "a team of two beats a panic of one",
+      "What is the story's mood?": "panicked, then hilarious, then triumphant"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Leo",
+      "description": "a 10-year-old boy with messy red hair, freckles, light skin, green hoodie"
+    },
+    {
+      "characterName": "Zara",
+      "description": "a 13-year-old girl with a long black braid, olive skin, round glasses, purple puffer jacket"
+    }
+  ]
+}

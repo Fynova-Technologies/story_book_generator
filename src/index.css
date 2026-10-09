@@ -101,6 +101,19 @@ button:focus-visible {
 
   
 }
+/* Tailwind v4 dropped v3's pointer cursor on buttons; bring it back for everything clickable.
+   Base layer, so a component's own cursor-* class still wins. */
+@layer base {
+  button, [role="button"], [role="switch"], [role="radio"], [role="tab"], [role="menuitem"],
+  select, summary, input[type="checkbox"], input[type="radio"], input[type="file"],
+  ::file-selector-button, label:has(input[type="checkbox"], input[type="radio"]) {
+    cursor: pointer;
+  }
+  :disabled, [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 /* Every Figma screen sits on the same paper texture. */
 body {
   background: #F2EFEA url('/assets/images/paper.jpg') center / cover fixed;

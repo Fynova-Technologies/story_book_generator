@@ -2,7 +2,8 @@ import { useState } from "react";
 import type { Package } from "@revenuecat/purchases-js";
 import PricingCard from "../components/PricingCard/PricingCard";
 import { BASE_COST, buyPack, packCredits, PAGE_COST, TYPICAL_STORY_COST, useCreditPacks } from "../services/credits";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDraftRestore } from "../hooks/useDraftRestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 
@@ -12,13 +13,27 @@ const PricingSection = () => {
   const packs = useCreditPacks(loggedIn, authInitialized);
   const [buying, setBuying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Set when the user came from a draft's Generate step; they go back to it after buying.
+  const draftId = useSearchParams()[0].get("draft");
+  const { restoreDraftById } = useDraftRestore();
+
+  const afterPurchase = async () => {
+    if (!draftId) return navigate("/dashboard");
+    try {
+      await restoreDraftById(draftId);
+      navigate("/create-story");
+    } catch (error) {
+      console.error("Could not reopen draft:", error);
+      navigate("/dashboard");
+    }
+  };
 
   const buy = async (pack: Package) => {
     if (!loggedIn) return navigate("/signup");
     setError(null);
     setBuying(pack.identifier);
     try {
-      if (await buyPack(pack, userData?.email ?? null)) navigate("/dashboard");
+      if (await buyPack(pack, userData?.email ?? null)) await afterPurchase();
     } catch (error) {
       console.error("Purchase failed:", error);
       setError("The payment didn't go through. Please try again.");

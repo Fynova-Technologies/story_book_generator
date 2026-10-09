@@ -1,0 +1,30 @@
+{
+  "name": "demo-paper-boat",
+  "request": {
+    "template": "templete",
+    "narration": "warm, gentle and full of wonder, like a bedtime story",
+    "storyStyle": "storybook",
+    "storyLength": 4,
+    "questionnaire": {
+      "What is the main character's name?": "Maya",
+      "How old is the main character?": "7 years old",
+      "Where does the story take place?": "a rainy seaside town where the gutters run like little rivers down to the harbour",
+      "What is the story's main theme?": "courage and kindness",
+      "Who is the supporting character?": "Biscuit, Maya's scruffy golden puppy with one floppy ear",
+      "What challenge does the main character face?": "Maya's paper boat, carrying a birthday note for her grandmother, races away down the rainy street toward the sea",
+      "How do they overcome the challenge?": "Maya and Biscuit chase it through puddles, ask a fisherman for help, and catch it just before the harbour; the soggy note still makes Grandma laugh and cry",
+      "What lesson does the story teach?": "what matters is the love you send, not how perfect it arrives",
+      "What is the story's mood?": "cosy, rain-splashed and joyful"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Maya",
+      "description": "7-year-old girl, curly dark brown hair in two puffs, warm brown skin, yellow raincoat"
+    },
+    {
+      "characterName": "Biscuit",
+      "description": "a small scruffy golden puppy with one floppy ear and a red collar"
+    }
+  ]
+}

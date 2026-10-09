@@ -4,16 +4,20 @@
 //
 //   bun run test:story test/story/cases/whatsapp-duo.json   generate + score
 //   bun run test:story --score test-runs/<run-dir>          re-score an existing run (free)
-// Bun loads .env.local, so OPENAI_API_KEY comes from there.
+//   bun run test:story --narrate test-runs/<run-dir>        read a run's pages aloud with OpenAI and ElevenLabs (paid, no images)
+// Bun loads .env.local, so OPENAI_API_KEY and ELEVENLABS_API_KEY come from there.
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import sharp from 'sharp';
-import { createStory } from '../../supabase/functions/_shared/storyPipeline.ts';
+import { illustratePage, planStory, type PlannedPage } from '../../supabase/functions/_shared/storyPipeline.ts';
 import { normalizeReferences } from '../../supabase/functions/_shared/characterReferences.ts';
 import { withTrace } from '../../supabase/functions/_shared/trace.ts';
+import { editImage } from '../../supabase/functions/_shared/openai.ts';
+import { narrationScript, speak, TTS_KEYS, TTS_MODELS, voiceId, type Provider } from '../../supabase/functions/_shared/narration.ts';
 
 const RUNS = path.resolve(__dirname, '../../test-runs');
+const PORTRAIT_MODEL = 'gpt-image-2.5-flare';
 
 type Ref = { characterName: string; file: string };
 type Page = { page: number; text: string; image: string; imagePrompt: string };
@@ -34,17 +38,6 @@ async function generate(casePath: string) {
   fs.mkdirSync(path.join(dir, 'refs'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'pages'));
 
-  const refs: Ref[] = testCase.references.map((r: any, i: number) => {
-    const src = path.resolve(path.dirname(casePath), r.photo);
-    const file = `refs/${i + 1}-${r.characterName}${path.extname(src)}`;
-    fs.copyFileSync(src, path.join(dir, file));
-    return { characterName: r.characterName, file };
-  });
-  const references = normalizeReferences(await Promise.all(testCase.references.map(async (r: any, i: number) =>
-    ({ ...r, image: await shrunkDataUrl(path.join(dir, refs[i].file)) }))));
-  const request = { storytext: '', storyStyle: 'storybook', ...testCase.request };
-  write(dir, 'case.json', testCase);
-
   const events: { t: number; event: string; [k: string]: unknown }[] = [];
   const started = Date.now();
   const sink = (event: string, data: Record<string, unknown>) => {
@@ -60,9 +53,38 @@ async function generate(casePath: string) {
     fs.appendFileSync(path.join(dir, 'trace.jsonl'), JSON.stringify(entry) + '\n');
   };
 
+  const refs: Ref[] = await Promise.all(testCase.references.map(async (r: any, i: number) => {
+    if (r.photo) {
+      const src = path.resolve(path.dirname(casePath), r.photo);
+      const file = `refs/${i + 1}-${r.characterName}${path.extname(src)}`;
+      fs.copyFileSync(src, path.join(dir, file));
+      return { characterName: r.characterName, file };
+    }
+    // No photo: invent the person from the description (demo books for the public site use no real faces).
+    const file = `refs/${i + 1}-${r.characterName}.webp`;
+    const t = Date.now();
+    const { b64, usage } = await editImage({ model: PORTRAIT_MODEL, images: [], size: '1024x1024', prompt:
+      `A natural, well-lit head-and-shoulders photo of a fictional character, plain background: ${r.description}` });
+    sink('character.portrait', { characterName: r.characterName, model: PORTRAIT_MODEL, ok: true, ms: Date.now() - t, usage });
+    fs.writeFileSync(path.join(dir, file), Buffer.from(b64, 'base64'));
+    return { characterName: r.characterName, file };
+  }));
+  const references = normalizeReferences(await Promise.all(testCase.references.map(async (r: any, i: number) =>
+    ({ ...r, image: await shrunkDataUrl(path.join(dir, refs[i].file)) }))));
+  const request = { storytext: '', storyStyle: 'storybook', ...testCase.request };
+  write(dir, 'case.json', testCase);
+
   console.log(`Run dir: ${dir}`);
   try {
-    const story = await withTrace(sink, () => createStory(request, references));
+    // Same steps as createStory, but a failed page gets one more try instead of throwing away the finished pages.
+    // ponytail: the app leaves retries to the user; here OpenAI dropped sockets ("socket connection was closed") cost whole books.
+    const story = await withTrace(sink, async () => {
+      const plan = await planStory(request, references);
+      const draw = (page: PlannedPage) => illustratePage([...references, ...plan.sheets], plan.characterContext, page, request.storyStyle);
+      const pages = await Promise.all(plan.pages.map(async page =>
+        ({ page: page.page, text: page.text, imageUrl: await draw(page).catch(() => draw(page)) })));
+      return { title: plan.title, subtitle: plan.subtitle, style: request.storyStyle, pages };
+    });
     // The server, not the director, builds each page's image prompt.
     const built = events.find(e => e.event === 'pages')?.pages as { page: number; imagePrompt: string }[] | undefined;
     const prompts = new Map<number, string>((built || []).map(p => [p.page, p.imagePrompt]));
@@ -184,12 +206,59 @@ async function score(dir: string) {
   console.log(`Review: http://localhost:3000/test-runs/${encodeURIComponent(path.basename(dir))} (with bun run dev)`);
 }
 
+// ponytail: list prices (2026-10). OpenAI bills audio tokens, about $0.015 per minute of speech;
+// ElevenLabs eleven_v4 is $0.08 per 1K characters ($0.022 on its launch discount until 2026-10-12).
+const TTS_COST: Record<Provider, (chars: number, seconds: number) => number> = {
+  openai:     (chars, seconds) => seconds / 60 * 0.015 + chars / 4 * 0.60 / 1e6,
+  elevenlabs: chars => chars / 1000 * 0.08,
+};
+const audioSeconds = (file: string) =>
+  +spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], { encoding: 'utf8' }).stdout.trim() || 0;
+
+// ── Narration: the same storyboard read by every TTS provider, saved under audio/<provider>/ ──
+// The script is rebuilt from the director's storyboard in the trace, so older runs can be narrated too.
+async function narrate(dir: string) {
+  const director = fs.readFileSync(path.join(dir, 'trace.jsonl'), 'utf8').trim().split('\n')
+    .map(line => JSON.parse(line)).find(e => e.event === 'director');
+  if (!director) throw new Error(`No storyboard in ${dir}/trace.jsonl`);
+  const voice = voiceId(read(dir, 'case.json').request?.narration || '');
+  const pages = JSON.parse(director.response).pages.map((p: any) => ({ page: p.page, script: narrationScript(p) }));
+  console.log(`Narrating ${pages.length} pages with the "${voice}" voice...`);
+  const providers = await Promise.all((Object.keys(TTS_MODELS) as Provider[]).map(async provider => {
+    const result: any = { model: TTS_MODELS[provider], pages: [] };
+    if (!process.env[TTS_KEYS[provider]]) return [provider, { ...result, error: `${TTS_KEYS[provider]} is not set in .env.local` }];
+    fs.mkdirSync(path.join(dir, 'audio', provider), { recursive: true });
+    const started = Date.now();
+    try {
+      // ponytail: one page at a time per provider; ElevenLabs plans cap concurrent requests.
+      for (const { page, script } of pages) {
+        const t = Date.now();
+        const file = `audio/${provider}/page-${page}.mp3`;
+        fs.writeFileSync(path.join(dir, file), await speak(provider, voice, script, page));
+        const seconds = audioSeconds(path.join(dir, file));
+        result.pages.push({ page, file, ms: Date.now() - t, chars: script.length, seconds, estCostUsd: +TTS_COST[provider](script.length, seconds).toFixed(4) });
+      }
+    } catch (error: any) {
+      result.error = error.message;
+    }
+    result.seconds = +result.pages.reduce((a: number, p: any) => a + p.seconds, 0).toFixed(1);
+    result.estCostUsd = +result.pages.reduce((a: number, p: any) => a + p.estCostUsd, 0).toFixed(4);
+    console.log(`${provider}: ${result.error || `${result.pages.length} pages, ${result.seconds}s of audio, ~$${result.estCostUsd}, took ${((Date.now() - started) / 1000).toFixed(1)}s`}`);
+    return [provider, { ...result, ms: Date.now() - started }];
+  }));
+  write(dir, 'narration.json', { voice, chars: pages.reduce((a: number, p: any) => a + p.script.length, 0), pages, providers: Object.fromEntries(providers) });
+  console.log(`Listen: http://localhost:3000/test-runs/${encodeURIComponent(path.basename(dir))} (with bun run dev)`);
+}
+
 const [flag, target] = process.argv.slice(2);
 if (!flag) {
-  console.error('Usage: bun run test:story <case.json> | --score <run-dir>');
+  console.error('Usage: bun run test:story <case.json> | --score <run-dir> | --narrate <run-dir>');
   process.exit(1);
 }
-(flag === '--score' ? score(path.resolve(target)) : generate(path.resolve(flag))).catch(error => {
+const run = flag === '--score' ? score(path.resolve(target))
+  : flag === '--narrate' ? narrate(path.resolve(target))
+  : generate(path.resolve(flag));
+run.catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

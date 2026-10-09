@@ -418,3 +418,7 @@ enabled = true
 # function checks the caller itself (service key, or the page owner's JWT).
 [functions.generate-page]
 verify_jwt = false
+
+# Shared book links work without logging in, so readers have no JWT.
+[functions.shared-book]
+verify_jwt = false

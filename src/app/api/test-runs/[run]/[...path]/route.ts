@@ -3,11 +3,11 @@ import path from 'path';
 import { runFilePath } from '@/server/testRuns';
 
 const TYPES: Record<string, string> = {
-  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.mp3': 'audio/mpeg',
   '.json': 'application/json', '.jsonl': 'application/x-ndjson', '.html': 'text/html; charset=utf-8',
 };
 
-// Serves files from a local story test run (images, JSON, report.html).
+// Serves files from a local story test run (images, audio, JSON, report.html).
 export async function GET(_request: Request, { params }: { params: Promise<{ run: string; path: string[] }> }) {
   const { run, path: parts } = await params;
   const file = runFilePath(run, parts);

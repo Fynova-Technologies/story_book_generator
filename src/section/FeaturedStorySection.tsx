@@ -1,103 +1,12 @@
 import FeaturedStoryCard from "../components/FeaturedStoryCard/FeaturedStoryCard";
 
-// 👉 Import your story images here
-const story1 = "/assets/images/storyimg1.png";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
-
-
-
-const storiesData = [
-  {
-    id: 1,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1, // 👉 replace with: story1
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 2,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1, // 👉 replace with: story2
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 3,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1, // 👉 replace with: story3
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 4,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1,
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 5,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1,
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 6,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1,
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 7,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1,
-    likes: "2.4k",
-    views: "10k",
-  },
-  {
-    id: 8,
-    title: "A divine place in cosmos",
-    description: "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Jaydon Botosh",
-    authorAvatar: null,
-    image: story1,
-    likes: "2.4k",
-    views: "10k",
-  },
-];
+import { sampleStories } from "../Data/sampleStories";
 
 const FeaturedStoriesSection = ({ searchQuery = "" }: { searchQuery?: string }) => {
   const navigate = useNavigate();
-  const loggedIn = useSelector((state: RootState) => state.auth.status);
-  // ponytail: these are static samples with no real book behind them, so "Read" sends people to make their own.
-  const readStory = () => navigate(loggedIn ? "/create-story" : "/signup");
   const query = searchQuery.trim().toLowerCase();
-  const stories = storiesData.filter((story) => story.title.toLowerCase().includes(query));
+  const stories = sampleStories.filter((story) => story.title.toLowerCase().includes(query));
   return (
     <section
       data-bg="light"
@@ -135,15 +44,12 @@ const FeaturedStoriesSection = ({ searchQuery = "" }: { searchQuery?: string }) 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 xl:gap-7 mt-8">
           {stories.map((story) => (
             <FeaturedStoryCard
-              key={story.id}
-              image={story.image}
+              key={story.slug}
+              image={story.pages[0].imageUrl}
               title={story.title}
-              description={story.description}
-              author={story.author}
-              authorAvatar={story.authorAvatar}
-              likes={story.likes}
-              views={story.views}
-              onReadStory={readStory}
+              description={story.subtitle}
+              author="Storyboard"
+              onReadStory={() => navigate(`/samples/${story.slug}`)}
             />
           ))}
         </div>

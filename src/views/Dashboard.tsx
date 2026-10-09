@@ -7,6 +7,7 @@ import { RootState } from "../store/store";
 import { resetWizard } from "../store/slices/storyWizardSlice";
 import { BASE_COST, PAGE_COST, TYPICAL_STORY_COST, useCredits } from "../services/credits";
 import { userName } from "../components/Sidebar/user";
+import CreditsPopup from "../components/CreditsPopup/CreditsPopup";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-full px-4 sm:px-7 py-6 sm:py-7 space-y-8">
+      <CreditsPopup credits={credits} />
 
       {/*  Hero Banner */}
       <div className="relative rounded-[20px] overflow-hidden shadow-lg px-6 py-6 sm:px-8 sm:py-6">
