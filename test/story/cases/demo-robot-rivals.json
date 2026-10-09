@@ -1,0 +1,30 @@
+{
+  "name": "demo-robot-rivals",
+  "request": {
+    "template": "templete",
+    "narration": "energetic and emotional, with a big comeback",
+    "storyStyle": "manga",
+    "storyLength": 4,
+    "questionnaire": {
+      "What is the main character's name?": "Kenji",
+      "How old is the main character?": "12 years old",
+      "Where does the story take place?": "a school gym turned into a robot tournament arena",
+      "What is the story's main theme?": "turning a rival into a friend",
+      "Who is the supporting character?": "Aiko, Kenji's fiercest rival from the other class",
+      "What challenge does the main character face?": "Kenji's robot breaks a wheel minutes before the final against Aiko",
+      "How do they overcome the challenge?": "Aiko lends him her spare wheel; they fight a fair final, and whoever wins, they decide to build the next robot together",
+      "What lesson does the story teach?": "the best rivals make you better",
+      "What is the story's mood?": "tense, fiery, then warm"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Kenji",
+      "description": "12-year-old East Asian boy, spiky black hair, white school shirt, red tie"
+    },
+    {
+      "characterName": "Aiko",
+      "description": "12-year-old East Asian girl, short black bob, yellow hair clip, navy sailor uniform"
+    }
+  ]
+}

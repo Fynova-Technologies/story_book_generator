@@ -24,6 +24,7 @@ import { store } from '../../store/store'
 import AuthLayout from '../../components/AuthLayout/AuthLayout'
 import FeaturedStoryPage from '../../views/FeaturedStoryPage'
 import FlipBookPage from '../../views/FlipBookPage'
+import SampleBookPage from '../../views/SampleBookPage'
 import ResetPassword from '../../views/ResetPassword'
 import { initAuthListener } from '../../services/authService'
 // import { setLoading } from '../../store/slices/authSlice';
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path:'/samples',
         element:<SampleGallery/>
+      },
+      {
+        path:'/samples/:slug',
+        element:<SampleBookPage/>
       },
       {
         path:'/contact',

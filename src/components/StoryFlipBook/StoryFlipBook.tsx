@@ -17,6 +17,7 @@ interface GeneratedStory {
 
 interface Props {
   story: GeneratedStory;
+  back?: { to: string; label: string };
 }
 
 // Figma 798:2607: white pill bars with dark round buttons.
@@ -33,7 +34,7 @@ const toJpeg = async (url: string) => {
 
 const Divider = () => <div className="hidden sm:block w-px h-10 bg-light-outline/60" />;
 
-const StoryFlipBook = ({ story }: Props) => {
+const StoryFlipBook = ({ story, back = { to: '/dashboard', label: 'Back to dashboard' } }: Props) => {
   
   // react-pageflip's ref exposes pageFlip(); typed loosely, as the library doesn't export it.
   const bookRef = useRef<{ pageFlip: () => {
@@ -141,11 +142,11 @@ const StoryFlipBook = ({ story }: Props) => {
 
       {/* ── Header ── */}
       <div className="w-full max-w-5xl flex flex-col gap-6">
-        <Link to="/dashboard" className="flex items-center gap-1.5 w-fit font-body text-sm text-light-outline hover:text-light-primary transition-colors">
+        <Link to={back.to} className="flex items-center gap-1.5 w-fit font-body text-sm text-light-outline hover:text-light-primary transition-colors">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Back to dashboard
+          {back.label}
         </Link>
         <div className="text-center">
           <h1 className="font-heading text-3xl md:text-5xl font-bold text-light-text leading-tight">

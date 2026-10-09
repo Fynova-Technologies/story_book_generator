@@ -1,54 +1,13 @@
 import { useState } from "react";
 import StoryCard from "../components/StoryCard/StoryCard";
-const Story1 = "/assets/images/storyimg1.png";
-const Story2 = "/assets/images/storyimg2.png";
-const Story3 = "/assets/images/storyimg3.png";
-const Story4 = "/assets/images/storyimg4.png";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
-
-const storiesData = [
-  {
-    id: 1,
-    image: Story1,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 2,
-    image: Story2,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 3,
-    image: Story3,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-  {
-    id: 4,
-    image: Story4,
-    title: "A divine place in cosmos",
-    description:
-      "A scientist's unwavering faith leads him on an extraordinary voyage through the cosmos, wher...",
-    author: "Anonymouse",
-  },
-];
+import { sampleStories } from "../Data/sampleStories";
 
 const FeatureSection = () => {
   const navigate = useNavigate();
-  const loggedIn = useSelector((state: RootState) => state.auth.status);
-  const [likedCards, setLikedCards] = useState<number[]>([]);
+  const [likedCards, setLikedCards] = useState<string[]>([]);
 
-  const handleLike = (id: number) => {
+  const handleLike = (id: string) => {
     setLikedCards((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
@@ -92,16 +51,16 @@ const FeatureSection = () => {
 
         {/* ── STORY CARDS GRID ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 xl:gap-7 mt-8">
-          {storiesData.map((story) => (
+          {sampleStories.map((story) => (
             <StoryCard
-              key={story.id}
-              image={story.image}
+              key={story.slug}
+              image={story.pages[0].imageUrl}
               title={story.title}
-              description={story.description}
-              author={story.author}
-              isLiked={likedCards.includes(story.id)}
-              onLike={() => handleLike(story.id)}
-              onViewStory={() => navigate(loggedIn ? "/create-story" : "/signup")}
+              description={story.subtitle}
+              author="Storyboard"
+              isLiked={likedCards.includes(story.slug)}
+              onLike={() => handleLike(story.slug)}
+              onViewStory={() => navigate(`/samples/${story.slug}`)}
             />
           ))}
         </div>

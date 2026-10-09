@@ -71,7 +71,14 @@ export async function editImage(options: {
   form.set('output_format', 'webp');
   options.images.forEach((image, i) =>
     form.append('image[]', new Blob([Buffer.from(image.data, 'base64')], { type: image.mimeType }), `ref-${i + 1}.${image.mimeType.split('/')[1]}`));
-  const body = await call(`${API}/images/edits`, { method: 'POST', headers: auth(), body: form });
+  // No input images: plain generation (the test harness uses it to invent demo characters).
+  const body = options.images.length
+    ? await call(`${API}/images/edits`, { method: 'POST', headers: auth(), body: form })
+    : await call(`${API}/images/generations`, {
+        method: 'POST',
+        headers: { ...auth(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: options.model, prompt: options.prompt, size: options.size, output_format: 'webp' }),
+      });
   const b64 = body.data?.[0]?.b64_json;
   if (!b64) throw new Error('OpenAI returned no image');
   const u = body.usage || {};

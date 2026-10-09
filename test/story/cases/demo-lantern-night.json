@@ -1,0 +1,30 @@
+{
+  "name": "demo-lantern-night",
+  "request": {
+    "template": "templete",
+    "narration": "tender and magical, with a happy ending",
+    "storyStyle": "storybook",
+    "storyLength": 4,
+    "questionnaire": {
+      "What is the main character's name?": "Noor",
+      "How old is the main character?": "6 years old",
+      "Where does the story take place?": "an old city of rooftops during the night of the lantern festival",
+      "What is the story's main theme?": "family traditions",
+      "Who is the supporting character?": "Grandpa Amir, Noor's patient, silver-bearded grandfather",
+      "What challenge does the main character face?": "Noor's homemade lantern won't light, and the festival is about to begin",
+      "How do they overcome the challenge?": "Grandpa Amir shows her how he fixed his first lantern as a boy; they light it together on the rooftop as the whole sky fills with lanterns",
+      "What lesson does the story teach?": "some things shine brightest when we make them together",
+      "What is the story's mood?": "glowing, hopeful and magical"
+    }
+  },
+  "references": [
+    {
+      "characterName": "Noor",
+      "description": "a 6-year-old girl with long dark wavy hair, brown skin, big brown eyes, teal dress"
+    },
+    {
+      "characterName": "Amir",
+      "description": "a kind grandfather in his seventies with a short silver beard, brown skin, cream knitted cardigan"
+    }
+  ]
+}
